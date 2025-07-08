@@ -164,7 +164,7 @@ strategies.append(CurrencyExchangeStrategy(
 # 非现金兑换策略（电子支付）
 # 策略7：微信支付跨境
 strategies.append(CurrencyExchangeStrategy(
-    "微信支付跨境", 
+    "微信支付", 
     is_cash=False,  # 非现金支付
     fee_structure=FeeStructure("percentage", 0.012),  # 1.2%手续费
     processing_time=0,  # 立即支付
@@ -175,7 +175,7 @@ strategies.append(CurrencyExchangeStrategy(
 
 # 策略8：支付宝跨境支付
 strategies.append(CurrencyExchangeStrategy(
-    "支付宝跨境支付", 
+    "支付宝支付", 
     is_cash=False,  # 非现金支付
     fee_structure=FeeStructure("percentage", 0.015),  # 1.5%手续费
     processing_time=0,  # 立即支付

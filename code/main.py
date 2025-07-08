@@ -51,11 +51,16 @@ def get_user_preferences():
     return preferences
 
 def AnalyzeCommand():
+    print("输入人民币数量")
+    money = input()
+    if not money.isdigit():
+        print("请输入有效的人民币数量")
+        return None, None
     user_preferences = get_user_preferences()
     print("\n--- 您的偏好分数 ---")
     print(user_preferences)
 
-    print("请输入命令：")
+    print("请输入截止日期 (例:7-10)：")
     command = input()
     # 处理命令
     
@@ -77,9 +82,9 @@ def AnalyzeCommand():
         print(f"需要在 {due_date.strftime('%Y-%m-%d')}之前完成换货币任务")
     else:
         print("无法识别命令中的日期")
-    return due_date, user_preferences
+    return due_date, user_preferences, money
 
-def solve(due_date, user_preferences):
+def solve(due_date, user_preferences, money):
     """
     解决用户的货币兑换需求
     参数:
@@ -109,9 +114,13 @@ def solve(due_date, user_preferences):
             print(f"策略 '{strategy.name}' 因不适合大额交易而被跳过。")
             continue
         if strategy.name == "银行兑换":
-            res = processor.solverForBankExchange(due_date, user_preferences)
-            # 找到最解，和最优解比对
-    #输出策略
+            res = processor.solverForBankExchange(due_date, user_preferences, money)
+            # 找到最优秀解，和最优解比对
+        if strategy.name == "微信支付":
+            res = processor.solverForWeChatPay(due_date, user_preferences, money)
+        #TODO: 添加其他策略的处理逻辑
+    # 输出策略
+    #TODO: 添加输出逻辑
 
 def main():
     strategies = ExchangeStrategy.getstrategys()
@@ -120,7 +129,9 @@ def main():
     for strategy in strategies:
         print(f"- {strategy.name} (纸币兑换: {strategy.is_cash})")
 
+    #TODO:将客户直接输入打分切换为model判断
     due_date, user_preferences = AnalyzeCommand()
+
     solve (due_date, user_preferences)
     
 
