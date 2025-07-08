@@ -130,9 +130,9 @@ def main():
         print(f"- {strategy.name} (纸币兑换: {strategy.is_cash})")
 
     #TODO:将客户直接输入打分切换为model判断
-    due_date, user_preferences = AnalyzeCommand()
+    due_date, user_preferences, money = AnalyzeCommand()
 
-    solve (due_date, user_preferences)
+    solve (due_date, user_preferences, money)
     
 
 if __name__ == "__main__":
