@@ -113,7 +113,7 @@ class CurrencyExchangeStrategy:
         self.international_compatibility = international_compatibility  # 国际兼容性（1-5）
         self.is_suitable_for_large_transactions = is_suitable_for_large_transactions  # 是否适合大额交易
 
-# 创建策略数据库（只包含0，2，5，6这四个方法）
+# 创建策略数据库（）
 strategies = []
 
 # 现金兑换策略（换纸币）
