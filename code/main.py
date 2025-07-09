@@ -2,6 +2,7 @@ import ExchangeStrategy
 import dateparser
 import re
 import processor
+import NewsSentimentAnalyzer
 from datetime import datetime, timedelta
 
 #pip install vaderSentiment
@@ -123,6 +124,12 @@ def solve(due_date, user_preferences, money):
     #TODO: 添加输出逻辑
 
 def main():
+
+    #情感分析接口
+    #ret = NewsSentimentAnalyzer.score("The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today.The stock market crashed today. The stock market crashed today. The stock market crashed today. The stock market crashed today. The stock market crashed today.")
+    #print (f"情感分析结果: {ret}")
+    #return
+
     strategies = ExchangeStrategy.getstrategys()
     # print names of all strategies
     print("=== 货币兑换策略列表 ===")
