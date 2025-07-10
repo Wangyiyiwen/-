@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-import your_python_script  # 引入你的 Python 脚本
 import NewsSentimentAnalyzer
 
 app = Flask(__name__)
