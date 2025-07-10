@@ -31,7 +31,7 @@ def reverse_csv_file(input_file, output_file):
 # 使用示例
 if __name__ == "__main__":
     # 假设要反转的文件名为 myr.csv
-    input_file = "CNY_MYR_to_exchange_rate.csv"
+    input_file = "CNY_SGD_to_exchange_rate.csv"
     output_file = "myr_reversed.csv"
     
     reverse_csv_file(input_file, output_file)
