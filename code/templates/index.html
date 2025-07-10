@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Python Web Interaction</title>
+    <title>智能金融助手</title>
     <style>
         /* 重置一些默认样式 */
         * {
@@ -13,61 +13,116 @@
         }
         
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f7fc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f7;
             color: #333;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
         
         .container {
             text-align: center;
             background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 800px;
+            transition: all 0.3s ease-in-out;
         }
         
         h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #5a5a5a;
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: 600;
         }
         
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            color: #555;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+        
+        .tab-button.active {
+            background-color: #007bff;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
             font-size: 16px;
             color: #333;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #007bff;
+            outline: none;
         }
         
         button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+            padding: 12px 25px;
+            background-image: linear-gradient(to right, #007bff, #0056b3);
             color: white;
             font-size: 16px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
         }
         
         button:hover {
-            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
         }
         
-        p {
-            margin-top: 20px;
+        #result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            text-align: left;
+            min-height: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        #result {
             font-size: 18px;
             color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         /* 响应式设计 */
@@ -81,34 +136,94 @@
         }
     </style>
     <script>
-        function callPython() {
-            const inputData = document.getElementById('inputData').value;
+        function showTab(tabName) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+
+        function analyzeSentiment() {
+            const inputData = document.getElementById('newsInput').value;
+            if (!inputData) {
+                alert('请输入新闻文本!');
+                return;
+            }
             
             fetch('/run_python', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ input_data: inputData }),
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('result').innerText = 'Result: ' + data.result;
+                document.getElementById('result').innerText = '分析结果: ' + data.result;
             })
             .catch(error => {
                 console.error('Error:', error);
+                document.getElementById('result').innerText = '分析出错，请稍后再试。';
             });
         }
+
+        function getExchangeStrategy() {
+            const amount = document.getElementById('exchangeAmount').value;
+            if (!amount || amount <= 0) {
+                alert('请输入有效的金额!');
+                return;
+            }
+
+            fetch('/exchange_strategy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: parseFloat(amount) }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultText = `最佳换汇策略推荐:\n\n`;
+                resultText += `策略名称: ${data.best_strategy.name}\n`;
+                resultText += `手续费: ${data.best_strategy.fee.toFixed(2)} 元\n`;
+                resultText += `便捷性: ${data.best_strategy.convenience} (1-5, 5为最便捷)\n`;
+                resultText += `办理时长: ${data.best_strategy.processing_time} 工作日\n`;
+                resultText += `是否适合大额: ${data.best_strategy.is_suitable_for_large_transactions ? '是' : '否'}\n`;
+                document.getElementById('result').innerText = resultText;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = '获取策略出错，请稍后再试。';
+            });
+        }
+
+        // Initialize first tab
+        document.addEventListener('DOMContentLoaded', () => {
+            showTab('sentiment-analysis');
+        });
     </script>
 </head>
 <body>
     <div class="container">
-        <h1>Call Python Script from Web</h1>
+        <h1>智能金融助手</h1>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('sentiment-analysis')">新闻情感分析</button>
+            <button class="tab-button" onclick="showTab('exchange-strategy')">换汇策略</button>
+        </div>
+
+        <div id="sentiment-analysis" class="tab-content active">
+            <input type="text" id="newsInput" placeholder="输入新闻文本进行情感分析" />
+            <button onclick="analyzeSentiment()">分析</button>
+        </div>
+
+        <div id="exchange-strategy" class="tab-content">
+            <input type="number" id="exchangeAmount" placeholder="输入换汇金额 (CNY)" />
+            <button onclick="getExchangeStrategy()">获取策略</button>
+        </div>
         
-        <input type="text" id="inputData" placeholder="输入新闻文本" />
-        <button onclick="callPython()">Run Python</button>
-        
-        <p id="result"></p>
+        <div id="result-container">
+            <p id="result"></p>
+        </div>
     </div>
 </body>
 </html>
