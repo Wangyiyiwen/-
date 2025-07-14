@@ -1632,31 +1632,31 @@ print(predictions)`;
           {/* Main Content with improved spacing */}
           <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 bg-white/70 backdrop-blur-md border border-gray-200/50">
+              <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-white/80 via-purple-50/80 to-pink-50/80 backdrop-blur-md border border-purple-200/50 shadow-lg">
                 <TabsTrigger 
                   value="purchase" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 hover:scale-102"
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {t("purchaseStrategy")}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="results"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 hover:scale-102"
                 >
                   <BarChart3 className="h-4 w-4 mr-2" />
                   {t("resultsDisplay")}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="system"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 hover:scale-102"
                 >
                   <Activity className="h-4 w-4 mr-2" />
                   {t("systemMonitor")}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="competition"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 hover:scale-102"
                 >
                   <Zap className="h-4 w-4 mr-2" />
                   {t("aiCompetition")}
@@ -1667,13 +1667,14 @@ print(predictions)`;
           <TabsContent value="purchase" className="space-y-6">
             <div className="max-w-4xl mx-auto">
               {/* Purchase Request Form */}
-              <Card className="animate-slide-in-left">
-                <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2">
+              <Card className="animate-slide-in-left shadow-xl border-0 bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/30">
+                <CardHeader className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white rounded-t-lg relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 via-transparent to-cyan-600/20"></div>
+                  <CardTitle className="flex items-center gap-2 relative z-10">
                     <DollarSign className="h-5 w-5" />
                     {t("purchaseRequirement")}
                   </CardTitle>
-                  <CardDescription className="text-green-100">{t("purchaseRequirementDesc")}</CardDescription>
+                  <CardDescription className="text-emerald-100 relative z-10">{t("purchaseRequirementDesc")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 p-6">
                   {/* Basic Exchange Info */}
@@ -1870,13 +1871,14 @@ print(predictions)`;
             ) : (
               <div className="flex justify-center">
                 {/* Optimal Strategy Display (Moved from Purchase Tab) - Centered */}
-                <Card className="animate-slide-in-left w-full max-w-4xl">
-                  <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2">
+                <Card className="animate-slide-in-left w-full max-w-4xl shadow-2xl border-0 bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/40">
+                  <CardHeader className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-white rounded-t-lg relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-transparent to-purple-600/20"></div>
+                    <CardTitle className="flex items-center gap-2 relative z-10">
                       <Trophy className="h-5 w-5" />
                       {t("optimalPurchaseStrategy")}
                     </CardTitle>
-                    <CardDescription className="text-blue-100">{t("optimalPurchaseStrategyDesc")}</CardDescription>
+                    <CardDescription className="text-blue-100 relative z-10">{t("optimalPurchaseStrategyDesc")}</CardDescription>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="space-y-6">
@@ -2181,13 +2183,13 @@ print(predictions)`;
           {/* System Monitoring Tab */}
           <TabsContent value="system" className="space-y-6">
             {/* System Modules Status */}
-            <Card className="animate-slide-up">
+            <Card className="animate-slide-up shadow-xl border-0 bg-gradient-to-br from-white via-orange-50/30 to-red-50/30">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600">
+                  <Database className="h-5 w-5 text-orange-500" />
                   {t("systemModuleMonitoring")}
                 </CardTitle>
-                <CardDescription>{t("realtimeMonitorDesc")}</CardDescription>
+                <CardDescription className="text-orange-700/70">{t("realtimeMonitorDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
