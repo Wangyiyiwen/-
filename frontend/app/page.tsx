@@ -1573,7 +1573,13 @@ print(predictions)`;
 
       {/* Main Application */}
       {!showCover && (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 via-purple-50/50 to-pink-50/50 relative overflow-hidden">
+          {/* 添加装饰性背景元素 */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200/30 via-purple-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-emerald-200/30 via-teal-200/30 to-cyan-200/30 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-indigo-200/20 via-purple-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
+          </div>
           {/* Enhanced Header */}
           <div className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 py-4">
@@ -1842,7 +1848,7 @@ print(predictions)`;
                   <Button
                     onClick={analyzePurchaseStrategy}
                     disabled={isAnalyzing || Object.keys(fetchedRates).length === 0} // Disable if rates not loaded
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200"
+                    className="w-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                   >
                     {isAnalyzing ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -2159,7 +2165,7 @@ print(predictions)`;
                       <div className="flex gap-4">
                         <Button
                           onClick={() => handleSelectPlan(optimalStrategy.id)}
-                          className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                          className="flex-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                         >
                           <CheckCircle className="h-4 w-4 mr-2" />
                           {selectedPlanId === optimalStrategy.id ? t("planSelected") : t("selectThisPlan")}
@@ -2167,7 +2173,7 @@ print(predictions)`;
                         <Button
                           onClick={handleReAnalyze}
                           variant="outline"
-                          className="hover:scale-105 transition-transform bg-transparent"
+                          className="hover:scale-105 transition-transform bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 hover:border-indigo-400 text-blue-700 hover:text-indigo-800 shadow-md hover:shadow-lg"
                         >
                           <RefreshCw className="h-4 w-4 mr-2" />
                           {t("reAnalyze")}
@@ -2220,28 +2226,28 @@ print(predictions)`;
 
             {/* Real-time Market Data */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card className="animate-slide-in-left">
+              <Card className="animate-slide-in-left shadow-lg border-0 bg-gradient-to-br from-blue-500/10 via-white to-blue-50 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Activity className="h-4 w-4 text-blue-500" />
-                    <span className="text-sm font-medium">{t("marketVolatility")}</span>
+                    <span className="text-sm font-medium text-blue-700">{t("marketVolatility")}</span>
                   </div>
-                  <div className="text-2xl font-bold text-blue-600">{marketData.volatility.toFixed(1)}%</div>
-                  <div className="text-xs text-slate-500">{t("past24Hours")}</div>
+                  <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">{marketData.volatility.toFixed(1)}%</div>
+                  <div className="text-xs text-blue-500/70">{t("past24Hours")}</div>
                 </CardContent>
               </Card>
 
-              <Card className="animate-slide-in-left delay-100">
+              <Card className="animate-slide-in-left delay-100 shadow-lg border-0 bg-gradient-to-br from-purple-500/10 via-white to-purple-50 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Brain className="h-4 w-4 text-purple-500" />
-                    <span className="text-sm font-medium">{t("sentimentIndex")}</span>
+                    <span className="text-sm font-medium text-purple-700">{t("sentimentIndex")}</span>
                   </div>
-                  <div className="text-2xl font-bold text-purple-600">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                     {marketData.sentiment && marketData.sentiment > 0 ? "+" : ""}
                     {(marketData.sentiment ?? 0).toFixed(2)}
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-purple-500/70">
                     {(marketData.sentiment ?? 0) > 0.2
                       ? t("optimistic")
                       : (marketData.sentiment ?? 0) < -0.2
@@ -2251,38 +2257,38 @@ print(predictions)`;
                 </CardContent>
               </Card>
 
-              <Card className="animate-slide-in-left delay-200">
+              <Card className="animate-slide-in-left delay-200 shadow-lg border-0 bg-gradient-to-br from-orange-500/10 via-white to-orange-50 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Newspaper className="h-4 w-4 text-orange-500" />
-                    <span className="text-sm font-medium">{t("newsCount")}</span>
+                    <span className="text-sm font-medium text-orange-700">{t("newsCount")}</span>
                   </div>
-                  <div className="text-2xl font-bold text-orange-600">{marketData.newsCount}</div>
-                  <div className="text-xs text-slate-500">{t("todayRelatedNews")}</div>
+                  <div className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{marketData.newsCount}</div>
+                  <div className="text-xs text-orange-500/70">{t("todayRelatedNews")}</div>
                 </CardContent>
               </Card>
 
-              <Card className="animate-slide-in-left delay-300">
+              <Card className="animate-slide-in-left delay-300 shadow-lg border-0 bg-gradient-to-br from-green-500/10 via-white to-emerald-50 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="h-4 w-4 text-green-500" />
-                    <span className="text-sm font-medium">{t("activeCurrencyPairs")}</span>
+                    <span className="text-sm font-medium text-green-700">{t("activeCurrencyPairs")}</span>
                   </div>
-                  <div className="text-2xl font-bold text-green-600">{currencies.length}</div>
-                  <div className="text-xs text-slate-500">{t("supportedCurrencies")}</div>
+                  <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{currencies.length}</div>
+                  <div className="text-xs text-green-500/70">{t("supportedCurrencies")}</div>
                 </CardContent>
               </Card>
             </div>
 
             {/* News Sentiment Analysis Card */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="animate-slide-up delay-100">
+              <Card className="animate-slide-up delay-100 shadow-xl border-0 bg-gradient-to-br from-white via-pink-50/30 to-purple-50/30">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600">
+                    <Brain className="h-5 w-5 text-pink-500" />
                     {t("sentimentAnalysis")}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-pink-700/70">
                     {t("newsAnalysisForPrediction")}
                   </CardDescription>
                 </CardHeader>
@@ -2324,10 +2330,10 @@ print(predictions)`;
               </Card>
 
               {/* Sentiment Analysis Results */}
-              <Card className="animate-slide-up delay-150">
+              <Card className="animate-slide-up delay-150 shadow-xl border-0 bg-gradient-to-br from-white via-indigo-50/30 to-cyan-50/30">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-600">
+                    <BarChart3 className="h-5 w-5 text-indigo-500" />
                     {t("sentimentResult")}
                   </CardTitle>
                 </CardHeader>
@@ -2373,13 +2379,13 @@ print(predictions)`;
             </div>
 
             {/* Import News Data Card */}
-            <Card className="animate-slide-up delay-200">
+            <Card className="animate-slide-up delay-200 shadow-xl border-0 bg-gradient-to-br from-white via-amber-50/30 to-yellow-50/30">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Newspaper className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">
+                  <Newspaper className="h-5 w-5 text-amber-500" />
                   {t("importNewsData")}
                 </CardTitle>
-                <CardDescription>{t("importNewsDataDesc")}</CardDescription>
+                <CardDescription className="text-amber-700/70">{t("importNewsDataDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -2411,13 +2417,14 @@ print(predictions)`;
             <div className="flex justify-center">
               <div className="w-full max-w-4xl">
                 {/* Trading Pair Selection and Chart */}
-                <Card className="animate-slide-in-left">
-                  <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-2 justify-center">
+                <Card className="animate-slide-in-left shadow-2xl border-0 bg-gradient-to-br from-white via-violet-50/40 to-purple-50/40">
+                  <CardHeader className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-600 text-white rounded-t-lg relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-transparent to-fuchsia-600/20"></div>
+                    <CardTitle className="flex items-center gap-2 justify-center relative z-10">
                       <TrendingUp className="h-5 w-5" />
                       {t("tradingPair")}
                     </CardTitle>
-                    <CardDescription className="text-purple-100 text-center">{t("exchangeRateChart")}</CardDescription>
+                    <CardDescription className="text-violet-100 text-center relative z-10">{t("exchangeRateChart")}</CardDescription>
                   </CardHeader>
                   <CardContent className="p-6 space-y-4">
                     {/* Currency Pair Selection - 居中布局 */}
@@ -2526,13 +2533,14 @@ print(predictions)`;
             {/* Competition Control */}
             <div className="grid grid-cols-1 gap-6">
               {/* Competition Control */}
-              <Card className="animate-slide-up">
-                <CardHeader className="bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2">
+              <Card className="animate-slide-up shadow-2xl border-0 bg-gradient-to-br from-white via-rose-50/40 to-orange-50/40">
+                <CardHeader className="bg-gradient-to-r from-rose-500 via-pink-500 to-orange-500 text-white rounded-t-lg relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-rose-600/20 via-transparent to-orange-600/20"></div>
+                  <CardTitle className="flex items-center gap-2 relative z-10">
                     <Trophy className="h-5 w-5" />
                     {t("aiCompetitionConsole")}
                   </CardTitle>
-                  <CardDescription className="text-orange-100">{t("startAICompetition")}</CardDescription>
+                  <CardDescription className="text-rose-100 relative z-10">{t("startAICompetition")}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
                   {/* 汇率预测对战界面 */}
