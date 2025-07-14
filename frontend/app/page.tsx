@@ -42,6 +42,9 @@ import {
   Save,
   FileText,
   Trash2,
+  ArrowRight,
+  Home,
+  ShoppingCart,
 } from "lucide-react"
 
 interface Currency {
@@ -276,6 +279,9 @@ export default function CurrencyExchangeSystem() {
 
   // Active Tab State
   const [activeTab, setActiveTab] = useState("purchase")
+
+  // Cover page state
+  const [showCover, setShowCover] = useState(true)
 
   // Trading Pair State (for AI Competition)
   const [tradingPair, setTradingPair] = useState({
@@ -608,7 +614,6 @@ export default function CurrencyExchangeSystem() {
     lowestRate: { zh: "最低汇率", en: "Lowest Rate" },
     troughPeriod: { zh: "谷底时期", en: "Trough Period" },
     volatilityRange: { zh: "波动幅度", en: "Volatility Range" },
-    predictionPeriod: { zh: "预测期间", en: "Prediction Period" },
     optimalPurchaseTimingRecommendation: { zh: "最佳购买时机建议", en: "Optimal Purchase Timing Recommendation" },
     aiEnhancedPrediction: { zh: "AI增强预测", en: "AI Enhanced Prediction" },
     analysisRecommendation: { zh: "根据{method}分析，建议在 {date} 购买 {currency}，此时汇率达到峰值 {rate}，相比当前汇率可节省约 {percentage}% 的成本。", en: "Based on {method} analysis, it is recommended to purchase {currency} on {date}, when the exchange rate reaches its peak of {rate}, saving approximately {percentage}% compared to the current rate." },
@@ -686,6 +691,20 @@ print(predictions)`
     outputFormatExample: { zh: "输出格式示例：[6.8234, 6.8456, 6.8123, 6.7890, 6.8011]", en: "Output format example: [6.8234, 6.8456, 6.8123, 6.7890, 6.8011]" },
     predictionPeriodDesc: { zh: "请根据上方的历史汇率走势预测这5天的汇率值", en: "Please predict the exchange rate values for these 5 days based on the historical trend above" },
     dayLabel: { zh: "第{day}天:", en: "Day {day}:" },
+    // Cover page translations
+    welcomeTitle: { zh: "欢迎使用智能货币兑换策略系统", en: "Welcome to Intelligent Currency Exchange Strategy System" },
+    welcomeSubtitle: { zh: "基于AI与大数据的智能金融决策平台", en: "AI and Big Data Powered Financial Decision Platform" },
+    coverDescription: { zh: "集成多源数据分析、机器学习预测、实时市场监控于一体的综合性金融服务平台", en: "Comprehensive financial service platform integrating multi-source data analysis, machine learning prediction, and real-time market monitoring" },
+    enterSystem: { zh: "进入系统", en: "Enter System" },
+    keyFeatures: { zh: "核心功能", en: "Key Features" },
+    intelligentPrediction: { zh: "智能预测", en: "Intelligent Prediction" },
+    intelligentPredictionDesc: { zh: "LSTM神经网络结合情感分析", en: "LSTM Neural Network with Sentiment Analysis" },
+    realtimeMonitoring: { zh: "实时监控", en: "Real-time Monitoring" },
+    realtimeMonitoringDesc: { zh: "多维度市场数据实时追踪", en: "Multi-dimensional Market Data Real-time Tracking" },
+    strategicOptimization: { zh: "策略优化", en: "Strategic Optimization" },
+    strategicOptimizationDesc: { zh: "AI驱动的最优决策建议", en: "AI-driven Optimal Decision Recommendations" },
+    multiLanguageSupport: { zh: "多语言支持", en: "Multi-language Support" },
+    multiLanguageSupportDesc: { zh: "中英文无缝切换体验", en: "Seamless Chinese-English Experience" },
   }
 
   const t = (key: string, params?: { [key: string]: string | number }) => {
@@ -1454,51 +1473,202 @@ print(predictions)`;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-4 animate-fade-in">
-          <h1 className="text-4xl font-bold text-slate-800 flex items-center justify-center gap-3">
-            <Brain className="h-10 w-10 text-blue-600 animate-pulse" />
-            {t("systemTitle")}
-          </h1>
-          <p className="text-slate-600">
-            {language === "zh"
-              ? "基于多源数据融合的智能决策平台"
-              : "Intelligent Decision Platform Based on Multi-source Data Fusion"}
-          </p>
-          <div className="flex items-center justify-center gap-4">
-            <Badge variant="outline" className="animate-pulse">
-              🔄 {t("realtimeData")}
-            </Badge>
-            <Badge variant="outline" className="animate-pulse">
-              🤖 {t("aiAnalysis")}
-            </Badge>
-            <Badge variant="outline" className="animate-pulse">
-              🎯 {t("strategyOptimization")}
-            </Badge>
+    <div className="min-h-screen">
+      {/* Cover Page */}
+      {showCover && (
+        <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-500 to-cyan-600 relative overflow-hidden">
+          {/* Animated Background Elements */}
+          <div className="absolute inset-0">
+            <div className="absolute top-10 left-10 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
+            <div className="absolute top-32 right-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-2000"></div>
+            <div className="absolute bottom-10 left-32 w-72 h-72 bg-sky-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse animation-delay-4000"></div>
+            <div className="absolute inset-0 opacity-20">
+              <div className="w-full h-full" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                backgroundRepeat: 'repeat'
+              }}></div>
+            </div>
+          </div>
+
+          {/* Language Toggle - Cover */}
+          <div className="absolute top-6 right-6 z-10">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLanguage(language === "zh" ? "en" : "zh")}
+              className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30 hover:text-white"
+            >
+              {language === "zh" ? "English" : "中文"}
+            </Button>
+          </div>
+
+          {/* Main Cover Content */}
+          <div className="relative z-10 flex items-center justify-center min-h-screen px-4">
+            <div className="text-center max-w-4xl mx-auto">
+              {/* Logo and Title */}
+              <div className="mb-8 animate-fade-in-up">
+                <div className="flex items-center justify-center mb-6">
+                  <div className="p-4 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 shadow-2xl">
+                    <svg 
+                      className="h-16 w-16 text-white" 
+                      fill="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2L13.09 6.26L18 7L13.09 7.74L12 12L10.91 7.74L6 7L10.91 6.26L12 2M12 2L8.5 8.5L2 12L8.5 15.5L12 22L15.5 15.5L22 12L15.5 8.5L12 2Z" 
+                            opacity="0.3"/>
+                      <path d="M12 6L13 10L17 11L13 12L12 16L11 12L7 11L11 10L12 6Z"/>
+                    </svg>
+                  </div>
+                </div>
+                <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight drop-shadow-lg">
+                  {t("welcomeTitle")}
+                </h1>
+                <p className="text-xl md:text-2xl text-white/90 mb-8 font-light drop-shadow-md">
+                  {t("welcomeSubtitle")}
+                </p>
+                <p className="text-lg text-white/80 max-w-2xl mx-auto mb-12 drop-shadow-sm">
+                  {t("coverDescription")}
+                </p>
+              </div>
+
+              {/* Feature Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 animate-fade-in-up animation-delay-500">
+                <div className="bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 shadow-xl">
+                  <div className="text-3xl mb-3">🧠</div>
+                  <h3 className="text-white font-semibold mb-2">{t("intelligentPrediction")}</h3>
+                  <p className="text-white/80 text-sm">{t("intelligentPredictionDesc")}</p>
+                </div>
+                <div className="bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 shadow-xl">
+                  <div className="text-3xl mb-3">📊</div>
+                  <h3 className="text-white font-semibold mb-2">{t("realtimeMonitoring")}</h3>
+                  <p className="text-white/80 text-sm">{t("realtimeMonitoringDesc")}</p>
+                </div>
+                <div className="bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 shadow-xl">
+                  <div className="text-3xl mb-3">🎯</div>
+                  <h3 className="text-white font-semibold mb-2">{t("strategicOptimization")}</h3>
+                  <p className="text-white/80 text-sm">{t("strategicOptimizationDesc")}</p>
+                </div>
+                <div className="bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 hover:bg-white/30 transition-all duration-300 shadow-xl">
+                  <div className="text-3xl mb-3">🌐</div>
+                  <h3 className="text-white font-semibold mb-2">{t("multiLanguageSupport")}</h3>
+                  <p className="text-white/80 text-sm">{t("multiLanguageSupportDesc")}</p>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <div className="animate-fade-in-up animation-delay-1000">
+                <Button
+                  size="lg"
+                  onClick={() => setShowCover(false)}
+                  className="bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-semibold py-4 px-8 rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg"
+                >
+                  <ArrowRight className="mr-2 h-5 w-5" />
+                  {t("enterSystem")}
+                </Button>
+              </div>
+
+              {/* Scroll Indicator */}
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+                <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+                  <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Language Toggle - Global */}
-        <div className="flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setLanguage(language === "zh" ? "en" : "zh")}
-            className="mb-4"
-          >
-            {language === "zh" ? "English" : "中文"}
-          </Button>
-        </div>
+      {/* Main Application */}
+      {!showCover && (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+          {/* Enhanced Header */}
+          <div className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50">
+            <div className="max-w-7xl mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-r from-sky-500 to-cyan-600 rounded-lg shadow-lg">
+                    <svg 
+                      className="h-6 w-6 text-white" 
+                      fill="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2L13.09 6.26L18 7L13.09 7.74L12 12L10.91 7.74L6 7L10.91 6.26L12 2M12 2L8.5 8.5L2 12L8.5 15.5L12 22L15.5 15.5L22 12L15.5 8.5L12 2Z" 
+                            opacity="0.3"/>
+                      <path d="M12 6L13 10L17 11L13 12L12 16L11 12L7 11L11 10L12 6Z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-slate-800">{t("systemTitle")}</h1>
+                    <p className="text-sm text-slate-600">
+                      {language === "zh" ? "智能金融决策平台" : "Intelligent Financial Platform"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                      {t("realtimeData")}
+                    </Badge>
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      🤖 {t("aiAnalysis")}
+                    </Badge>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setLanguage(language === "zh" ? "en" : "zh")}
+                    className="bg-white/50"
+                  >
+                    {language === "zh" ? "English" : "中文"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowCover(true)}
+                    className="text-slate-600 hover:text-slate-800"
+                  >
+                    <Home className="h-4 w-4 mr-1" />
+                    {language === "zh" ? "返回首页" : "Home"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="purchase">{t("purchaseStrategy")}</TabsTrigger>
-            <TabsTrigger value="results">{t("resultsDisplay")}</TabsTrigger>
-            <TabsTrigger value="system">{t("systemMonitor")}</TabsTrigger>
-            <TabsTrigger value="competition">{t("aiCompetition")}</TabsTrigger>
-          </TabsList>
+          {/* Main Content with improved spacing */}
+          <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 bg-white/70 backdrop-blur-md border border-gray-200/50">
+                <TabsTrigger 
+                  value="purchase" 
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {t("purchaseStrategy")}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="results"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  {t("resultsDisplay")}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="system"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                >
+                  <Activity className="h-4 w-4 mr-2" />
+                  {t("systemMonitor")}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="competition"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                >
+                  <Zap className="h-4 w-4 mr-2" />
+                  {t("aiCompetition")}
+                </TabsTrigger>
+              </TabsList>
 
           {/* Purchase Strategy Tab */}
           <TabsContent value="purchase" className="space-y-6">
@@ -2756,6 +2926,8 @@ print(predictions)`;
         </Tabs>
       </div>
     </div>
+  )}
+</div>
   )
 }
 
