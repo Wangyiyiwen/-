@@ -718,10 +718,38 @@ export default function CurrencyExchangeSystem() {
       playerAccuracy: number
       aiAccuracy: number
       winner: 'player' | 'ai' | 'tie'
+      codeOutput?: string
+      codeStderr?: string
     }
   } | null>(null)
   const [selectedCurrency, setSelectedCurrency] = useState<string>('HKD')
   const [predictionDays, setPredictionDays] = useState<number>(5)
+  const [predictionMode, setPredictionMode] = useState<'manual' | 'code'>('manual')
+  const [predictionCode, setPredictionCode] = useState<string>(`# 汇率预测代码示例
+import numpy as np
+
+# 获取最近的汇率数据
+recent_rates = [item['rate'] for item in historical_data[-10:]]
+
+# 计算简单移动平均
+window_size = min(5, len(recent_rates))
+moving_avg = np.mean(recent_rates[-window_size:])
+
+# 计算趋势
+if len(recent_rates) >= 2:
+    trend = (recent_rates[-1] - recent_rates[-window_size]) / window_size
+else:
+    trend = 0
+
+# 生成预测
+predictions = []
+for i in range(prediction_days):
+    # 基于移动平均和趋势预测
+    predicted_rate = moving_avg + trend * (i + 1) * 0.5
+    predictions.append(round(predicted_rate, 4))
+
+# 输出结果
+print(predictions)`)
   const [isLoadingPrediction, setIsLoadingPrediction] = useState(false)
 
   // Market Data
@@ -2217,6 +2245,47 @@ export default function CurrencyExchangeSystem() {
                           <option value="THB">CNY/THB (人民币/泰铢)</option>
                         </select>
                       </div>
+                      
+                      {/* 预测模式选择 */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">预测模式</label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <button
+                            onClick={() => setPredictionMode('manual')}
+                            className={`p-3 border rounded-lg text-left ${
+                              predictionMode === 'manual' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                            }`}
+                          >
+                            <div className="font-medium">手动预测</div>
+                            <div className="text-sm text-gray-600">手动输入预测数值</div>
+                          </button>
+                          <button
+                            onClick={() => setPredictionMode('code')}
+                            className={`p-3 border rounded-lg text-left ${
+                              predictionMode === 'code' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                            }`}
+                          >
+                            <div className="font-medium">代码预测</div>
+                            <div className="text-sm text-gray-600">使用Python代码预测</div>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* 预测天数选择 */}
+                      <div>
+                        <label className="block text-sm font-medium mb-2">预测天数</label>
+                        <select 
+                          value={predictionDays}
+                          onChange={(e) => setPredictionDays(Number(e.target.value))}
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                          <option value={3}>3天</option>
+                          <option value={5}>5天</option>
+                          <option value={7}>7天</option>
+                          <option value={10}>10天</option>
+                        </select>
+                      </div>
+                      
                       <Button
                         onClick={async () => {
                           console.log('开始预测按钮被点击');
@@ -2233,7 +2302,8 @@ export default function CurrencyExchangeSystem() {
                               body: JSON.stringify({
                                 action: 'start',
                                 currency: selectedCurrency,
-                                predictionDays
+                                predictionDays,
+                                predictionMode
                               })
                             });
                             
@@ -2335,32 +2405,78 @@ export default function CurrencyExchangeSystem() {
                           </div>
 
                           {/* 预测输入 */}
+                          {/* 预测输入区域 */}
                           <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                             <h4 className="font-medium mb-3 text-green-800">{t("enterPredictions")}</h4>
-                            <div className="grid grid-cols-1 gap-3">
-                              {[1, 2, 3, 4, 5].map((day) => (
-                                <div key={day} className="flex items-center space-x-3">
-                                  <label className="w-20 text-sm font-medium">
-                                    {t("day", { day })}:
-                                  </label>
-                                  <input
-                                    type="number"
-                                    step="0.0001"
-                                    placeholder="0.0000"
-                                    value={predictionBattle.playerPredictions[day - 1] || ''}
-                                    onChange={(e) => {
-                                      const newPredictions = [...predictionBattle.playerPredictions];
-                                      newPredictions[day - 1] = parseFloat(e.target.value) || 0;
-                                      setPredictionBattle({
-                                        ...predictionBattle,
-                                        playerPredictions: newPredictions
-                                      });
-                                    }}
-                                    className="flex-1 p-2 border border-gray-300 rounded-md text-sm"
+                            
+                            {predictionMode === 'manual' ? (
+                              // 手动预测模式
+                              <div className="grid grid-cols-1 gap-3">
+                                {Array.from({ length: predictionDays }, (_, i) => i + 1).map((day) => (
+                                  <div key={day} className="flex items-center space-x-3">
+                                    <label className="w-20 text-sm font-medium">
+                                      第{day}天:
+                                    </label>
+                                    <input
+                                      type="number"
+                                      step="0.0001"
+                                      placeholder="0.0000"
+                                      value={predictionBattle.playerPredictions[day - 1] || ''}
+                                      onChange={(e) => {
+                                        const newPredictions = [...predictionBattle.playerPredictions];
+                                        newPredictions[day - 1] = parseFloat(e.target.value) || 0;
+                                        setPredictionBattle({
+                                          ...predictionBattle,
+                                          playerPredictions: newPredictions
+                                        });
+                                      }}
+                                      className="flex-1 p-2 border border-gray-300 rounded-md text-sm"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              // 代码预测模式
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium mb-2">Python预测代码</label>
+                                  <textarea
+                                    value={predictionCode}
+                                    onChange={(e) => setPredictionCode(e.target.value)}
+                                    placeholder={`# 编写您的汇率预测代码
+# 可用的数据接口：
+# - historical_data: 历史汇率数据列表，每个元素包含 {'date': '日期', 'rate': 汇率值}
+# - prediction_days: 需要预测的天数
+
+# 示例代码：
+import numpy as np
+
+# 获取最近10天的汇率
+recent_rates = [item['rate'] for item in historical_data[-10:]]
+
+# 简单的移动平均预测
+predictions = []
+for i in range(prediction_days):
+    # 计算移动平均
+    avg_rate = np.mean(recent_rates[-5:])
+    predictions.append(avg_rate)
+
+# 输出预测结果
+print(predictions)  # 必须输出一个包含预测值的列表`}
+                                    className="w-full h-64 p-3 border border-gray-300 rounded-md font-mono text-sm"
                                   />
                                 </div>
-                              ))}
-                            </div>
+                                <div className="text-sm text-gray-600">
+                                  <strong>说明：</strong>
+                                  <ul className="list-disc list-inside mt-1 space-y-1">
+                                    <li>您的代码将在安全的Python环境中执行</li>
+                                    <li>可以使用 numpy, pandas 等常用数据分析库</li>
+                                    <li>代码必须输出一个包含{predictionDays}个预测值的列表</li>
+                                    <li>预测值应该是数字类型的汇率值</li>
+                                  </ul>
+                                </div>
+                              </div>
+                            )}
                           </div>
 
                           <Button
@@ -2372,7 +2488,9 @@ export default function CurrencyExchangeSystem() {
                                   body: JSON.stringify({
                                     action: 'submit',
                                     competitionId: predictionBattle.competitionId,
-                                    playerPredictions: predictionBattle.playerPredictions,
+                                    playerPredictions: predictionMode === 'manual' ? predictionBattle.playerPredictions : null,
+                                    predictionCode: predictionMode === 'code' ? predictionCode : null,
+                                    predictionMode,
                                     currency: predictionBattle.currency
                                   })
                                 });
@@ -2390,7 +2508,11 @@ export default function CurrencyExchangeSystem() {
                                 console.error('提交预测失败:', error);
                               }
                             }}
-                            disabled={isLoadingPrediction}
+                            disabled={
+                              isLoadingPrediction || 
+                              (predictionMode === 'manual' && predictionBattle.playerPredictions.some(p => !p)) ||
+                              (predictionMode === 'code' && !predictionCode.trim())
+                            }
                             className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
                           >
                             {isLoadingPrediction ? (
@@ -2450,11 +2572,28 @@ export default function CurrencyExchangeSystem() {
                             </div>
                           </div>
 
+                          {/* 代码执行结果（仅在代码模式下显示） */}
+                          {predictionMode === 'code' && predictionBattle.results?.codeOutput && (
+                            <div className="p-4 bg-gray-50 rounded-lg border">
+                              <h4 className="font-medium mb-3">代码执行结果</h4>
+                              <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
+                                <div className="text-gray-400 text-xs mb-1">输出:</div>
+                                <pre className="whitespace-pre-wrap">{predictionBattle.results.codeOutput}</pre>
+                                {predictionBattle.results.codeStderr && (
+                                  <>
+                                    <div className="text-red-400 text-xs mt-2 mb-1">错误/警告:</div>
+                                    <pre className="whitespace-pre-wrap text-red-300">{predictionBattle.results.codeStderr}</pre>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
                           {/* 详细比较表格 */}
                           <div className="p-4 bg-slate-50 rounded-lg border">
                             <h4 className="font-medium mb-3">{t("battleResults")}</h4>
                             <div className="space-y-2">
-                              {[1, 2, 3, 4, 5].map((day) => (
+                              {Array.from({ length: predictionDays }, (_, i) => i + 1).map((day) => (
                                 <div key={day} className="grid grid-cols-4 gap-2 text-sm">
                                   <div className="font-medium">{t("day", { day })}</div>
                                   <div className="text-green-600">
