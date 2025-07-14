@@ -590,6 +590,102 @@ export default function CurrencyExchangeSystem() {
     uploadError: { zh: "上传错误", en: "Upload Error" },
     noFileSelected: { zh: "未选择文件", en: "No file selected" },
     pleaseSelectCsv: { zh: "请选择一个CSV文件上传。", en: "Please select a CSV file to upload." },
+    // Rate Forecast Section translations
+    exchangeRateForecast: { zh: "未来汇率预测", en: "Exchange Rate Forecast" },
+    rateLoadingMessage: { zh: "汇率预测加载中...", en: "Exchange rate prediction loading..." },
+    initializingAIModel: { zh: "正在初始化AI模型...", en: "Initializing AI model..." },
+    predictionMethodLabel: { zh: "预测方法", en: "Prediction Method" },
+    aiEnhanced: { zh: "🤖 AI增强", en: "🤖 AI Enhanced" },
+    statisticalSimulation: { zh: "📊 统计模拟", en: "📊 Statistical Simulation" },
+    recommendedPurchaseTime: { zh: "🎯 推荐购买时间", en: "🎯 Recommended Purchase Time" },
+    exchangeRateLabel: { zh: "汇率", en: "Exchange Rate" },
+    lstmNeuralNetwork: { zh: "🧠 LSTM神经网络", en: "🧠 LSTM Neural Network" },
+    newsSentimentAnalysis: { zh: "结合新闻情感分析", en: "Combined with news sentiment analysis" },
+    statisticalAlgorithm: { zh: "📈 统计模拟算法", en: "📈 Statistical Simulation Algorithm" },
+    basedOnHistoricalVolatility: { zh: "基于历史波动模式", en: "Based on historical volatility patterns" },
+    highestRate: { zh: "最高汇率", en: "Highest Rate" },
+    peakPeriod: { zh: "峰值时期", en: "Peak Period" },
+    lowestRate: { zh: "最低汇率", en: "Lowest Rate" },
+    troughPeriod: { zh: "谷底时期", en: "Trough Period" },
+    volatilityRange: { zh: "波动幅度", en: "Volatility Range" },
+    predictionPeriod: { zh: "预测期间", en: "Prediction Period" },
+    optimalPurchaseTimingRecommendation: { zh: "最佳购买时机建议", en: "Optimal Purchase Timing Recommendation" },
+    aiEnhancedPrediction: { zh: "AI增强预测", en: "AI Enhanced Prediction" },
+    analysisRecommendation: { zh: "根据{method}分析，建议在 {date} 购买 {currency}，此时汇率达到峰值 {rate}，相比当前汇率可节省约 {percentage}% 的成本。", en: "Based on {method} analysis, it is recommended to purchase {currency} on {date}, when the exchange rate reaches its peak of {rate}, saving approximately {percentage}% compared to the current rate." },
+    lstmModelAnalysis: { zh: "LSTM神经网络模型", en: "LSTM neural network model" },
+    statisticalAnalysis: { zh: "统计学", en: "statistical analysis" },
+    viewDetailedPredictionData: { zh: "查看详细预测数据 (20天)", en: "View Detailed Prediction Data (20 days)" },
+    clickToExpand: { zh: "- 点击展开", en: "- Click to expand" },
+    date: { zh: "日期", en: "Date" },
+    predictedRate: { zh: "预测汇率", en: "Predicted Rate" },
+    change: { zh: "变化", en: "Change" },
+    recommendation: { zh: "建议", en: "Recommendation" },
+    optimal: { zh: "🎯 最佳", en: "🎯 Optimal" },
+    suitable: { zh: "📈 适合", en: "📈 Suitable" },
+    wait: { zh: "📉 等待", en: "📉 Wait" },
+    observe: { zh: "➡️ 观望", en: "➡️ Observe" },
+    lstmDisclaimerText: { zh: "💡 预测基于LSTM神经网络模型，结合新闻情感分析，准确性较高但仅供参考。", en: "💡 Predictions are based on LSTM neural network models combined with news sentiment analysis. While highly accurate, they are for reference only." },
+    statisticalDisclaimerText: { zh: "💡 此预测基于历史数据和统计分析，仅供参考。实际汇率可能受多种因素影响。", en: "💡 This prediction is based on historical data and statistical analysis, for reference only. Actual exchange rates may be affected by various factors." },
+    predictionLoadingError: { zh: "预测失败", en: "Prediction failed" },
+    predictionMethod: { zh: "预测方法: {method}", en: "Prediction Method: {method}" },
+    lstmSentimentModel: { zh: "LSTM+情感分析模型", en: "LSTM+Sentiment Analysis Model" },
+    statisticalSimulationAlgorithm: { zh: "统计学模拟算法", en: "Statistical Simulation Algorithm" },
+    // Additional news analysis translations
+    newsAnalysisForPrediction: { zh: "输入新闻文本进行情感分析，为汇率预测提供依据", en: "Enter news text for sentiment analysis to provide basis for exchange rate prediction" },
+    predictionComparisonChart: { zh: "预测结果对比图表", en: "Prediction Comparison Chart" },
+    writeRatePredictionCode: { zh: "编写您的汇率预测代码", en: "Write your exchange rate prediction code" },
+    // Code editor translations
+    pythonPredictionCode: { zh: "Python预测代码", en: "Python Prediction Code" },
+    predictionCodePlaceholder: { 
+      zh: `# 编写您的汇率预测代码
+# 可用的数据接口：
+# - historical_data: 历史汇率数据列表，每个元素包含 {'date': '日期', 'rate': 汇率值}
+# - prediction_days: 需要预测的天数
+
+# 示例代码：
+import numpy as np
+
+# 获取最近10天的汇率
+recent_rates = [item['rate'] for item in historical_data[-10:]]
+
+# 简单的移动平均预测
+predictions = []
+for i in range(prediction_days):
+    # 基于移动平均预测
+    avg_rate = np.mean(recent_rates[-5:])
+    predictions.append(avg_rate)
+
+# 输出预测结果
+print(predictions)`, 
+      en: `# Write your exchange rate prediction code
+# Available data interfaces:
+# - historical_data: List of historical exchange rate data, each element contains {'date': 'date', 'rate': rate_value}
+# - prediction_days: Number of days to predict
+
+# Example code:
+import numpy as np
+
+# Get the exchange rates of the last 10 days
+recent_rates = [item['rate'] for item in historical_data[-10:]]
+
+# Simple moving average prediction
+predictions = []
+for i in range(prediction_days):
+    # Prediction based on moving average
+    avg_rate = np.mean(recent_rates[-5:])
+    predictions.append(avg_rate)
+
+# Output prediction results
+print(predictions)`
+    },
+    // Additional prediction battle translations
+    codeInstructions: { zh: "说明：", en: "Instructions:" },
+    codeExecutionEnvironment: { zh: "您的代码将在安全的Python环境中执行", en: "Your code will be executed in a secure Python environment" },
+    dataAnalysisLibraries: { zh: "可以使用 numpy, pandas 等常用数据分析库", en: "You can use common data analysis libraries like numpy, pandas" },
+    outputRequirement: { zh: "代码必须输出一个包含{days}个预测值的列表", en: "Code must output a list containing {days} prediction values" },
+    outputFormatExample: { zh: "输出格式示例：[6.8234, 6.8456, 6.8123, 6.7890, 6.8011]", en: "Output format example: [6.8234, 6.8456, 6.8123, 6.7890, 6.8011]" },
+    predictionPeriodDesc: { zh: "请根据上方的历史汇率走势预测这5天的汇率值", en: "Please predict the exchange rate values for these 5 days based on the historical trend above" },
+    dayLabel: { zh: "第{day}天:", en: "Day {day}:" },
   }
 
   const t = (key: string, params?: { [key: string]: string | number }) => {
@@ -725,7 +821,10 @@ export default function CurrencyExchangeSystem() {
   const [selectedCurrency, setSelectedCurrency] = useState<string>('HKD')
   const [predictionDays, setPredictionDays] = useState<number>(5)
   const [predictionMode, setPredictionMode] = useState<'manual' | 'code'>('manual')
-  const [predictionCode, setPredictionCode] = useState<string>(`# 汇率预测代码示例
+  
+  // Function to get default prediction code based on language
+  const getDefaultPredictionCode = (lang: "zh" | "en") => {
+    return lang === "zh" ? `# 汇率预测代码示例
 import numpy as np
 
 # 获取最近的汇率数据
@@ -749,8 +848,40 @@ for i in range(prediction_days):
     predictions.append(round(predicted_rate, 4))
 
 # 输出结果
-print(predictions)`)
+print(predictions)` : `# Exchange Rate Prediction Code Example
+import numpy as np
+
+# Get recent exchange rate data
+recent_rates = [item['rate'] for item in historical_data[-10:]]
+
+# Calculate simple moving average
+window_size = min(5, len(recent_rates))
+moving_avg = np.mean(recent_rates[-window_size:])
+
+# Calculate trend
+if len(recent_rates) >= 2:
+    trend = (recent_rates[-1] - recent_rates[-window_size]) / window_size
+else:
+    trend = 0
+
+# Generate predictions
+predictions = []
+for i in range(prediction_days):
+    # Predict based on moving average and trend
+    predicted_rate = moving_avg + trend * (i + 1) * 0.5
+    predictions.append(round(predicted_rate, 4))
+
+# Output results
+print(predictions)`;
+  }
+  
+  const [predictionCode, setPredictionCode] = useState<string>(getDefaultPredictionCode(language))
   const [isLoadingPrediction, setIsLoadingPrediction] = useState(false)
+
+  // Update prediction code when language changes
+  useEffect(() => {
+    setPredictionCode(getDefaultPredictionCode(language));
+  }, [language]);
 
   // Market Data
   const [marketData, setMarketData] = useState({
@@ -1661,12 +1792,14 @@ print(predictions)`)
                         <CardContent className="p-4">
                           <h4 className="font-medium mb-3 flex items-center gap-2">
                             <BarChart3 className="h-4 w-4" />
-                            {language === "zh" ? "未来汇率预测" : "Exchange Rate Forecast"}
+                            {t("exchangeRateForecast")}
                           </h4>
                           <RateForecastSection
                             fromCurrency={purchaseRequest.fromCurrency}
                             toCurrency={purchaseRequest.toCurrency}
                             lastRate={optimalStrategy.rate}
+                            language={language}
+                            getText={t}
                           />
                         </CardContent>
                       </Card>
@@ -1985,7 +2118,7 @@ print(predictions)`)
                     {t("sentimentAnalysis")}
                   </CardTitle>
                   <CardDescription>
-                    输入新闻文本进行情感分析，为汇率预测提供依据
+                    {t("newsAnalysisForPrediction")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -2416,7 +2549,7 @@ print(predictions)`)
                               {predictionBattle.predictionPeriod.startDate} 至 {predictionBattle.predictionPeriod.endDate}
                             </div>
                             <div className="text-xs text-yellow-600 mt-1">
-                              请根据上方的历史汇率走势预测这5天的汇率值
+                              {t("predictionPeriodDesc")}
                             </div>
                           </div>
 
@@ -2431,7 +2564,7 @@ print(predictions)`)
                                 {Array.from({ length: predictionDays }, (_, i) => i + 1).map((day) => (
                                   <div key={day} className="flex items-center space-x-3">
                                     <label className="w-20 text-sm font-medium">
-                                      第{day}天:
+                                      {t("dayLabel", { day: day.toString() })}
                                     </label>
                                     <input
                                       type="number"
@@ -2455,40 +2588,21 @@ print(predictions)`)
                               // 代码预测模式
                               <div className="space-y-4">
                                 <div>
-                                  <label className="block text-sm font-medium mb-2">Python预测代码</label>
+                                  <label className="block text-sm font-medium mb-2">{t("pythonPredictionCode")}</label>
                                   <textarea
                                     value={predictionCode}
                                     onChange={(e) => setPredictionCode(e.target.value)}
-                                    placeholder={`# 编写您的汇率预测代码
-# 可用的数据接口：
-# - historical_data: 历史汇率数据列表，每个元素包含 {'date': '日期', 'rate': 汇率值}
-# - prediction_days: 需要预测的天数
-
-# 示例代码：
-import numpy as np
-
-# 获取最近10天的汇率
-recent_rates = [item['rate'] for item in historical_data[-10:]]
-
-# 简单的移动平均预测
-predictions = []
-for i in range(prediction_days):
-    # 计算移动平均
-    avg_rate = np.mean(recent_rates[-5:])
-    predictions.append(avg_rate)
-
-# 输出预测结果
-print(predictions)  # 必须输出一个包含预测值的列表`}
+                                    placeholder={t("predictionCodePlaceholder")}
                                     className="w-full h-64 p-3 border border-gray-300 rounded-md font-mono text-sm"
                                   />
                                 </div>
                                 <div className="text-sm text-gray-600">
-                                  <strong>说明：</strong>
+                                  <strong>{t("codeInstructions")}</strong>
                                   <ul className="list-disc list-inside mt-1 space-y-1">
-                                    <li>您的代码将在安全的Python环境中执行</li>
-                                    <li>可以使用 numpy, pandas 等常用数据分析库</li>
-                                    <li>代码必须输出一个包含{predictionDays}个预测值的列表</li>
-                                    <li>预测值应该是数字类型的汇率值</li>
+                                    <li>{t("codeExecutionEnvironment")}</li>
+                                    <li>{t("dataAnalysisLibraries")}</li>
+                                    <li>{t("outputRequirement", { days: predictionDays.toString() })}</li>
+                                    <li>{t("outputFormatExample")}</li>
                                   </ul>
                                 </div>
                               </div>
@@ -2571,7 +2685,7 @@ print(predictions)  # 必须输出一个包含预测值的列表`}
 
                           {/* 对比图表 */}
                           <div className="p-4 bg-slate-50 rounded-lg border">
-                            <h4 className="font-medium mb-3">预测结果对比图表</h4>
+                            <h4 className="font-medium mb-3">{t("predictionComparisonChart")}</h4>
                             <div className="w-full bg-white rounded border p-3 mb-3">
                               <SimpleLineChart 
                                 data={[
@@ -2650,6 +2764,8 @@ type RateForecastSectionProps = {
   fromCurrency: string;
   toCurrency: string;
   lastRate: number;
+  language: "zh" | "en";
+  getText: (key: string, params?: { [key: string]: string | number }) => string;
 };
 
 // 简单预测函数（支持LSTM模型和统计学回退）
@@ -2733,34 +2849,76 @@ async function fetchRateForecast(
   return result;
 }
 
-const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecastSectionProps) => {
-  const [forecast, setForecast] = useState<Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean }>>([]);
+const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, getText }: RateForecastSectionProps) => {
+  const [forecast, setForecast] = useState<Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean; method?: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [predictionMethod, setPredictionMethod] = useState<string>('');
+  const [lastFetchKey, setLastFetchKey] = useState<string>('');
+  const [cacheTimestamp, setCacheTimestamp] = useState<number>(0);
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  // 添加一个单独的useEffect来处理语言变化时的翻译更新（不重新获取数据）
   useEffect(() => {
+    if (forecast.length > 0) {
+      const method = forecast[0].method || 'Statistical';
+      if (method === 'LSTM') {
+        setPredictionMethod(getText('lstmSentimentModel'));
+      } else {
+        setPredictionMethod(getText('statisticalSimulationAlgorithm'));
+      }
+    }
+  }, [language, getText, forecast]);
+
+  // 主要的数据获取useEffect - 只在货币对改变或首次加载时执行
+  useEffect(() => {
+    // 创建一个唯一的key来标识当前的预测请求
+    const currentFetchKey = `${fromCurrency}-${toCurrency}`;
+    const now = Date.now();
+    const cacheValidDuration = 10 * 60 * 1000; // 10分钟缓存
+    
+    // 如果货币对没变且缓存有效，不重新获取
+    if (currentFetchKey === lastFetchKey && 
+        forecast.length > 0 && 
+        isInitialized &&
+        (now - cacheTimestamp) < cacheValidDuration) {
+      console.log(`汇率预测缓存有效，跳过重新获取: ${currentFetchKey}`);
+      return;
+    }
+
+    // 如果是同一个货币对且刚刚获取过（1分钟内），也跳过
+    if (currentFetchKey === lastFetchKey && 
+        (now - cacheTimestamp) < 60 * 1000) {
+      console.log(`汇率预测频率限制，跳过重新获取: ${currentFetchKey}`);
+      return;
+    }
+
+    console.log(`开始获取汇率预测: ${currentFetchKey}`);
     setLoading(true);
     setPredictionMethod('');
+    setLastFetchKey(currentFetchKey);
+    setCacheTimestamp(now);
     
     fetchRateForecast(fromCurrency, toCurrency, lastRate, 20).then((data) => {
       setForecast(data);
       setLoading(false);
+      setIsInitialized(true);
       
       // 从预测数据中获取使用的方法
       if (data.length > 0) {
         const method = data[0].method;
         if (method === 'LSTM') {
-          setPredictionMethod('LSTM+情感分析模型');
+          setPredictionMethod(getText('lstmSentimentModel'));
         } else {
-          setPredictionMethod('统计学模拟算法');
+          setPredictionMethod(getText('statisticalSimulationAlgorithm'));
         }
       }
     }).catch((error) => {
-      console.error('预测失败:', error);
+      console.error(getText('predictionLoadingError'), error);
       setLoading(false);
-      setPredictionMethod('统计学模拟算法');
+      setIsInitialized(true);
+      setPredictionMethod(getText('statisticalSimulationAlgorithm'));
     });
-  }, [fromCurrency, toCurrency, lastRate]);
+  }, [fromCurrency, toCurrency, getText]); // 移除了lastRate依赖，避免频繁刷新
 
   // 找出推荐购买时间
   const optimalPoint = forecast.find(item => item.isOptimal);
@@ -2772,8 +2930,8 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
       {loading ? (
         <div className="text-slate-400 text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-2"></div>
-          {fromCurrency}/{toCurrency} 汇率预测加载中...
-          <div className="text-xs mt-1">正在初始化AI模型...</div>
+          {fromCurrency}/{toCurrency} {getText('rateLoadingMessage')}
+          <div className="text-xs mt-1">{getText('initializingAIModel')}</div>
         </div>
       ) : (
         <div className="space-y-4">
@@ -2781,16 +2939,16 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
           <div className="flex items-center justify-between text-xs text-slate-500">
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${predictionMethod.includes('LSTM') ? 'bg-blue-500' : 'bg-green-500'}`}></div>
-              <span>预测方法: {predictionMethod}</span>
+              <span>{getText('predictionMethod', { method: predictionMethod })}</span>
             </div>
             <div className="flex items-center gap-1">
               {predictionMethod.includes('LSTM') ? (
                 <>
-                  <span className="text-blue-600">🤖 AI增强</span>
+                  <span className="text-blue-600">{getText('aiEnhanced')}</span>
                 </>
               ) : (
                 <>
-                  <span className="text-green-600">📊 统计模拟</span>
+                  <span className="text-green-600">{getText('statisticalSimulation')}</span>
                 </>
               )}
             </div>
@@ -2812,9 +2970,9 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
                 {/* 推荐购买时间标注 */}
                 {optimalPoint && (
                   <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-2 rounded-lg shadow-lg">
-                    <div className="text-xs font-medium">🎯 推荐购买时间</div>
+                    <div className="text-xs font-medium">{getText('recommendedPurchaseTime')}</div>
                     <div className="text-sm">{optimalPoint.date}</div>
-                    <div className="text-xs">汇率: {optimalPoint.rate}</div>
+                    <div className="text-xs">{getText('exchangeRateLabel')}: {optimalPoint.rate}</div>
                   </div>
                 )}
                 {/* 模型信息标注 */}
@@ -2823,16 +2981,16 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
                     {predictionMethod.includes('LSTM') ? (
                       <>
                         <div className="flex items-center gap-1 font-medium text-blue-600">
-                          <span>🧠</span> LSTM神经网络
+                          <span>🧠</span> {getText('lstmNeuralNetwork')}
                         </div>
-                        <div className="text-xs">结合新闻情感分析</div>
+                        <div className="text-xs">{getText('newsSentimentAnalysis')}</div>
                       </>
                     ) : (
                       <>
                         <div className="flex items-center gap-1 font-medium text-green-600">
-                          <span>📈</span> 统计模拟算法
+                          <span>📈</span> {getText('statisticalAlgorithm')}
                         </div>
-                        <div className="text-xs">基于历史波动模式</div>
+                        <div className="text-xs">{getText('basedOnHistoricalVolatility')}</div>
                       </>
                     )}
                   </div>
@@ -2844,19 +3002,19 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
           {/* 统计信息 */}
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
-              <div className="font-medium text-green-800">最高汇率</div>
+              <div className="font-medium text-green-800">{getText('highestRate')}</div>
               <div className="text-green-600 text-lg font-bold">{maxRate.toFixed(4)}</div>
-              <div className="text-xs text-green-500">峰值时期</div>
+              <div className="text-xs text-green-500">{getText('peakPeriod')}</div>
             </div>
             <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="font-medium text-blue-800">最低汇率</div>
+              <div className="font-medium text-blue-800">{getText('lowestRate')}</div>
               <div className="text-blue-600 text-lg font-bold">{minRate.toFixed(4)}</div>
-              <div className="text-xs text-blue-500">谷底时期</div>
+              <div className="text-xs text-blue-500">{getText('troughPeriod')}</div>
             </div>
             <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
-              <div className="font-medium text-orange-800">波动幅度</div>
+              <div className="font-medium text-orange-800">{getText('volatilityRange')}</div>
               <div className="text-orange-600 text-lg font-bold">{((maxRate - minRate) / minRate * 100).toFixed(2)}%</div>
-              <div className="text-xs text-orange-500">预测期间</div>
+              <div className="text-xs text-orange-500">{getText('predictionPeriod')}</div>
             </div>
           </div>
 
@@ -2865,15 +3023,19 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
             <div className="p-4 bg-gradient-to-r from-red-50 to-pink-50 rounded-lg border border-red-200">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="font-medium text-red-800">最佳购买时机建议</span>
+                <span className="font-medium text-red-800">{getText('optimalPurchaseTimingRecommendation')}</span>
                 {predictionMethod.includes('LSTM') && (
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">AI增强预测</span>
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">{getText('aiEnhancedPrediction')}</span>
                 )}
               </div>
               <div className="text-sm text-red-700">
-                根据{predictionMethod.includes('LSTM') ? 'LSTM神经网络模型' : '统计学'}分析，建议在 <span className="font-bold">{optimalPoint.date}</span> 购买 {toCurrency}，
-                此时汇率达到峰值 <span className="font-bold">{optimalPoint.rate}</span>，
-                相比当前汇率可节省约 <span className="font-bold">{((optimalPoint.rate - lastRate) / lastRate * 100).toFixed(2)}%</span> 的成本。
+                {getText('analysisRecommendation', {
+                  method: predictionMethod.includes('LSTM') ? getText('lstmModelAnalysis') : getText('statisticalAnalysis'),
+                  date: optimalPoint.date,
+                  currency: toCurrency,
+                  rate: optimalPoint.rate.toString(),
+                  percentage: ((optimalPoint.rate - lastRate) / lastRate * 100).toFixed(2)
+                })}
               </div>
             </div>
           )}
@@ -2881,17 +3043,17 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
           {/* 预测数据表格（折叠显示） */}
           <details className="border rounded-lg">
             <summary className="p-3 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-colors">
-              <span className="font-medium">查看详细预测数据 (20天)</span>
-              <span className="text-xs text-slate-500 ml-2">- 点击展开</span>
+              <span className="font-medium">{getText('viewDetailedPredictionData')}</span>
+              <span className="text-xs text-slate-500 ml-2">{getText('clickToExpand')}</span>
             </summary>
             <div className="p-3 max-h-60 overflow-y-auto">
               <table className="min-w-full text-xs">
                 <thead>
                   <tr className="text-slate-600 border-b">
-                    <th className="px-2 py-1 text-left">日期</th>
-                    <th className="px-2 py-1 text-right">预测汇率</th>
-                    <th className="px-2 py-1 text-right">变化</th>
-                    <th className="px-2 py-1 text-center">建议</th>
+                    <th className="px-2 py-1 text-left">{getText('date')}</th>
+                    <th className="px-2 py-1 text-right">{getText('predictedRate')}</th>
+                    <th className="px-2 py-1 text-right">{getText('change')}</th>
+                    <th className="px-2 py-1 text-center">{getText('recommendation')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2906,7 +3068,7 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
                           {change >= 0 ? '+' : ''}{change.toFixed(2)}%
                         </td>
                         <td className="px-2 py-1 text-center">
-                          {item.isOptimal ? '🎯 最佳' : change > 0.5 ? '📈 适合' : change < -0.5 ? '📉 等待' : '➡️ 观望'}
+                          {item.isOptimal ? getText('optimal') : change > 0.5 ? getText('suitable') : change < -0.5 ? getText('wait') : getText('observe')}
                         </td>
                       </tr>
                     );
@@ -2917,11 +3079,7 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
           </details>
 
           <div className="text-xs text-slate-400 mt-2 text-center">
-            {predictionMethod.includes('LSTM') ? (
-              <>💡 预测基于LSTM神经网络模型，结合新闻情感分析，准确性较高但仅供参考。</>
-            ) : (
-              <>💡 此预测基于历史数据和统计分析，仅供参考。实际汇率可能受多种因素影响。</>
-            )}
+            {predictionMethod.includes('LSTM') ? getText('lstmDisclaimerText') : getText('statisticalDisclaimerText')}
           </div>
         </div>
       )}
