@@ -59,7 +59,13 @@ def score_text():
             numerical_sentiment = -sentiment_score
         # For neutral, it's already 0 or close to 0 if score is low
 
-        return jsonify({"sentiment": numerical_sentiment, "label": sentiment_label, "raw_score": sentiment_score})
+        return jsonify({
+            "sentiment": sentiment_label,  # Keep label format for frontend
+            "score": numerical_sentiment,  # Numerical score (-1 to 1)
+            "confidence": sentiment_score,  # Raw confidence score
+            "label": sentiment_label,      # Backward compatibility
+            "raw_score": sentiment_score   # Backward compatibility
+        })
     except Exception as e:
         print(f"Error processing text: {e}")
         return jsonify({"error": str(e)}), 500

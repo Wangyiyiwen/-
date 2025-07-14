@@ -22,10 +22,12 @@ export async function POST(req: Request) {
     let processedArticlesCount = 0
 
     for (const record of records) {
-      const articleText = record.content || record.article_text // Assuming 'content' or 'article_text' column
+      const recordData = record as any // Type assertion for CSV record
+      const articleText = recordData.content || recordData.article_text || recordData.text // Try multiple column names
       if (articleText) {
         try {
-          const sentimentResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sentiment/score`, {
+          // Call the Python Flask sentiment analysis service directly
+          const sentimentResponse = await fetch("http://localhost:5000/score", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

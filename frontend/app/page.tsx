@@ -37,6 +37,9 @@ import {
   AlertTriangle,
   Star,
   UploadCloud,
+  Save,
+  FileText,
+  Trash2,
 } from "lucide-react"
 
 interface Currency {
@@ -291,6 +294,22 @@ export default function CurrencyExchangeSystem() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
 
+  // News sentiment analysis states
+  const [newsText, setNewsText] = useState("")
+  const [sentimentResult, setSentimentResult] = useState<{
+    sentiment: string;
+    score: number;
+    confidence: number;
+  } | null>(null)
+  const [isAnalyzingSentiment, setIsAnalyzingSentiment] = useState(false)
+  const [savedNews, setSavedNews] = useState<Array<{
+    id: string;
+    text: string;
+    sentiment: string;
+    score: number;
+    timestamp: Date;
+  }>>([])
+
   // Language texts
   const texts: LanguageTexts = {
     systemTitle: { zh: "智能货币兑换策略系统", en: "Intelligent Currency Exchange Strategy System" },
@@ -424,6 +443,23 @@ export default function CurrencyExchangeSystem() {
     fundamentalAnalysis: { zh: "基本面分析", en: "Fundamental Analysis" },
     riskAssessment: { zh: "风险评估", en: "Risk Assessment" },
     timingSelection: { zh: "时机选择", en: "Timing Selection" },
+    // News Sentiment Analysis
+    newsInputPlaceholder: { zh: "请输入新闻文本进行情感分析...", en: "Enter news text for sentiment analysis..." },
+    analyzeNews: { zh: "分析情感", en: "Analyze Sentiment" },
+    analyzingSentiment: { zh: "分析中...", en: "Analyzing..." },
+    sentimentResult: { zh: "情感分析结果", en: "Sentiment Analysis Result" },
+    saveNews: { zh: "保存新闻", en: "Save News" },
+    newsSaved: { zh: "新闻已保存", en: "News Saved" },
+    newsHistory: { zh: "新闻历史", en: "News History" },
+    noNewsHistory: { zh: "暂无新闻历史", en: "No News History" },
+    clearHistory: { zh: "清空历史", en: "Clear History" },
+    positive: { zh: "积极", en: "Positive" },
+    negative: { zh: "消极", en: "Negative" },
+    inputRequired: { zh: "输入必填", en: "Input Required" },
+    analysisComplete: { zh: "分析完成", en: "Analysis Complete" },
+    analysisError: { zh: "分析失败", en: "Analysis Error" },
+    noDataToSave: { zh: "没有数据保存", en: "No Data to Save" },
+    historyCleared: { zh: "历史已清空", en: "History Cleared" },
     // AI Competition
     baseCurrencyLabel: { zh: "基础货币", en: "Base Currency" },
     targetCurrencyLabel: { zh: "目标货币", en: "Target Currency" },
@@ -1226,6 +1262,114 @@ export default function CurrencyExchangeSystem() {
     }
   }
 
+  // Handle news sentiment analysis
+  const handleAnalyzeNews = async () => {
+    if (!newsText.trim()) {
+      toast({
+        title: t("inputRequired"),
+        description: "请输入新闻文本",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsAnalyzingSentiment(true)
+    try {
+      const response = await fetch("/api/sentiment/score", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: newsText }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("Sentiment API response:", result) // Debug log
+        
+        // Handle different response formats from the Python backend
+        const sentiment = result.sentiment || result.label || 'neutral'
+        const score = result.score ?? result.raw_score ?? 0
+        const confidence = result.confidence ?? result.raw_score ?? 0
+
+        // Ensure numeric values and handle edge cases
+        const numericScore = isNaN(Number(score)) ? 0 : Number(score)
+        const numericConfidence = isNaN(Number(confidence)) ? 0 : Number(confidence)
+
+        setSentimentResult({
+          sentiment: sentiment,
+          score: numericScore,
+          confidence: Math.abs(numericConfidence), // Use absolute value for confidence
+        })
+        
+        toast({
+          title: t("analysisComplete"),
+          description: `情感: ${sentiment}, 分数: ${numericScore.toFixed(2)}`,
+        })
+      } else {
+        const errorText = await response.text()
+        console.error("API Error:", errorText)
+        throw new Error(`分析失败: ${response.status}`)
+      }
+    } catch (error) {
+      console.error("Error analyzing sentiment:", error)
+      toast({
+        title: t("analysisError"),
+        description: "情感分析失败，请稍后重试",
+        variant: "destructive",
+      })
+    } finally {
+      setIsAnalyzingSentiment(false)
+    }
+  }
+
+  // Handle saving news to history
+  const handleSaveNews = () => {
+    if (!sentimentResult || !newsText.trim()) {
+      toast({
+        title: t("noDataToSave"),
+        description: "请先进行情感分析",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const newNewsItem = {
+      id: Date.now().toString(),
+      text: newsText,
+      sentiment: sentimentResult.sentiment,
+      score: sentimentResult.score,
+      timestamp: new Date(),
+    }
+
+    setSavedNews((prev) => [newNewsItem, ...prev.slice(0, 19)]) // Keep only 20 latest news
+    
+    // Update market sentiment based on the new news
+    setMarketData((prev) => ({
+      ...prev,
+      sentiment: (prev.sentiment * prev.newsCount + sentimentResult.score) / (prev.newsCount + 1),
+      newsCount: prev.newsCount + 1,
+    }))
+
+    toast({
+      title: t("newsSaved"),
+      description: "新闻已保存到历史记录",
+    })
+
+    // Clear the form
+    setNewsText("")
+    setSentimentResult(null)
+  }
+
+  // Clear news history
+  const handleClearHistory = () => {
+    setSavedNews([])
+    toast({
+      title: t("historyCleared"),
+      description: "新闻历史已清空",
+    })
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -1834,13 +1978,13 @@ export default function CurrencyExchangeSystem() {
                     <span className="text-sm font-medium">{t("sentimentIndex")}</span>
                   </div>
                   <div className="text-2xl font-bold text-purple-600">
-                    {marketData.sentiment > 0 ? "+" : ""}
-                    {marketData.sentiment.toFixed(2)}
+                    {marketData.sentiment && marketData.sentiment > 0 ? "+" : ""}
+                    {(marketData.sentiment ?? 0).toFixed(2)}
                   </div>
                   <div className="text-xs text-slate-500">
-                    {marketData.sentiment > 0.2
+                    {(marketData.sentiment ?? 0) > 0.2
                       ? t("optimistic")
-                      : marketData.sentiment < -0.2
+                      : (marketData.sentiment ?? 0) < -0.2
                         ? t("pessimistic")
                         : t("neutral")}
                   </div>
@@ -1866,6 +2010,104 @@ export default function CurrencyExchangeSystem() {
                   </div>
                   <div className="text-2xl font-bold text-green-600">{currencies.length}</div>
                   <div className="text-xs text-slate-500">{t("supportedCurrencies")}</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* News Sentiment Analysis Card */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="animate-slide-up delay-100">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="h-5 w-5" />
+                    {t("sentimentAnalysis")}
+                  </CardTitle>
+                  <CardDescription>
+                    输入新闻文本进行情感分析，为汇率预测提供依据
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="news-text">新闻文本</Label>
+                    <Textarea
+                      id="news-text"
+                      placeholder={t("newsInputPlaceholder")}
+                      value={newsText}
+                      onChange={(e) => setNewsText(e.target.value)}
+                      className="min-h-[120px]"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handleAnalyzeNews} 
+                      disabled={isAnalyzingSentiment || !newsText.trim()}
+                      className="flex-1"
+                    >
+                      {isAnalyzingSentiment ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Brain className="h-4 w-4 mr-2" />
+                      )}
+                      {isAnalyzingSentiment ? t("analyzingSentiment") : t("analyzeNews")}
+                    </Button>
+                    {sentimentResult && (
+                      <Button 
+                        onClick={handleSaveNews}
+                        variant="outline"
+                      >
+                        <Save className="h-4 w-4 mr-2" />
+                        {t("saveNews")}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Sentiment Analysis Results */}
+              <Card className="animate-slide-up delay-150">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    {t("sentimentResult")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {sentimentResult ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center p-3 bg-slate-50 rounded-lg">
+                          <div className="text-lg font-bold text-blue-600">
+                            {sentimentResult.sentiment === 'positive' ? t("positive") :
+                             sentimentResult.sentiment === 'negative' ? t("negative") : t("neutral")}
+                          </div>
+                          <div className="text-xs text-slate-500">情感类型</div>
+                        </div>
+                        <div className="text-center p-3 bg-slate-50 rounded-lg">
+                          <div className="text-lg font-bold text-green-600">
+                            {sentimentResult.score.toFixed(2)}
+                          </div>
+                          <div className="text-xs text-slate-500">情感分数</div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm">置信度</Label>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${sentimentResult.confidence * 100}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-slate-500 text-right">
+                          {(sentimentResult.confidence * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-slate-500">
+                      <Brain className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+                      <p className="text-sm">请输入新闻文本并分析</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
