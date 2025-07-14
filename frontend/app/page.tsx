@@ -1574,9 +1574,9 @@ print(predictions)`)
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Optimal Strategy Display (Moved from Purchase Tab) - Takes up 2 columns */}
-                <Card className="animate-slide-in-left xl:col-span-2">
+              <div className="flex justify-center">
+                {/* Optimal Strategy Display (Moved from Purchase Tab) - Centered */}
+                <Card className="animate-slide-in-left w-full max-w-4xl">
                   <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
                     <CardTitle className="flex items-center gap-2">
                       <Trophy className="h-5 w-5" />
