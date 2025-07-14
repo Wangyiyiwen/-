@@ -1495,7 +1495,11 @@ print(predictions)`;
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setLanguage(language === "zh" ? "en" : "zh")}
+              onClick={() => {
+                console.log('Language before change:', language);
+                setLanguage(language === "zh" ? "en" : "zh");
+                console.log('Language after change:', language === "zh" ? "en" : "zh");
+              }}
               className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30 hover:text-white"
             >
               {language === "zh" ? "English" : "中文"}
@@ -1566,13 +1570,6 @@ print(predictions)`;
                   {t("enterSystem")}
                 </Button>
               </div>
-
-              {/* Scroll Indicator */}
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-                <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-                  <div className="w-1 h-3 bg-white/50 rounded-full mt-2 animate-pulse"></div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -1642,28 +1639,28 @@ print(predictions)`;
               <TabsList className="grid w-full grid-cols-4 bg-white/70 backdrop-blur-md border border-gray-200/50">
                 <TabsTrigger 
                   value="purchase" 
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {t("purchaseStrategy")}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="results"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
                 >
                   <BarChart3 className="h-4 w-4 mr-2" />
                   {t("resultsDisplay")}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="system"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
                 >
                   <Activity className="h-4 w-4 mr-2" />
                   {t("systemMonitor")}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="competition"
-                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
                 >
                   <Zap className="h-4 w-4 mr-2" />
                   {t("aiCompetition")}
