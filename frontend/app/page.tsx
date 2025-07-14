@@ -1495,11 +1495,7 @@ print(predictions)`;
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                console.log('Language before change:', language);
-                setLanguage(language === "zh" ? "en" : "zh");
-                console.log('Language after change:', language === "zh" ? "en" : "zh");
-              }}
+              onClick={() => setLanguage(language === "zh" ? "en" : "zh")}
               className="bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/30 hover:text-white"
             >
               {language === "zh" ? "English" : "中文"}
