@@ -28,6 +28,8 @@ import {
   Database,
   Activity,
   Newspaper,
+  ArrowLeft,
+  Send,
   Clock,
   CreditCard,
   Banknote,
@@ -477,6 +479,26 @@ export default function CurrencyExchangeSystem() {
       zh: "与AI进行5轮策略对战，看看谁的策略更优秀！",
       en: "Compete with AI in 5 rounds to see whose strategy is better!",
     },
+    // 新增汇率预测对战文本
+    predictionBattleMode: { zh: "汇率预测对战", en: "Rate Prediction Battle" },
+    strategyBattleMode: { zh: "策略对战", en: "Strategy Battle" },
+    chooseBattleMode: { zh: "选择对战模式", en: "Choose Battle Mode" },
+    predictionBattleDescription: {
+      zh: "选择货币后，系统随机选择历史5天时间段，你和AI都预测这5天的汇率走势，比较准确性！",
+      en: "Choose a currency, the system randomly selects a 5-day historical period, you and AI predict the exchange rate trend, comparing accuracy!"
+    },
+    selectCurrency: { zh: "选择货币", en: "Select Currency" },
+    startPredictionBattle: { zh: "开始预测对战", en: "Start Prediction Battle" },
+    historicalData: { zh: "历史数据", en: "Historical Data" },
+    predictionPeriod: { zh: "预测期间", en: "Prediction Period" },
+    enterPredictions: { zh: "输入你的预测", en: "Enter Your Predictions" },
+    submitPredictions: { zh: "提交预测", en: "Submit Predictions" },
+    day: { zh: "第{day}天", en: "Day {day}" },
+    playerPrediction: { zh: "你的预测", en: "Your Prediction" },
+    aiPrediction: { zh: "AI预测", en: "AI Prediction" },
+    actualRate: { zh: "真实汇率", en: "Actual Rate" },
+    accuracy: { zh: "准确率", en: "Accuracy" },
+    battleResults: { zh: "对战结果", en: "Battle Results" },
     roundDisplay: { zh: "第{round}轮", en: "Round {round}" },
     youWon: { zh: "你赢了", en: "You Won" },
     aiWon: { zh: "AI赢了", en: "AI Won" },
@@ -677,19 +699,30 @@ export default function CurrencyExchangeSystem() {
     // Removed "optimization" module as requested
   ])
 
-  // Competition State
-  const [gameSession, setGameSession] = useState<GameSession | null>(null)
-  const [isCompeting, setIsCompeting] = useState(false)
-  const [userStrategy, setUserStrategy] = useState<ExchangeStrategy>({
-    id: "user_strategy",
-    name: "用户策略",
-    type: "BALANCED",
-    buyThreshold: 0.02,
-    sellThreshold: 0.03,
-    riskLevel: 3,
-    expectedReturn: 5.0,
-    confidence: 75,
-  })
+  // 新增汇率预测对战状态
+  const [predictionBattle, setPredictionBattle] = useState<{
+    competitionId: string
+    currency: string
+    historicalData: { date: string; rate: number }[]
+    predictionPeriod: {
+      startDate: string
+      endDate: string
+      actualRates: number[]
+    }
+    playerPredictions: number[]
+    status: 'setup' | 'predicting' | 'submitted' | 'results'
+    results?: {
+      playerPredictions: number[]
+      aiPredictions: number[]
+      actualRates: number[]
+      playerAccuracy: number
+      aiAccuracy: number
+      winner: 'player' | 'ai' | 'tie'
+    }
+  } | null>(null)
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('HKD')
+  const [predictionDays, setPredictionDays] = useState<number>(5)
+  const [isLoadingPrediction, setIsLoadingPrediction] = useState(false)
 
   // Market Data
   const [marketData, setMarketData] = useState({
@@ -1054,117 +1087,8 @@ export default function CurrencyExchangeSystem() {
     analyzePurchaseStrategy() // Re-run the analysis
   }
 
-  const startCompetition = async () => {
-    setIsCompeting(true)
-    const newSession: GameSession = {
-      id: `game_${Date.now()}`,
-      rounds: [],
-      userScore: 0,
-      aiScore: 0,
-      currentRound: 1,
-      totalRounds: 5,
-      status: "playing",
-      startTime: new Date(),
-    }
-    setGameSession(newSession)
-
-    // Simulate competition rounds
-    for (let round = 1; round <= 5; round++) {
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-
-      const aiStrategy = generateAIStrategy()
-      const roundResult = simulateRound(userStrategy, aiStrategy, round, tradingPair.from, tradingPair.to)
-
-      setGameSession((prev) => {
-        if (!prev) return null
-        const updatedRounds = [...prev.rounds, roundResult]
-        const userWins = updatedRounds.filter((r) => r.winner === "user").length
-        const aiWins = updatedRounds.filter((r) => r.winner === "ai").length
-
-        return {
-          ...prev,
-          rounds: updatedRounds,
-          userScore: userWins,
-          aiScore: aiWins,
-          currentRound: round + 1,
-          status: round === 5 ? "finished" : "playing",
-        }
-      })
-    }
-
-    setIsCompeting(false)
-  }
-
-  const generateAIStrategy = (): ExchangeStrategy => {
-    const strategies = ["AGGRESSIVE", "CONSERVATIVE", "BALANCED"] as const
-    const randomStrategy = strategies[Math.floor(Math.random() * strategies.length)]
-
-    return {
-      id: `ai_strategy_${Date.now()}`,
-      name: "AI策略",
-      type: randomStrategy,
-      buyThreshold: 0.01 + Math.random() * 0.04,
-      sellThreshold: 0.02 + Math.random() * 0.04,
-      riskLevel: Math.floor(Math.random() * 5) + 1,
-      expectedReturn: 2 + Math.random() * 8,
-      confidence: 70 + Math.random() * 25,
-    }
-  }
-
-  const simulateRound = (
-    userStrat: ExchangeStrategy,
-    aiStrat: ExchangeStrategy,
-    round: number,
-    fromCurrency: string,
-    toCurrency: string,
-  ): CompetitionRound => {
-    const marketConditions = ["牛市", "熊市", "震荡", "突发事件", "政策影响"]
-    const condition = marketConditions[Math.floor(Math.random() * marketConditions.length)]
-
-    // In a real scenario, profit calculation would heavily depend on fromCurrency, toCurrency, and marketCondition
-    // For this mock, we'll just pass them through for display.
-    const userProfit = calculateProfit(userStrat, condition)
-    const aiProfit = calculateProfit(aiStrat, condition)
-
-    let winner: "user" | "ai" | "tie" = "tie"
-    if (userProfit > aiProfit) winner = "user"
-    else if (aiProfit > userProfit) winner = "ai"
-
-    return {
-      round,
-      userStrategy: userStrat,
-      aiStrategy: aiStrat,
-      winner,
-      userProfit,
-      aiProfit,
-      marketCondition: condition,
-      fromCurrency,
-      toCurrency,
-    }
-  }
-
-  const calculateProfit = (strategy: ExchangeStrategy, marketCondition: string): number => {
-    let baseProfit = strategy.expectedReturn
-
-    switch (marketCondition) {
-      case "牛市":
-        baseProfit *= strategy.type === "AGGRESSIVE" ? 1.5 : 1.2
-        break
-      case "熊市":
-        baseProfit *= strategy.type === "CONSERVATIVE" ? 1.3 : 0.7
-        break
-      case "震荡":
-        baseProfit *= strategy.type === "BALANCED" ? 1.4 : 0.9
-        break
-      case "突发事件":
-        baseProfit *= Math.random() > 0.5 ? 1.8 : 0.3
-        break
-      case "政策影响":
-        baseProfit *= 0.8 + Math.random() * 0.6
-        break
-    }
-
-    return Number.parseFloat((baseProfit * (0.8 + Math.random() * 0.4)).toFixed(2))
+  const resetPredictionBattle = () => {
+    setPredictionBattle(null)
   }
 
   const getModuleStatusColor = (status: string) => {
@@ -1239,8 +1163,8 @@ export default function CurrencyExchangeSystem() {
         // Update the newsCount and sentiment in marketData based on the imported count and calculated sentiment
         setMarketData((prev) => ({
           ...prev,
-          newsCount: result.importedCount, // Set to the new count from backend
-          sentiment: result.overallSentiment, // Update with calculated sentiment
+          newsCount: result.importedCount || 0, // Set to the new count from backend with fallback
+          sentiment: result.overallSentiment ?? 0, // Update with calculated sentiment, fallback to 0
         }))
         setSelectedFile(null) // Clear selected file
       } else {
@@ -1347,8 +1271,8 @@ export default function CurrencyExchangeSystem() {
     // Update market sentiment based on the new news
     setMarketData((prev) => ({
       ...prev,
-      sentiment: (prev.sentiment * prev.newsCount + sentimentResult.score) / (prev.newsCount + 1),
-      newsCount: prev.newsCount + 1,
+      sentiment: ((prev.sentiment ?? 0) * (prev.newsCount ?? 0) + (sentimentResult.score ?? 0)) / ((prev.newsCount ?? 0) + 1),
+      newsCount: (prev.newsCount ?? 0) + 1,
     }))
 
     toast({
@@ -1410,11 +1334,10 @@ export default function CurrencyExchangeSystem() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="purchase">{t("purchaseStrategy")}</TabsTrigger>
             <TabsTrigger value="results">{t("resultsDisplay")}</TabsTrigger>
             <TabsTrigger value="system">{t("systemMonitor")}</TabsTrigger>
-            <TabsTrigger value="analysis">{t("strategyAnalysis")}</TabsTrigger>
             <TabsTrigger value="competition">{t("aiCompetition")}</TabsTrigger>
           </TabsList>
 
@@ -2145,52 +2068,6 @@ export default function CurrencyExchangeSystem() {
             </Card>
           </TabsContent>
 
-          {/* Strategy Analysis Tab */}
-          <TabsContent value="analysis" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Analysis Weights Configuration */}
-              <Card className="animate-slide-in-left">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Zap className="h-5 w-5" />
-                    {t("analysisWeightConfig")}
-                  </CardTitle>
-                  <CardDescription>{t("adjustAnalysisWeights")}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {Object.entries(analysisWeights).map(([key, value]) => (
-                    <div key={key} className="space-y-2">
-                      <div className="flex justify-between">
-                        <Label className="capitalize">
-                          {key === "sentiment"
-                            ? t("sentimentAnalysis")
-                            : key === "technical"
-                              ? t("technicalAnalysis")
-                              : key === "fundamental"
-                                ? t("fundamentalAnalysis")
-                                : key === "risk"
-                                  ? t("riskAssessment")
-                                  : t("timingSelection")}
-                        </Label>
-                        <span className="text-sm font-medium">{value}%</span>
-                      </div>
-                      <Input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={value}
-                        onChange={(e) => {
-                          const newValue = Number(e.target.value)
-                          setAnalysisWeights((prev) => ({ ...prev, [key]: newValue }))
-                        }}
-                      />
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
           {/* AI Competition Tab */}
           <TabsContent value="competition" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -2302,174 +2179,10 @@ export default function CurrencyExchangeSystem() {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* User Strategy Configuration */}
-              <Card className="animate-slide-in-right">
-                <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5" />
-                    {t("userStrategy")}
-                  </CardTitle>
-                  <CardDescription className="text-green-100">{t("configureYourStrategy")}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  {/* Strategy Type Selection */}
-                  <div className="space-y-3">
-                    <Label>{t("strategyType")}</Label>
-                    <RadioGroup
-                      value={userStrategy.type}
-                      onValueChange={(value: "AGGRESSIVE" | "CONSERVATIVE" | "BALANCED" | "CUSTOM") => {
-                        const presets = {
-                          AGGRESSIVE: { buyThreshold: 0.015, sellThreshold: 0.04, riskLevel: 4, expectedReturn: 8.0 },
-                          CONSERVATIVE: { buyThreshold: 0.03, sellThreshold: 0.02, riskLevel: 2, expectedReturn: 3.5 },
-                          BALANCED: { buyThreshold: 0.02, sellThreshold: 0.03, riskLevel: 3, expectedReturn: 5.5 },
-                          CUSTOM: userStrategy,
-                        }
-                        setUserStrategy({ ...userStrategy, type: value, ...presets[value] })
-                      }}
-                      className="grid grid-cols-2 gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="AGGRESSIVE" id="aggressive" />
-                        <Label htmlFor="aggressive" className="flex items-center gap-2">
-                          <Zap className="h-4 w-4 text-red-500" />
-                          {t("aggressive")}
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="CONSERVATIVE" id="conservative" />
-                        <Label htmlFor="conservative" className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-blue-500" />
-                          {t("conservative")}
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="BALANCED" id="balanced" />
-                        <Label htmlFor="balanced" className="flex items-center gap-2">
-                          <BarChart3 className="h-4 w-4 text-green-500" />
-                          {t("balanced")}
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="CUSTOM" id="custom" />
-                        <Label htmlFor="custom" className="flex items-center gap-2">
-                          <Brain className="h-4 w-4 text-purple-500" />
-                          {t("custom")}
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  {/* Strategy Parameters */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>{t("buyThreshold")} (%)</Label>
-                      <Input
-                        type="number"
-                        value={userStrategy.buyThreshold * 100}
-                        onChange={(e) =>
-                          setUserStrategy({
-                            ...userStrategy,
-                            buyThreshold: Number.parseFloat(e.target.value) / 100 || 0,
-                            type: "CUSTOM",
-                          })
-                        }
-                        step="0.1"
-                        min="0"
-                        max="10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{t("sellThreshold")} (%)</Label>
-                      <Input
-                        type="number"
-                        value={userStrategy.sellThreshold * 100}
-                        onChange={(e) =>
-                          setUserStrategy({
-                            ...userStrategy,
-                            sellThreshold: Number.parseFloat(e.target.value) / 100 || 0,
-                            type: "CUSTOM",
-                          })
-                        }
-                        step="0.1"
-                        min="0"
-                        max="10"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>{t("riskLevel")} (1-5)</Label>
-                      <Input
-                        type="number"
-                        value={userStrategy.riskLevel}
-                        onChange={(e) =>
-                          setUserStrategy({
-                            ...userStrategy,
-                            riskLevel: Number.parseInt(e.target.value) || 1,
-                            type: "CUSTOM",
-                          })
-                        }
-                        min="1"
-                        max="5"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{t("expectedReturn")} (%)</Label>
-                      <Input
-                        type="number"
-                        value={userStrategy.expectedReturn}
-                        onChange={(e) =>
-                          setUserStrategy({
-                            ...userStrategy,
-                            expectedReturn: Number.parseFloat(e.target.value) || 0,
-                            type: "CUSTOM",
-                          })
-                        }
-                        step="0.1"
-                        min="0"
-                        max="20"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Strategy Summary */}
-                  <div className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border">
-                    <h4 className="font-medium mb-2">{t("strategySummary")}</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-slate-600">{t("type")}:</span>
-                        <span className="ml-2 font-medium">
-                          {userStrategy.type === "AGGRESSIVE"
-                            ? t("aggressive")
-                            : userStrategy.type === "CONSERVATIVE"
-                              ? t("conservative")
-                              : userStrategy.type === "BALANCED"
-                                ? t("balanced")
-                                : t("custom")}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-600">{t("riskLevel")}:</span>
-                        <span className="ml-2 font-medium">{userStrategy.riskLevel}/5</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-600">{t("buyThreshold")}:</span>
-                        <span className="ml-2 font-medium">{(userStrategy.buyThreshold * 100).toFixed(1)}%</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-600">{t("sellThreshold")}:</span>
-                        <span className="ml-2 font-medium">{(userStrategy.sellThreshold * 100).toFixed(1)}%</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
 
-            {/* Competition Control and AI Strategy */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Competition Control */}
+            <div className="grid grid-cols-1 gap-6">
               {/* Competition Control */}
               <Card className="animate-slide-up">
                 <CardHeader className="bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-t-lg">
@@ -2480,215 +2193,291 @@ export default function CurrencyExchangeSystem() {
                   <CardDescription className="text-orange-100">{t("startAICompetition")}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
-                  {!gameSession ? (
-                    <div className="text-center space-y-4">
-                      <div className="text-6xl mb-4">🤖</div>
-                      <h3 className="text-lg font-medium">{t("prepareToStartAICompetition")}</h3>
-                      <p className="text-slate-600 text-sm">{t("competitionDescription")}</p>
+                  {/* 汇率预测对战界面 */}
+                  {!predictionBattle && (
+                    <div className="space-y-4">
+                      <div className="text-center mb-6">
+                        <div className="text-6xl mb-4">🔮</div>
+                        <h3 className="text-lg font-medium">{t("predictionBattleMode")}</h3>
+                        <p className="text-sm text-slate-600">{t("predictionBattleDescription")}</p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">{t("selectCurrency")}</label>
+                        <select 
+                          value={selectedCurrency}
+                          onChange={(e) => setSelectedCurrency(e.target.value)}
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                          <option value="HKD">CNY/HKD (人民币/港币)</option>
+                          <option value="JPY">CNY/JPY (人民币/日元)</option>
+                          <option value="KRW">CNY/KRW (人民币/韩元)</option>
+                          <option value="MYR">CNY/MYR (人民币/马来西亚林吉特)</option>
+                          <option value="SGD">CNY/SGD (人民币/新加坡元)</option>
+                          <option value="THB">CNY/THB (人民币/泰铢)</option>
+                        </select>
+                      </div>
                       <Button
-                        onClick={startCompetition}
-                        disabled={isCompeting || Object.keys(fetchedRates).length === 0} // Disable if rates not loaded
-                        className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
+                        onClick={async () => {
+                          console.log('开始预测按钮被点击');
+                          console.log('selectedCurrency:', selectedCurrency);
+                          console.log('predictionDays:', predictionDays);
+                          
+                          try {
+                            setIsLoadingPrediction(true);
+                            console.log('发送API请求...');
+                            
+                            const response = await fetch('/api/rate-prediction-battle', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                action: 'start',
+                                currency: selectedCurrency,
+                                predictionDays
+                              })
+                            });
+                            
+                            console.log('API响应状态:', response.status);
+                            
+                            if (response.ok) {
+                              const result = await response.json();
+                              console.log('API响应数据:', result);
+                              
+                              setPredictionBattle({
+                                competitionId: result.competitionId || 'comp_' + Date.now(),
+                                currency: selectedCurrency,
+                                historicalData: result.historicalData || [],
+                                predictionPeriod: {
+                                  startDate: new Date().toISOString().split('T')[0],
+                                  endDate: new Date(Date.now() + predictionDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                  actualRates: []
+                                },
+                                playerPredictions: Array(predictionDays).fill(0),
+                                status: 'predicting'
+                              });
+                              console.log('状态已更新');
+                            } else {
+                              console.error('API请求失败:', response.status, response.statusText);
+                              const errorText = await response.text();
+                              console.error('错误详情:', errorText);
+                            }
+                          } catch (error) {
+                            console.error('启动预测对战失败:', error);
+                          } finally {
+                            setIsLoadingPrediction(false);
+                            console.log('加载状态已重置');
+                          }
+                        }}
+                        disabled={isLoadingPrediction}
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                       >
-                        {isCompeting ? (
+                        {isLoadingPrediction ? (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         ) : (
-                          <Trophy className="h-4 w-4 mr-2" />
+                          <TrendingUp className="h-4 w-4 mr-2" />
                         )}
-                        {isCompeting ? t("competing") : t("startCompetition")}
+                        {t("startPredictionBattle")}
                       </Button>
                     </div>
-                  ) : (
+                  )}
+
+                  {predictionBattle && (
                     <div className="space-y-4">
-                      {/* Game Status */}
-                      <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-                        <div className="text-sm text-blue-600 mb-2">
-                          {t("roundDisplay", { round: gameSession.currentRound - 1 })}/{gameSession.totalRounds}
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-green-600">{gameSession.userScore}</div>
-                            <div className="text-sm text-slate-600">{t("yourWins")}</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-red-600">{gameSession.aiScore}</div>
-                            <div className="text-sm text-slate-600">{t("aiWins")}</div>
-                          </div>
-                        </div>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium">CNY/{predictionBattle.currency} {t("predictionBattleMode")}</h3>
+                        <Button
+                          onClick={resetPredictionBattle}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <ArrowLeft className="h-4 w-4 mr-2" />
+                          返回
+                        </Button>
                       </div>
 
-                      {/* Round Results */}
-                      <div className="max-h-60 overflow-y-auto space-y-2">
-                        {gameSession.rounds.map((round, index) => (
-                          <div key={index} className="p-3 bg-slate-50 rounded-lg border">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-medium">
-                                {t("roundDisplay", { round: round.round })} ({round.fromCurrency}/{round.toCurrency})
-                              </span>
-                              <Badge
-                                variant={
-                                  round.winner === "user"
-                                    ? "default"
-                                    : round.winner === "ai"
-                                      ? "destructive"
-                                      : "secondary"
-                                }
-                              >
-                                {round.winner === "user" ? t("youWon") : round.winner === "ai" ? t("aiWon") : t("tie")}
-                              </Badge>
+                      {predictionBattle.status === 'predicting' && (
+                        <div className="space-y-4">
+                          {/* 历史数据图表展示 */}
+                          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h4 className="font-medium mb-3 text-blue-800">{t("historicalData")}</h4>
+                            {/* 图表展示历史数据 */}
+                            <div className="w-full bg-white rounded border p-3 mb-3">
+                              <SimpleLineChart 
+                                data={predictionBattle.historicalData.map(item => ({
+                                  time: item.date,
+                                  rate: item.rate,
+                                  timestamp: new Date(item.date).getTime()
+                                }))} 
+                                width={500} 
+                                height={150} 
+                              />
                             </div>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="text-slate-600">{t("yourProfit")}:</span>
-                                <span className="ml-2 font-medium text-green-600">
-                                  {round.userProfit > 0 ? "+" : ""}
-                                  {round.userProfit.toFixed(2)}%
-                                </span>
-                              </div>
-                              <div>
-                                <span className="text-slate-600">{t("aiProfit")}:</span>
-                                <span className="ml-2 font-medium text-red-600">
-                                  {round.aiProfit > 0 ? "+" : ""}
-                                  {round.aiProfit.toFixed(2)}%
-                                </span>
-                              </div>
-                            </div>
-                            <div className="text-xs text-slate-500 mt-1">
-                              {t("marketCondition")}: {round.marketCondition}
+                            {/* 最近几天的数值展示 */}
+                            <div className="grid grid-cols-3 gap-2 text-sm">
+                              {predictionBattle.historicalData.slice(-9).map((data, index) => (
+                                <div key={index} className="text-center p-2 bg-white rounded border">
+                                  <div className="text-xs text-slate-500">{data.date}</div>
+                                  <div className="font-medium">{data.rate.toFixed(4)}</div>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        ))}
-                      </div>
 
-                      {/* Competition Status */}
-                      {gameSession.status === "playing" && (
-                        <div className="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                          <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-yellow-600" />
-                          <div className="text-yellow-800 font-medium">{t("competitionInProgress")}</div>
-                        </div>
-                      )}
+                          {/* 预测期间 */}
+                          <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <h4 className="font-medium mb-3 text-yellow-800">{t("predictionPeriod")}</h4>
+                            <div className="text-sm text-yellow-700">
+                              {predictionBattle.predictionPeriod.startDate} 至 {predictionBattle.predictionPeriod.endDate}
+                            </div>
+                            <div className="text-xs text-yellow-600 mt-1">
+                              请根据上方的历史汇率走势预测这5天的汇率值
+                            </div>
+                          </div>
 
-                      {gameSession.status === "finished" && (
-                        <div className="text-center space-y-4">
-                          <div className="text-4xl mb-2">
-                            {gameSession.userScore > gameSession.aiScore
-                              ? "🏆"
-                              : gameSession.userScore < gameSession.aiScore
-                                ? "🤖"
-                                : "🤝"}
+                          {/* 预测输入 */}
+                          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                            <h4 className="font-medium mb-3 text-green-800">{t("enterPredictions")}</h4>
+                            <div className="grid grid-cols-1 gap-3">
+                              {[1, 2, 3, 4, 5].map((day) => (
+                                <div key={day} className="flex items-center space-x-3">
+                                  <label className="w-20 text-sm font-medium">
+                                    {t("day", { day })}:
+                                  </label>
+                                  <input
+                                    type="number"
+                                    step="0.0001"
+                                    placeholder="0.0000"
+                                    value={predictionBattle.playerPredictions[day - 1] || ''}
+                                    onChange={(e) => {
+                                      const newPredictions = [...predictionBattle.playerPredictions];
+                                      newPredictions[day - 1] = parseFloat(e.target.value) || 0;
+                                      setPredictionBattle({
+                                        ...predictionBattle,
+                                        playerPredictions: newPredictions
+                                      });
+                                    }}
+                                    className="flex-1 p-2 border border-gray-300 rounded-md text-sm"
+                                  />
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          <div className="font-medium text-lg">
-                            {gameSession.userScore > gameSession.aiScore
-                              ? t("congratulationsWin")
-                              : gameSession.userScore < gameSession.aiScore
-                                ? t("aiWin")
-                                : t("tieGame")}
-                          </div>
+
                           <Button
-                            onClick={() => {
-                              setGameSession(null)
-                              setIsCompeting(false)
+                            onClick={async () => {
+                              try {
+                                const response = await fetch('/api/rate-prediction-battle', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({
+                                    action: 'submit',
+                                    competitionId: predictionBattle.competitionId,
+                                    playerPredictions: predictionBattle.playerPredictions,
+                                    currency: predictionBattle.currency
+                                  })
+                                });
+                                
+                                if (response.ok) {
+                                  const result = await response.json();
+                                  console.log('提交预测响应:', result);
+                                  setPredictionBattle({
+                                    ...predictionBattle,
+                                    status: 'results',
+                                    results: result.results
+                                  });
+                                }
+                              } catch (error) {
+                                console.error('提交预测失败:', error);
+                              }
                             }}
-                            variant="outline"
-                            className="w-full"
+                            disabled={isLoadingPrediction}
+                            className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
                           >
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            {t("restart")}
+                            {isLoadingPrediction ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <Send className="h-4 w-4 mr-2" />
+                            )}
+                            {t("submitPredictions")}
                           </Button>
                         </div>
                       )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
 
-              {/* AI Strategy Analysis */}
-              <Card className="animate-slide-up delay-100">
-                <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-5 w-5" />
-                    {t("aiStrategyAnalysis")}
-                  </CardTitle>
-                  <CardDescription className="text-indigo-100">{t("aiCurrentStrategyAnalysis")}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {gameSession && gameSession.rounds.length > 0 ? (
-                    <div className="space-y-4">
-                      {/* Latest AI Strategy */}
-                      <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-200">
-                        <h4 className="font-medium mb-3 text-purple-800">{t("latestAIStrategy")}</h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-slate-600">{t("strategyTypeAI")}:</span>
-                            <span className="ml-2 font-medium">
-                              {gameSession.rounds[gameSession.rounds.length - 1]?.aiStrategy.type === "AGGRESSIVE"
-                                ? t("aggressive")
-                                : gameSession.rounds[gameSession.rounds.length - 1]?.aiStrategy.type === "CONSERVATIVE"
-                                  ? t("conservative")
-                                  : t("balanced")}
-                            </span>
+                      {predictionBattle.status === 'results' && predictionBattle.results && (
+                        <div className="space-y-4">
+                          {/* 对战结果 */}
+                          <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                            <div className="text-4xl mb-2">
+                              {predictionBattle.results?.winner === 'player' ? "🏆" : 
+                               predictionBattle.results?.winner === 'ai' ? "🤖" : "🤝"}
+                            </div>
+                            <div className="text-lg font-medium mb-2">
+                              {predictionBattle.results?.winner === 'player' ? "恭喜你获胜！" :
+                               predictionBattle.results?.winner === 'ai' ? "AI获胜！" : "平局！"}
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <div className="text-slate-600">{t("playerPrediction")} {t("accuracy")}:</div>
+                                <div className="text-2xl font-bold text-green-600">
+                                  {predictionBattle.results?.playerAccuracy?.toFixed(2) || '0.00'}%
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-slate-600">{t("aiPrediction")} {t("accuracy")}:</div>
+                                <div className="text-2xl font-bold text-red-600">
+                                  {predictionBattle.results?.aiAccuracy?.toFixed(2) || '0.00'}%
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-slate-600">{t("confidenceAI")}:</span>
-                            <span className="ml-2 font-medium">
-                              {gameSession.rounds[gameSession.rounds.length - 1]?.aiStrategy.confidence.toFixed(0)}%
-                            </span>
+
+                          {/* 对比图表 */}
+                          <div className="p-4 bg-slate-50 rounded-lg border">
+                            <h4 className="font-medium mb-3">预测结果对比图表</h4>
+                            <div className="w-full bg-white rounded border p-3 mb-3">
+                              <SimpleLineChart 
+                                data={[
+                                  // 用三条线展示：真实值、玩家预测、AI预测
+                                  ...(predictionBattle.results?.actualRates?.map((rate, index) => ({
+                                    time: `Day ${index + 1}`,
+                                    rate: rate,
+                                    timestamp: index
+                                  })) || [])
+                                ]} 
+                                width={500} 
+                                height={200} 
+                              />
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-slate-600">{t("riskLevelAI")}:</span>
-                            <span className="ml-2 font-medium">
-                              {gameSession.rounds[gameSession.rounds.length - 1]?.aiStrategy.riskLevel}/5
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-slate-600">{t("expectedReturnAI")}:</span>
-                            <span className="ml-2 font-medium">
-                              {gameSession.rounds[gameSession.rounds.length - 1]?.aiStrategy.expectedReturn.toFixed(1)}%
-                            </span>
+
+                          {/* 详细比较表格 */}
+                          <div className="p-4 bg-slate-50 rounded-lg border">
+                            <h4 className="font-medium mb-3">{t("battleResults")}</h4>
+                            <div className="space-y-2">
+                              {[1, 2, 3, 4, 5].map((day) => (
+                                <div key={day} className="grid grid-cols-4 gap-2 text-sm">
+                                  <div className="font-medium">{t("day", { day })}</div>
+                                  <div className="text-green-600">
+                                    {predictionBattle.results?.playerPredictions?.[day - 1]?.toFixed(4) || '0.0000'}
+                                  </div>
+                                  <div className="text-red-600">
+                                    {predictionBattle.results?.aiPredictions?.[day - 1]?.toFixed(4) || '0.0000'}
+                                  </div>
+                                  <div className="font-medium">
+                                    {predictionBattle.results?.actualRates?.[day - 1]?.toFixed(4) || '0.0000'}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="grid grid-cols-4 gap-2 text-xs text-slate-500 mt-2 pt-2 border-t">
+                              <div>日期</div>
+                              <div>{t("playerPrediction")}</div>
+                              <div>{t("aiPrediction")}</div>
+                              <div>{t("actualRate")}</div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-
-                      {/* AI Performance Analysis */}
-                      <div className="space-y-3">
-                        <h4 className="font-medium">{t("aiPerformanceAnalysis")}</h4>
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="text-center p-3 bg-green-50 rounded-lg">
-                            <div className="text-lg font-bold text-green-600">
-                              {gameSession.rounds.filter((r) => r.aiProfit > 0).length}
-                            </div>
-                            <div className="text-xs text-green-700">{t("profitableRounds")}</div>
-                          </div>
-                          <div className="text-center p-3 bg-red-50 rounded-lg">
-                            <div className="text-lg font-bold text-red-600">
-                              {gameSession.rounds.filter((r) => r.aiProfit < 0).length}
-                            </div>
-                            <div className="text-xs text-red-700">{t("lossRounds")}</div>
-                          </div>
-                          <div className="text-center p-3 bg-blue-50 rounded-lg">
-                            <div className="text-lg font-bold text-blue-600">
-                              {(
-                                gameSession.rounds.reduce((sum, r) => sum + r.aiProfit, 0) / gameSession.rounds.length
-                              ).toFixed(1)}
-                              %
-                            </div>
-                            <div className="text-xs text-blue-700">{t("averageReturn")}</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Strategy Evolution */}
-                      <div className="space-y-2">
-                        <h4 className="font-medium">{t("strategyEvolution")}</h4>
-                        <div className="text-sm text-slate-600">{t("aiLearningDesc")}</div>
-                        <Progress value={(gameSession.rounds.length / gameSession.totalRounds) * 100} className="h-2" />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-slate-500">
-                      <Brain className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                      <div className="font-medium mb-2">{t("waitingForCompetition")}</div>
-                      <div className="text-sm">{t("aiAnalysisAfterStart")}</div>
+                      )}
                     </div>
                   )}
                 </CardContent>

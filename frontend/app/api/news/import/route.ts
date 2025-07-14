@@ -37,8 +37,8 @@ export async function POST(req: Request) {
 
           if (sentimentResponse.ok) {
             const sentimentData = await sentimentResponse.json()
-            // Assuming sentimentData.sentiment is a numerical score (e.g., -1 to 1)
-            totalSentimentScore += sentimentData.sentiment
+            // Use sentimentData.score which is the numerical score (-1 to 1)
+            totalSentimentScore += sentimentData.score || 0
             processedArticlesCount++
           } else {
             console.warn(`Failed to get sentiment for an article: ${sentimentResponse.statusText}`)
