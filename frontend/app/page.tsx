@@ -1471,6 +1471,11 @@ export default function CurrencyExchangeSystem() {
   const [sentimentResult, setSentimentResult] = useState<{
     sentiment: string;
     score: number;
+    scores: {
+      positive: number;
+      neutral: number;
+      negative: number;
+    };
     confidence: number;
   } | null>(null)
   const [isAnalyzingSentiment, setIsAnalyzingSentiment] = useState(false)
@@ -1479,6 +1484,12 @@ export default function CurrencyExchangeSystem() {
     text: string;
     sentiment: string;
     score: number;
+    scores: {
+      positive: number;
+      neutral: number;
+      negative: number;
+    };
+    confidence: number;
     timestamp: Date;
   }>>([])
 
@@ -2685,6 +2696,8 @@ print(predictions)`;
 
     setIsAnalyzingSentiment(true)
     try {
+      console.log("发送情感分析请求...", { text: newsText.substring(0, 100) + "..." })
+      
       const response = await fetch("/api/sentiment/score", {
         method: "POST",
         headers: {
@@ -2693,23 +2706,31 @@ print(predictions)`;
         body: JSON.stringify({ text: newsText }),
       })
 
+      console.log("API响应状态:", response.status, response.statusText)
+
       if (response.ok) {
         const result = await response.json()
         console.log("Sentiment API response:", result) // Debug log
         
-        // Handle different response formats from the Python backend
+        // Handle the new API response format with all sentiment scores
         const sentiment = result.sentiment || result.label || 'neutral'
-        const score = result.score ?? result.raw_score ?? 0
-        const confidence = result.confidence ?? result.raw_score ?? 0
+        const score = result.score ?? 0
+        const scores = result.scores || { positive: 0, neutral: 0, negative: 0 }
+        const confidence = result.confidence ?? 0
 
-        // Ensure numeric values and handle edge cases
+        // Ensure numeric values
         const numericScore = isNaN(Number(score)) ? 0 : Number(score)
         const numericConfidence = isNaN(Number(confidence)) ? 0 : Number(confidence)
 
         setSentimentResult({
           sentiment: sentiment,
           score: numericScore,
-          confidence: Math.abs(numericConfidence), // Use absolute value for confidence
+          scores: {
+            positive: isNaN(Number(scores.positive)) ? 0 : Number(scores.positive),
+            neutral: isNaN(Number(scores.neutral)) ? 0 : Number(scores.neutral),
+            negative: isNaN(Number(scores.negative)) ? 0 : Number(scores.negative)
+          },
+          confidence: numericConfidence,
         })
         
         toast({
@@ -2718,8 +2739,24 @@ print(predictions)`;
         })
       } else {
         const errorText = await response.text()
-        console.error("API Error:", errorText)
-        throw new Error(`分析失败: ${response.status}`)
+        console.error("API Error Details:", {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText,
+          url: response.url
+        })
+        
+        // 提供更详细的错误信息
+        let errorMessage = `分析失败 (${response.status})`
+        if (response.status === 500) {
+          errorMessage = "服务器内部错误，请检查后端服务"
+        } else if (response.status === 502 || response.status === 503) {
+          errorMessage = "后端服务不可用，请稍后重试"
+        } else if (response.status === 404) {
+          errorMessage = "API 端点不存在"
+        }
+        
+        throw new Error(errorMessage)
       }
     } catch (error) {
       console.error("Error analyzing sentiment:", error)
@@ -2749,6 +2786,8 @@ print(predictions)`;
       text: newsText,
       sentiment: sentimentResult.sentiment,
       score: sentimentResult.score,
+      scores: sentimentResult.scores,
+      confidence: sentimentResult.confidence,
       timestamp: new Date(),
     }
 
@@ -4032,37 +4071,75 @@ print(predictions)`;
                 <CardContent>
                   {sentimentResult ? (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-3 gap-4">
+                      {/* 主要结果概览 */}
+                      <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="text-center p-3 bg-slate-50 rounded-lg">
                           <div className="text-lg font-bold text-blue-600">
                             {sentimentResult.sentiment === 'positive' ? t("positive") :
                              sentimentResult.sentiment === 'negative' ? t("negative") : t("neutral")}
                           </div>
-                          <div className="text-xs text-slate-500">情感类型</div>
+                          <div className="text-xs text-slate-500">主要情感</div>
                         </div>
                         <div className="text-center p-3 bg-slate-50 rounded-lg">
                           <div className="text-lg font-bold text-green-600">
-                            {sentimentResult.score.toFixed(2)}
+                            {sentimentResult.score.toFixed(3)}
                           </div>
-                          <div className="text-xs text-slate-500">情感分数</div>
-                        </div>
-                        <div className="text-center p-3 bg-slate-50 rounded-lg">
-                          <div className="text-lg font-bold text-purple-600">
-                            {sentimentResult.confidence.toFixed(2)}
-                          </div>
-                          <div className="text-xs text-slate-500">置信度</div>
+                          <div className="text-xs text-slate-500">综合分数</div>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm">置信度</Label>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${sentimentResult.confidence * 100}%` }}
-                          />
+
+                      {/* 详细情感分数 */}
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-slate-700">详细情感分析</h4>
+                        
+                        {/* Positive */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-green-600 font-medium">正面情感</span>
+                            <span className="text-sm font-mono">{sentimentResult.scores.positive.toFixed(3)}</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${sentimentResult.scores.positive * 100}%` }}
+                            />
+                          </div>
                         </div>
-                        <div className="text-xs text-slate-500 text-right">
-                          {(sentimentResult.confidence * 100).toFixed(1)}%
+
+                        {/* Neutral */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600 font-medium">中性情感</span>
+                            <span className="text-sm font-mono">{sentimentResult.scores.neutral.toFixed(3)}</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-gray-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${sentimentResult.scores.neutral * 100}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Negative */}
+                        <div className="space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-red-600 font-medium">负面情感</span>
+                            <span className="text-sm font-mono">{sentimentResult.scores.negative.toFixed(3)}</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-red-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${sentimentResult.scores.negative * 100}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* 置信度 */}
+                        <div className="pt-2 border-t border-gray-200">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-slate-600 font-medium">主要情感置信度</span>
+                            <span className="text-sm font-mono text-blue-600">{(sentimentResult.confidence * 100).toFixed(1)}%</span>
+                          </div>
                         </div>
                       </div>
                     </div>
