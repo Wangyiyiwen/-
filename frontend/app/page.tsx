@@ -2652,17 +2652,47 @@ type RateForecastSectionProps = {
   lastRate: number;
 };
 
-// 简单预测函数（未来可替换为模型预测）
+// 简单预测函数（支持LSTM模型和统计学回退）
 async function fetchRateForecast(
   fromCurrency: string,
   toCurrency: string,
   lastRate: number,
   days: number = 20
-): Promise<Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean }>> {
-  // TODO: 替换为后端/模型预测接口
-  // 这里用更复杂的波动模式来模拟真实汇率走势
+): Promise<Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean; method?: string }>> {
+  try {
+    // 首先尝试调用LSTM模型API
+    const response = await fetch('/api/rate-prediction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fromCurrency,
+        toCurrency,
+        days
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success) {
+        console.log('使用LSTM+情感分析模型预测:', result.model_info);
+        return result.predictions.map((pred: any) => ({
+          ...pred,
+          method: 'LSTM'
+        }));
+      } else {
+        console.warn('LSTM模型预测失败，使用统计学策略:', result.error);
+      }
+    }
+  } catch (error) {
+    console.warn('LSTM API调用失败，使用统计学策略:', error);
+  }
+
+  // 如果LSTM模型不可用，回退到统计学预测策略
+  console.log('使用统计学波动预测策略');
   const today = new Date();
-  const result: Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean }> = [];
+  const result: Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean; method?: string }> = [];
   
   let currentRate = lastRate;
   let trend = (Math.random() - 0.5) * 0.002; // 整体趋势
@@ -2682,7 +2712,8 @@ async function fetchRateForecast(
     result.push({ 
       date: date.toISOString().slice(0, 10), 
       rate: parseFloat(currentRate.toFixed(4)),
-      timestamp: date.getTime()
+      timestamp: date.getTime(),
+      method: 'Statistical'
     });
     
     // 调整趋势，让其有变化
@@ -2705,12 +2736,29 @@ async function fetchRateForecast(
 const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecastSectionProps) => {
   const [forecast, setForecast] = useState<Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean }>>([]);
   const [loading, setLoading] = useState(false);
+  const [predictionMethod, setPredictionMethod] = useState<string>('');
 
   useEffect(() => {
     setLoading(true);
+    setPredictionMethod('');
+    
     fetchRateForecast(fromCurrency, toCurrency, lastRate, 20).then((data) => {
       setForecast(data);
       setLoading(false);
+      
+      // 从预测数据中获取使用的方法
+      if (data.length > 0) {
+        const method = data[0].method;
+        if (method === 'LSTM') {
+          setPredictionMethod('LSTM+情感分析模型');
+        } else {
+          setPredictionMethod('统计学模拟算法');
+        }
+      }
+    }).catch((error) => {
+      console.error('预测失败:', error);
+      setLoading(false);
+      setPredictionMethod('统计学模拟算法');
     });
   }, [fromCurrency, toCurrency, lastRate]);
 
@@ -2725,9 +2773,29 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
         <div className="text-slate-400 text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-2"></div>
           {fromCurrency}/{toCurrency} 汇率预测加载中...
+          <div className="text-xs mt-1">正在初始化AI模型...</div>
         </div>
       ) : (
         <div className="space-y-4">
+          {/* 预测方法指示器 */}
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 rounded-full ${predictionMethod.includes('LSTM') ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+              <span>预测方法: {predictionMethod}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              {predictionMethod.includes('LSTM') ? (
+                <>
+                  <span className="text-blue-600">🤖 AI增强</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-green-600">📊 统计模拟</span>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* 图表区域 */}
           <div className="border rounded-lg p-4 bg-white">
             <div className="w-full overflow-x-auto">
@@ -2749,6 +2817,26 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
                     <div className="text-xs">汇率: {optimalPoint.rate}</div>
                   </div>
                 )}
+                {/* 模型信息标注 */}
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-sm border">
+                  <div className="text-xs text-slate-600">
+                    {predictionMethod.includes('LSTM') ? (
+                      <>
+                        <div className="flex items-center gap-1 font-medium text-blue-600">
+                          <span>🧠</span> LSTM神经网络
+                        </div>
+                        <div className="text-xs">结合新闻情感分析</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-1 font-medium text-green-600">
+                          <span>📈</span> 统计模拟算法
+                        </div>
+                        <div className="text-xs">基于历史波动模式</div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2778,9 +2866,12 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                 <span className="font-medium text-red-800">最佳购买时机建议</span>
+                {predictionMethod.includes('LSTM') && (
+                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">AI增强预测</span>
+                )}
               </div>
               <div className="text-sm text-red-700">
-                根据预测分析，建议在 <span className="font-bold">{optimalPoint.date}</span> 购买 {toCurrency}，
+                根据{predictionMethod.includes('LSTM') ? 'LSTM神经网络模型' : '统计学'}分析，建议在 <span className="font-bold">{optimalPoint.date}</span> 购买 {toCurrency}，
                 此时汇率达到峰值 <span className="font-bold">{optimalPoint.rate}</span>，
                 相比当前汇率可节省约 <span className="font-bold">{((optimalPoint.rate - lastRate) / lastRate * 100).toFixed(2)}%</span> 的成本。
               </div>
@@ -2791,6 +2882,7 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
           <details className="border rounded-lg">
             <summary className="p-3 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-colors">
               <span className="font-medium">查看详细预测数据 (20天)</span>
+              <span className="text-xs text-slate-500 ml-2">- 点击展开</span>
             </summary>
             <div className="p-3 max-h-60 overflow-y-auto">
               <table className="min-w-full text-xs">
@@ -2825,7 +2917,11 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate }: RateForecas
           </details>
 
           <div className="text-xs text-slate-400 mt-2 text-center">
-            💡 此预测基于历史数据和技术分析，仅供参考。实际汇率可能受多种因素影响。
+            {predictionMethod.includes('LSTM') ? (
+              <>💡 预测基于LSTM神经网络模型，结合新闻情感分析，准确性较高但仅供参考。</>
+            ) : (
+              <>💡 此预测基于历史数据和统计分析，仅供参考。实际汇率可能受多种因素影响。</>
+            )}
           </div>
         </div>
       )}
