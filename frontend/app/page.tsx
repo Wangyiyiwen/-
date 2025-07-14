@@ -45,6 +45,8 @@ import {
   ArrowRight,
   Home,
   ShoppingCart,
+  Check,
+  X,
 } from "lucide-react"
 
 interface Currency {
@@ -198,78 +200,1214 @@ const currencies: Currency[] = [
   { code: "PHP", name: "菲律宾比索", symbol: "₱", flag: "🇵🇭" },
 ]
 
-const mockChannels: MockChannel[] = [
+// 详细策略选项数据结构
+interface DetailedExchangeStrategy {
+  id: string
+  name: string
+  nameKey: string
+  category: 'bank-online' | 'bank-offline' | 'bank-appointment' | 'atm-foreign' | 'airport-domestic' | 'airport-foreign'
+  
+  // 银行/机构信息
+  institution: {
+    name: string
+    type: 'bank' | 'airport' | 'atm-network'
+  }
+  
+  // 兑换方式详情
+  method: {
+    type: 'online-purchase-offline-pickup' | 'direct-offline' | 'appointment-required' | 'atm-withdrawal' | 'airport-counter'
+    description: string
+    steps: string[]
+  }
+  
+  // 成本结构（按货币区分）
+  costStructure: {
+    [currency: string]: {
+      localCard: {
+        enabled: boolean
+        baseFee: number // 固定费用
+        percentageFee: number // 百分比费用
+        minFee?: number
+        maxFee?: number
+      }
+      nonLocalCard: {
+        enabled: boolean
+        baseFee: number
+        percentageFee: number
+        minFee?: number
+        maxFee?: number
+      }
+      exchangeRateMarkup: number // 汇率加价百分比
+      additionalFees?: { name: string; amount: number }[]
+    }
+  }
+  
+  // 时间要求
+  timeRequirements: {
+    appointmentDays: number // 需要提前预约天数
+    processingTime: string
+    urgentAvailable: boolean
+    operatingHours: {
+      online?: string
+      offline?: string
+      weekends: boolean
+    }
+  }
+  
+  // 可用性和限制
+  availability: {
+    currencySupport: {
+      [currency: string]: 'excellent' | 'good' | 'limited' | 'rare'
+    }
+    locationAccess: 'nationwide' | 'major-cities' | 'limited-branches' | 'specific-locations'
+    stockLevel: 'abundant' | 'sufficient' | 'limited' | 'appointment-required'
+    maxAmount: {
+      daily?: number
+      perTransaction?: number
+      annual?: number
+    }
+  }
+  
+  // 特色和限制
+  features: string[]
+  restrictions: string[]
+  
+  // 评分系统 (1-10)
+  ratings: {
+    cost: number // 成本优势
+    convenience: number // 便利性
+    speed: number // 速度
+    reliability: number // 可靠性
+    flexibility: number // 灵活性
+  }
+  
+  // 风险和信心度
+  riskLevel: "LOW" | "MEDIUM" | "HIGH"
+  confidence: number
+  
+  // 优缺点
+  prosKeys: string[]
+  consKeys: string[]
+}
+
+// 用户偏好设置接口
+interface UserPreferences {
+  priorityWeights: {
+    cost: number      // 成本权重 (0-1)
+    convenience: number  // 便利性权重 (0-1)
+    speed: number     // 速度权重 (0-1)
+    reliability: number  // 可靠性权重 (0-1)
+    flexibility: number  // 灵活性权重 (0-1)
+  }
+  cardType: 'local' | 'non-local'
+  urgencyLevel: 'LOW' | 'MEDIUM' | 'HIGH'
+  maxAcceptableFee: number // 最大可接受手续费百分比
+  preferredMethods: string[] // 偏好的兑换方式
+}
+
+// 详细兑换策略数据
+const detailedExchangeStrategies: DetailedExchangeStrategy[] = [
+  // 中国银行策略
   {
-    id: "major_bank",
-    nameKey: "majorBankBranch",
-    type: "BANK",
-    baseRateModifier: 1.0,
-    baseFeeRate: 0.5,
-    timeFactors: { LOW: "1-2天", MEDIUM: "2-4小时", HIGH: "1小时" },
-    prosKeys: ["rateDiscount", "safeReliable", "manyBranches", "largeAmountSupport"],
-    consKeys: ["appointmentNeeded", "businessHoursLimit", "queuePossible"],
+    id: "boc_online_offline_sgd",
+    name: "中国银行线上购汇线下取钞（新加坡元）",
+    nameKey: "boc_online_offline_sgd",
+    category: "bank-online",
+    institution: { name: "中国银行", type: "bank" },
+    method: {
+      type: "online-purchase-offline-pickup",
+      description: "手机银行购汇后预约网点取现钞",
+      steps: [
+        "登录中国银行手机APP",
+        "进入跨境金融→外币现钞预约",
+        "选择新加坡元、网点、时间",
+        "携带身份证到网点取现钞"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.1, maxFee: 200 },
+        exchangeRateMarkup: 1.5
+      },
+      HKD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.1, maxFee: 200 },
+        exchangeRateMarkup: 1.0
+      },
+      JPY: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.1, maxFee: 200 },
+        exchangeRateMarkup: 1.2
+      },
+      KRW: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.1, maxFee: 200 },
+        exchangeRateMarkup: 1.8
+      },
+      THB: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.1, maxFee: 200 },
+        exchangeRateMarkup: 2.0
+      },
+      MYR: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.1, maxFee: 200 },
+        exchangeRateMarkup: 2.5
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 2,
+      processingTime: "即时取现",
+      urgentAvailable: false,
+      operatingHours: { online: "7×24小时", offline: "工作日9:00-17:00", weekends: true }
+    },
+    availability: {
+      currencySupport: {
+        SGD: "excellent", HKD: "excellent", JPY: "excellent",
+        KRW: "good", THB: "good", MYR: "limited"
+      },
+      locationAccess: "nationwide",
+      stockLevel: "abundant",
+      maxAmount: { daily: 10000, annual: 50000 }
+    },
+    features: ["支持APP预约", "免手续费（本地卡）", "库存充足", "全国网点"],
+    restrictions: ["需提前2天预约", "外地卡收取转账费"],
+    ratings: { cost: 9, convenience: 8, speed: 7, reliability: 9, flexibility: 7 },
     riskLevel: "LOW",
-    confidence: 92,
-    supportsCash: true,
-    supportsDigital: true,
+    confidence: 95,
+    prosKeys: ["免手续费", "全国覆盖", "APP便捷预约", "库存稳定"],
+    consKeys: ["需要预约", "外地卡有费用"]
   },
+
   {
-    id: "online_bank",
-    nameKey: "mobileBankingApp",
-    type: "ONLINE",
-    baseRateModifier: 1.002,
-    baseFeeRate: 0.3,
-    timeFactors: { LOW: "即时", MEDIUM: "即时", HIGH: "即时" },
-    prosKeys: ["24hAvailable", "lowFees", "convenientOperation", "noQueue"],
-    consKeys: ["digitalOnly", "amountLimit", "onlineBankingRequired"],
-    riskLevel: "LOW",
-    confidence: 90,
-    supportsCash: false,
-    supportsDigital: true,
-  },
-  {
-    id: "airport_exchange",
-    nameKey: "airportExchange",
-    type: "AIRPORT",
-    baseRateModifier: 0.985,
-    baseFeeRate: 2.0,
-    timeFactors: { LOW: "30分钟", MEDIUM: "30分钟", HIGH: "30分钟" },
-    prosKeys: ["convenientForTravel", "instantCash", "noAppointment"],
-    consKeys: ["worseRate", "highFees", "airportOnly"],
-    riskLevel: "MEDIUM",
-    confidence: 75,
-    supportsCash: true,
-    supportsDigital: false,
-  },
-  {
-    id: "exchange_shop",
-    nameKey: "exchangeShop",
-    type: "EXCHANGE_SHOP",
-    baseRateModifier: 0.995,
-    baseFeeRate: 1.0,
-    timeFactors: { LOW: "1小时", MEDIUM: "1小时", HIGH: "30分钟" },
-    prosKeys: ["betterRate", "professionalService", "simpleProcedure"],
-    consKeys: ["fewerBranches", "businessHoursLimit", "stockShortage"],
+    id: "boc_direct_offline",
+    name: "中国银行直接网点兑换",
+    nameKey: "boc_direct_offline",
+    category: "bank-offline",
+    institution: { name: "中国银行", type: "bank" },
+    method: {
+      type: "direct-offline",
+      description: "直接到中国银行网点兑换现钞",
+      steps: [
+        "携带身份证到中国银行网点",
+        "取号排队",
+        "告知兑换币种和金额",
+        "当场兑换取现钞"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.1, maxFee: 200 },
+        exchangeRateMarkup: 2.0
+      },
+      HKD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.1, maxFee: 200 },
+        exchangeRateMarkup: 1.5
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时办理",
+      urgentAvailable: true,
+      operatingHours: { offline: "工作日9:00-17:00", weekends: true }
+    },
+    availability: {
+      currencySupport: { SGD: "good", HKD: "excellent", JPY: "good" },
+      locationAccess: "nationwide",
+      stockLevel: "sufficient",
+      maxAmount: { daily: 10000 }
+    },
+    features: ["无需预约", "即时办理", "现场验钞"],
+    restrictions: ["可能缺货", "大额需预约"],
+    ratings: { cost: 8, convenience: 9, speed: 9, reliability: 7, flexibility: 8 },
     riskLevel: "MEDIUM",
     confidence: 80,
-    supportsCash: true,
-    supportsDigital: false,
+    prosKeys: ["即时办理", "无需预约", "现场验钞"],
+    consKeys: ["可能缺货", "汇率稍差"]
   },
+
+  // 工商银行策略
   {
-    id: "atm_overseas",
-    nameKey: "overseasATMWithdrawal",
-    type: "ATM",
-    baseRateModifier: 0.998,
-    baseFeeRate: 1.5,
-    timeFactors: { LOW: "uponArrival", MEDIUM: "uponArrival", HIGH: "uponArrival" },
-    prosKeys: ["cashUponArrival", "realtimeRate", "24hAvailable"],
-    consKeys: ["overseasOperation", "amountLimit", "atmAvailability"],
+    id: "icbc_online_offline",
+    name: "工商银行线上购汇线下取钞",
+    nameKey: "icbc_online_offline",
+    category: "bank-online",
+    institution: { name: "工商银行", type: "bank" },
+    method: {
+      type: "online-purchase-offline-pickup",
+      description: "手机银行购汇后网点取现钞",
+      steps: [
+        "登录工商银行手机APP",
+        "进入结售汇→购汇",
+        "选择外币种类和金额",
+        "预约网点取现钞"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 20, percentageFee: 0.5, minFee: 20, maxFee: 100 },
+        exchangeRateMarkup: 1.8
+      },
+      JPY: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 20, percentageFee: 0.5, minFee: 20, maxFee: 100 },
+        exchangeRateMarkup: 1.5
+      },
+      HKD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 20, percentageFee: 0.5, minFee: 20, maxFee: 100 },
+        exchangeRateMarkup: 1.2
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 3,
+      processingTime: "即时取现",
+      urgentAvailable: false,
+      operatingHours: { online: "周一7:00-24:00，周二-周五0:00-24:00", offline: "工作日9:00-17:00", weekends: false }
+    },
+    availability: {
+      currencySupport: { SGD: "good", JPY: "excellent", HKD: "excellent" },
+      locationAccess: "major-cities",
+      stockLevel: "sufficient",
+      maxAmount: { daily: 10000 }
+    },
+    features: ["支持APP预约", "汇率相对优惠", "大城市覆盖好"],
+    restrictions: ["需提前3天预约", "周日无法线上操作", "外地卡手续费较高"],
+    ratings: { cost: 7, convenience: 6, speed: 6, reliability: 8, flexibility: 6 },
     riskLevel: "MEDIUM",
     confidence: 85,
-    supportsCash: true,
-    supportsDigital: true,
+    prosKeys: ["汇率相对优惠", "覆盖面广"],
+    consKeys: ["预约时间长", "外地卡费用高", "周日不可用"]
   },
-]
+
+  // 招商银行策略
+  {
+    id: "cmb_online_offline",
+    name: "招商银行线上购汇线下取钞",
+    nameKey: "cmb_online_offline",
+    category: "bank-online",
+    institution: { name: "招商银行", type: "bank" },
+    method: {
+      type: "online-purchase-offline-pickup",
+      description: "手机银行购汇后预约网点取现钞",
+      steps: [
+        "登录招商银行手机APP",
+        "进入跨境金融→外汇购汇",
+        "选择现钞户兑换",
+        "预约网点取现钞"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        exchangeRateMarkup: 2.5
+      },
+      HKD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        exchangeRateMarkup: 2.0
+      },
+      JPY: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        exchangeRateMarkup: 2.2
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 2,
+      processingTime: "即时取现",
+      urgentAvailable: false,
+      operatingHours: { online: "7×24小时", offline: "工作日9:00-17:00", weekends: true }
+    },
+    availability: {
+      currencySupport: { SGD: "limited", HKD: "good", JPY: "limited" },
+      locationAccess: "major-cities",
+      stockLevel: "limited",
+      maxAmount: { daily: 10000, annual: 50000 }
+    },
+    features: ["不区分本地外地卡", "部分币种支持"],
+    restrictions: ["库存有限", "手续费固定收取", "部分币种不支持"],
+    ratings: { cost: 5, convenience: 6, speed: 7, reliability: 6, flexibility: 5 },
+    riskLevel: "MEDIUM",
+    confidence: 70,
+    prosKeys: ["费率统一", "预约便利"],
+    consKeys: ["手续费较高", "库存有限", "支持币种少"]
+  },
+
+  {
+    id: "cmb_cash_direct",
+    name: "招商银行现金直接兑换",
+    nameKey: "cmb_cash_direct",
+    category: "bank-offline",
+    institution: { name: "招商银行", type: "bank" },
+    method: {
+      type: "direct-offline",
+      description: "携带现金到招商银行网点直接兑换",
+      steps: [
+        "准备人民币现金和身份证",
+        "到招商银行网点取号",
+        "向柜台说明兑换需求",
+        "现金兑换外币现钞"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        exchangeRateMarkup: 3.0
+      },
+      HKD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0.5, maxFee: 50 },
+        exchangeRateMarkup: 2.5
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时办理",
+      urgentAvailable: true,
+      operatingHours: { offline: "工作日9:00-17:00", weekends: true }
+    },
+    availability: {
+      currencySupport: { SGD: "limited", HKD: "good" },
+      locationAccess: "limited-branches",
+      stockLevel: "limited",
+      maxAmount: { daily: 10000 }
+    },
+    features: ["现金交易", "即时办理", "小额方便"],
+    restrictions: ["库存紧张", "大额需预约", "汇率较差"],
+    ratings: { cost: 4, convenience: 7, speed: 8, reliability: 5, flexibility: 6 },
+    riskLevel: "HIGH",
+    confidence: 60,
+    prosKeys: ["即时办理", "现金交易"],
+    consKeys: ["汇率差", "库存有限", "手续费高"]
+  },
+
+  // 建设银行策略
+  {
+    id: "ccb_online_offline",
+    name: "建设银行线上购汇线下取钞",
+    nameKey: "ccb_online_offline",
+    category: "bank-online",
+    institution: { name: "建设银行", type: "bank" },
+    method: {
+      type: "online-purchase-offline-pickup",
+      description: "建设银行APP购汇后预约取现钞",
+      steps: [
+        "登录建设银行APP",
+        "进入外币兑换功能",
+        "选择币种和金额兑换",
+        "预约网点取现钞"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 5, percentageFee: 0.05, minFee: 5, maxFee: 50 },
+        nonLocalCard: { enabled: true, baseFee: 5, percentageFee: 0.05, minFee: 5, maxFee: 50 },
+        exchangeRateMarkup: 2.2
+      },
+      HKD: {
+        localCard: { enabled: true, baseFee: 5, percentageFee: 0.05, minFee: 5, maxFee: 50 },
+        nonLocalCard: { enabled: true, baseFee: 5, percentageFee: 0.05, minFee: 5, maxFee: 50 },
+        exchangeRateMarkup: 1.8
+      },
+      JPY: {
+        localCard: { enabled: true, baseFee: 5, percentageFee: 0.05, minFee: 5, maxFee: 50 },
+        nonLocalCard: { enabled: true, baseFee: 5, percentageFee: 0.05, minFee: 5, maxFee: 50 },
+        exchangeRateMarkup: 1.6
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 3,
+      processingTime: "即时取现",
+      urgentAvailable: false,
+      operatingHours: { online: "7×24小时", offline: "工作日9:00-17:00", weekends: true }
+    },
+    availability: {
+      currencySupport: { SGD: "limited", HKD: "good", JPY: "good" },
+      locationAccess: "limited-branches",
+      stockLevel: "appointment-required",
+      maxAmount: { daily: 10000 }
+    },
+    features: ["统一手续费", "支持多币种"],
+    restrictions: ["网点较少", "必须预约", "提前3天"],
+    ratings: { cost: 6, convenience: 5, speed: 5, reliability: 7, flexibility: 5 },
+    riskLevel: "MEDIUM",
+    confidence: 75,
+    prosKeys: ["费率透明", "支持多币种"],
+    consKeys: ["网点少", "预约时间长"]
+  },
+
+  // 国外ATM取现策略
+  {
+    id: "singapore_atm_uob_maybank",
+    name: "新加坡UOB/Maybank ATM取现",
+    nameKey: "singapore_atm_free",
+    category: "atm-foreign",
+    institution: { name: "UOB/Maybank", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在新加坡UOB或Maybank ATM使用银联卡取现",
+      steps: [
+        "抵达新加坡后找到UOB或Maybank ATM",
+        "插入银联卡",
+        "选择银联网络",
+        "输入取现金额和密码"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "新加坡本地ATM费用", amount: 0 }]
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "24小时", weekends: true }
+    },
+    availability: {
+      currencySupport: { SGD: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "abundant",
+      maxAmount: { daily: 10000, perTransaction: 800 }
+    },
+    features: ["24小时可用", "无新加坡ATM费用", "实时汇率"],
+    restrictions: ["仅在新加坡可用", "国内银行收取跨境费用"],
+    ratings: { cost: 7, convenience: 9, speed: 10, reliability: 9, flexibility: 8 },
+    riskLevel: "LOW",
+    confidence: 90,
+    prosKeys: ["24小时", "无本地费用", "实时汇率", "便利快捷"],
+    consKeys: ["国内银行费用", "仅限新加坡"]
+  },
+
+  {
+    id: "singapore_atm_dbs_posb",
+    name: "新加坡DBS/POSB ATM取现",
+    nameKey: "singapore_atm_dbs",
+    category: "atm-foreign",
+    institution: { name: "DBS/POSB", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在新加坡DBS或POSB ATM使用银联卡取现",
+      steps: [
+        "找到DBS或POSB ATM",
+        "插入银联卡选择银联网络",
+        "输入取现金额",
+        "确认交易并取现"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "DBS/POSB ATM费用", amount: 5 }]
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "24小时", weekends: true }
+    },
+    availability: {
+      currencySupport: { SGD: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "abundant",
+      maxAmount: { daily: 10000, perTransaction: 800 }
+    },
+    features: ["24小时可用", "网点众多", "实时汇率"],
+    restrictions: ["收取5新元ATM费用", "国内银行跨境费用"],
+    ratings: { cost: 6, convenience: 9, speed: 10, reliability: 9, flexibility: 8 },
+    riskLevel: "LOW",
+    confidence: 85,
+    prosKeys: ["24小时", "网点多", "实时汇率"],
+    consKeys: ["ATM费用5新元", "国内银行费用"]
+  },
+
+  {
+    id: "thailand_atm_all",
+    name: "泰国ATM取现（任意银行）",
+    nameKey: "thailand_atm_all",
+    category: "atm-foreign",
+    institution: { name: "泰国各银行ATM", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在泰国任意ATM使用银联卡取现",
+      steps: [
+        "找到任意泰国银行ATM",
+        "插入银联卡",
+        "选择银联网络",
+        "输入取现金额和密码"
+      ]
+    },
+    costStructure: {
+      THB: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "泰国ATM费用", amount: 220 }] // 220泰铢约45元人民币
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "24小时", weekends: true }
+    },
+    availability: {
+      currencySupport: { THB: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "abundant",
+      maxAmount: { daily: 30000, perTransaction: 30000 } // 30000泰铢
+    },
+    features: ["24小时可用", "全泰国通用", "实时汇率"],
+    restrictions: ["固定收取220泰铢", "单日限额30000泰铢"],
+    ratings: { cost: 5, convenience: 9, speed: 10, reliability: 9, flexibility: 8 },
+    riskLevel: "MEDIUM",
+    confidence: 90,
+    prosKeys: ["24小时", "全国通用", "实时汇率"],
+    consKeys: ["固定费用220泰铢", "费用较高"]
+  },
+
+  {
+    id: "korea_atm_lotte711",
+    name: "韩国乐天7-11 ATM取现",
+    nameKey: "korea_atm_lotte",
+    category: "atm-foreign",
+    institution: { name: "乐天7-11", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在韩国乐天7-11便利店ATM取现",
+      steps: [
+        "找到7-11便利店",
+        "使用店内乐天ATM",
+        "插入银联卡取现韩元",
+        "最多可取10万韩元"
+      ]
+    },
+    costStructure: {
+      KRW: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "乐天ATM费用", amount: 0 }]
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "便利店营业时间", weekends: true }
+    },
+    availability: {
+      currencySupport: { KRW: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "sufficient",
+      maxAmount: { perTransaction: 100000 } // 10万韩元
+    },
+    features: ["免ATM费用", "便利店内", "覆盖面广"],
+    restrictions: ["单次限额10万韩元", "营业时间限制"],
+    ratings: { cost: 8, convenience: 8, speed: 10, reliability: 8, flexibility: 7 },
+    riskLevel: "LOW",
+    confidence: 85,
+    prosKeys: ["免本地费用", "便利店内", "取现便利"],
+    consKeys: ["单次限额低", "营业时间限制"]
+  },
+
+  {
+    id: "korea_atm_kb",
+    name: "韩国国民银行ATM取现",
+    nameKey: "korea_atm_kb",
+    category: "atm-foreign",
+    institution: { name: "国民银行", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在韩国国民银行ATM取现",
+      steps: [
+        "找到국민은행(国民银行)ATM",
+        "插入银联卡",
+        "选择银联网络取现",
+        "最多可取100万韩元"
+      ]
+    },
+    costStructure: {
+      KRW: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "国民银行ATM费用", amount: 3500 }] // 3500韩元
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "24小时", weekends: true }
+    },
+    availability: {
+      currencySupport: { KRW: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "abundant",
+      maxAmount: { perTransaction: 1000000 } // 100万韩元
+    },
+    features: ["24小时", "大额取现", "网点多"],
+    restrictions: ["收取3500韩元费用"],
+    ratings: { cost: 6, convenience: 8, speed: 10, reliability: 9, flexibility: 8 },
+    riskLevel: "LOW",
+    confidence: 88,
+    prosKeys: ["24小时", "大额取现", "网点众多"],
+    consKeys: ["收取3500韩元费用"]
+  },
+
+  // 日本ATM策略
+  {
+    id: "japan_atm_711",
+    name: "日本7-11便利店ATM取现",
+    nameKey: "japan_atm_711",
+    category: "atm-foreign",
+    institution: { name: "7-11", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在日本7-11便利店ATM取现日元",
+      steps: [
+        "找到7-11便利店",
+        "使用店内ATM",
+        "插入银联卡取现",
+        "单次最多10万日元"
+      ]
+    },
+    costStructure: {
+      JPY: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "7-11 ATM费用", amount: 110 }] // 110日元约5.5元
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "便利店营业时间", weekends: true }
+    },
+    availability: {
+      currencySupport: { JPY: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "abundant",
+      maxAmount: { perTransaction: 100000 } // 10万日元
+    },
+    features: ["便利店内", "覆盖全日本", "费用较低"],
+    restrictions: ["单次限额10万日元", "营业时间限制"],
+    ratings: { cost: 7, convenience: 9, speed: 10, reliability: 9, flexibility: 8 },
+    riskLevel: "LOW",
+    confidence: 92,
+    prosKeys: ["覆盖面广", "费用低", "便利店内"],
+    consKeys: ["单次限额", "营业时间限制"]
+  },
+
+  {
+    id: "japan_atm_familymart",
+    name: "日本全家便利店ATM取现",
+    nameKey: "japan_atm_familymart",
+    category: "atm-foreign",
+    institution: { name: "全家便利店", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在日本全家便利店ATM取现",
+      steps: [
+        "找到ファミリーマート(全家)便利店",
+        "使用店内ATM",
+        "插入银联卡取现",
+        "单次最多5万日元"
+      ]
+    },
+    costStructure: {
+      JPY: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "全家ATM费用", amount: 75 }] // 75日元约3.8元
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "便利店营业时间", weekends: true }
+    },
+    availability: {
+      currencySupport: { JPY: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "sufficient",
+      maxAmount: { perTransaction: 50000 } // 5万日元
+    },
+    features: ["最低ATM费用", "便利店内"],
+    restrictions: ["单次限额5万日元", "限额较低"],
+    ratings: { cost: 8, convenience: 8, speed: 10, reliability: 8, flexibility: 6 },
+    riskLevel: "LOW",
+    confidence: 85,
+    prosKeys: ["费用最低", "便利店内"],
+    consKeys: ["限额较低", "网点相对少"]
+  },
+
+  // 马来西亚ATM策略
+  {
+    id: "malaysia_atm_maybank",
+    name: "马来西亚Maybank ATM取现",
+    nameKey: "malaysia_atm_maybank",
+    category: "atm-foreign",
+    institution: { name: "Maybank", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在马来西亚Maybank ATM取现林吉特",
+      steps: [
+        "找到Maybank ATM",
+        "插入银联卡",
+        "选择银联网络",
+        "取现马来西亚林吉特"
+      ]
+    },
+    costStructure: {
+      MYR: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "Maybank ATM费用", amount: 0 }]
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "24小时", weekends: true }
+    },
+    availability: {
+      currencySupport: { MYR: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "abundant",
+      maxAmount: { daily: 3000 } // 根据具体情况调整
+    },
+    features: ["免本地ATM费用", "24小时", "马来西亚最大银行"],
+    restrictions: ["仅在马来西亚可用"],
+    ratings: { cost: 8, convenience: 9, speed: 10, reliability: 9, flexibility: 8 },
+    riskLevel: "LOW",
+    confidence: 90,
+    prosKeys: ["免本地费用", "24小时", "网点最多"],
+    consKeys: ["仅限马来西亚"]
+  },
+
+  {
+    id: "malaysia_atm_cimb",
+    name: "马来西亚CIMB ATM取现",
+    nameKey: "malaysia_atm_cimb",
+    category: "atm-foreign",
+    institution: { name: "CIMB Bank", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在马来西亚CIMB银行ATM取现",
+      steps: [
+        "找到CIMB Bank ATM",
+        "插入银联卡",
+        "选择银联网络取现",
+        "获得马来西亚林吉特"
+      ]
+    },
+    costStructure: {
+      MYR: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.5,
+        additionalFees: [{ name: "CIMB ATM费用", amount: 0 }]
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "24小时", weekends: true }
+    },
+    availability: {
+      currencySupport: { MYR: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "abundant",
+      maxAmount: { daily: 3000 }
+    },
+    features: ["免本地ATM费用", "24小时", "覆盖面好"],
+    restrictions: ["仅在马来西亚可用"],
+    ratings: { cost: 8, convenience: 9, speed: 10, reliability: 8, flexibility: 8 },
+    riskLevel: "LOW",
+    confidence: 85,
+    prosKeys: ["免本地费用", "24小时", "覆盖好"],
+    consKeys: ["仅限马来西亚"]
+  },
+
+  // 香港ATM策略
+  {
+    id: "hongkong_atm_general",
+    name: "香港ATM取现（银联）",
+    nameKey: "hongkong_atm_general",
+    category: "atm-foreign",
+    institution: { name: "香港各银行ATM", type: "atm-network" },
+    method: {
+      type: "atm-withdrawal",
+      description: "在香港任意银行ATM使用银联卡取现",
+      steps: [
+        "找到任意香港银行ATM",
+        "插入银联卡",
+        "选择银联网络",
+        "取现港币"
+      ]
+    },
+    costStructure: {
+      HKD: {
+        localCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        nonLocalCard: { enabled: true, baseFee: 12, percentageFee: 1.0 },
+        exchangeRateMarkup: 0.3,
+        additionalFees: [{ name: "香港ATM费用", amount: 0 }] // 香港ATM一般不收费
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时取现",
+      urgentAvailable: true,
+      operatingHours: { offline: "24小时", weekends: true }
+    },
+    availability: {
+      currencySupport: { HKD: "excellent" },
+      locationAccess: "specific-locations",
+      stockLevel: "abundant",
+      maxAmount: { daily: 10000 }
+    },
+    features: ["无本地ATM费用", "24小时", "实时汇率", "覆盖全港"],
+    restrictions: ["仅在香港可用", "国内银行跨境费用"],
+    ratings: { cost: 8, convenience: 10, speed: 10, reliability: 10, flexibility: 9 },
+    riskLevel: "LOW",
+    confidence: 95,
+    prosKeys: ["无本地费用", "24小时", "实时汇率", "覆盖全港"],
+    consKeys: ["仅限香港", "国内银行费用"]
+  },
+
+  // 机场兑换策略
+  {
+    id: "domestic_airport_tier1",
+    name: "国内一线机场兑换",
+    nameKey: "domestic_airport_tier1",
+    category: "airport-domestic",
+    institution: { name: "一线机场", type: "airport" },
+    method: {
+      type: "airport-counter",
+      description: "在国内一线机场兑换外币现钞",
+      steps: [
+        "抵达机场国际出发区域",
+        "找到外币兑换柜台",
+        "出示身份证和现金",
+        "兑换外币现钞"
+      ]
+    },
+    costStructure: {
+      HKD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 2.5 // 1%-3%溢价
+      },
+      JPY: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 3.0 // 1.5%-3.5%溢价
+      },
+      SGD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 3.5 // 2%-4%溢价
+      },
+      KRW: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 4.0 // 2%-5%溢价
+      },
+      THB: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 5.0 // 3%-6%溢价
+      },
+      MYR: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 5.0 // 3%-6%溢价
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时兑换",
+      urgentAvailable: true,
+      operatingHours: { offline: "根据航班时间", weekends: true }
+    },
+    availability: {
+      currencySupport: {
+        HKD: "excellent", JPY: "excellent", SGD: "good",
+        KRW: "good", THB: "good", MYR: "limited"
+      },
+      locationAccess: "specific-locations",
+      stockLevel: "sufficient",
+      maxAmount: { perTransaction: 10000 }
+    },
+    features: ["即时兑换", "无需预约", "出行便利"],
+    restrictions: ["汇率溢价较高", "仅限机场"],
+    ratings: { cost: 3, convenience: 9, speed: 10, reliability: 8, flexibility: 7 },
+    riskLevel: "MEDIUM",
+    confidence: 85,
+    prosKeys: ["即时兑换", "出行便利", "无需预约"],
+    consKeys: ["汇率溢价高", "成本较高"]
+  },
+
+  {
+    id: "foreign_airport_exchange",
+    name: "国外机场兑换",
+    nameKey: "foreign_airport_exchange",
+    category: "airport-foreign",
+    institution: { name: "国外机场", type: "airport" },
+    method: {
+      type: "airport-counter",
+      description: "在国外机场兑换当地货币",
+      steps: [
+        "抵达国外机场",
+        "找到Currency Exchange柜台",
+        "用人民币或美元兑换",
+        "获得当地货币"
+      ]
+    },
+    costStructure: {
+      SGD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 0.5 // 新加坡机场相对较好
+      },
+      HKD: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 7.5 // 5%-10%溢价
+      },
+      JPY: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: -3.0 // 日本机场汇率比银行低3%左右
+      },
+      THB: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 25.0 // 泰国机场汇率很差，差20%-30%
+      },
+      KRW: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 8.0 // 5%-10%溢价
+      },
+      MYR: {
+        localCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        nonLocalCard: { enabled: true, baseFee: 0, percentageFee: 0 },
+        exchangeRateMarkup: 8.0 // 5%-10%溢价
+      }
+    },
+    timeRequirements: {
+      appointmentDays: 0,
+      processingTime: "即时兑换",
+      urgentAvailable: true,
+      operatingHours: { offline: "根据航班时间", weekends: true }
+    },
+    availability: {
+      currencySupport: {
+        SGD: "good", HKD: "good", JPY: "limited",
+        THB: "limited", KRW: "limited", MYR: "limited"
+      },
+      locationAccess: "specific-locations",
+      stockLevel: "limited",
+      maxAmount: { perTransaction: 5000 }
+    },
+    features: ["落地即换", "应急方便"],
+    restrictions: ["汇率通常很差", "选择有限"],
+    ratings: { cost: 2, convenience: 8, speed: 10, reliability: 6, flexibility: 5 },
+    riskLevel: "HIGH",
+    confidence: 70,
+    prosKeys: ["落地即换", "应急便利"],
+    consKeys: ["汇率很差", "成本最高", "选择有限"]
+  }
+];
+
+// 策略选择权重配置
+interface StrategyWeights {
+  cost: number
+  convenience: number
+  speed: number
+  reliability: number
+  flexibility: number
+}
+
+// 策略选择和排序算法
+class StrategySelector {
+  private strategies: DetailedExchangeStrategy[];
+  
+  constructor(strategies: DetailedExchangeStrategy[]) {
+    this.strategies = strategies;
+  }
+  
+  // 计算策略总成本
+  calculateTotalCost(
+    strategy: DetailedExchangeStrategy, 
+    currency: string, 
+    amount: number, 
+    isLocalCard: boolean,
+    currentRate: number
+  ): number {
+    const costStructure = strategy.costStructure[currency];
+    if (!costStructure) return Infinity;
+    
+    const cardType = isLocalCard ? costStructure.localCard : costStructure.nonLocalCard;
+    if (!cardType.enabled) return Infinity;
+    
+    // 计算基础费用
+    let totalFee = cardType.baseFee || 0;
+    
+    // 计算百分比费用
+    const percentageFee = (amount * currentRate * (cardType.percentageFee || 0)) / 100;
+    totalFee += percentageFee;
+    
+    // 应用最小最大费用限制
+    if (cardType.minFee && totalFee < cardType.minFee) {
+      totalFee = cardType.minFee;
+    }
+    if (cardType.maxFee && totalFee > cardType.maxFee) {
+      totalFee = cardType.maxFee;
+    }
+    
+    // 添加额外费用
+    if (costStructure.additionalFees) {
+      totalFee += costStructure.additionalFees.reduce((sum, fee) => sum + fee.amount, 0);
+    }
+    
+    // 计算汇率成本 (汇率加价导致的额外成本)
+    const rateMarkupCost = amount * currentRate * (costStructure.exchangeRateMarkup || 0) / 100;
+    
+    return totalFee + rateMarkupCost;
+  }
+  
+  // 计算策略总评分
+  calculateStrategyScore(
+    strategy: DetailedExchangeStrategy,
+    weights: StrategyWeights,
+    cost: number,
+    maxCost: number,
+    urgency: 'LOW' | 'MEDIUM' | 'HIGH'
+  ): number {
+    // 成本评分 (成本越低分数越高)
+    const costScore = cost === Infinity ? 0 : Math.max(0, 10 - (cost / maxCost) * 10);
+    
+    // 时间评分 (根据紧急程度调整)
+    let timeScore = strategy.ratings.speed;
+    if (urgency === 'HIGH' && strategy.timeRequirements.appointmentDays > 0) {
+      timeScore *= 0.3; // 急需时预约时间影响很大
+    } else if (urgency === 'MEDIUM' && strategy.timeRequirements.appointmentDays > 2) {
+      timeScore *= 0.7;
+    }
+    
+    // 加权计算总分
+    const totalScore = (
+      costScore * weights.cost +
+      strategy.ratings.convenience * weights.convenience +
+      timeScore * weights.speed +
+      strategy.ratings.reliability * weights.reliability +
+      strategy.ratings.flexibility * weights.flexibility
+    );
+    
+    return totalScore;
+  }
+  
+  // 选择最适合的策略
+  selectOptimalStrategies(
+    currency: string,
+    amount: number,
+    isLocalCard: boolean,
+    currentRate: number,
+    urgency: 'LOW' | 'MEDIUM' | 'HIGH',
+    preferences: UserPreferences
+  ): DetailedExchangeStrategy[] {
+    console.log('selectOptimalStrategies called with:', { currency, amount, isLocalCard, currentRate, urgency });
+    
+    // 筛选支持该货币的策略
+    const supportedStrategies = this.strategies.filter(strategy => {
+      const costStructure = strategy.costStructure[currency];
+      if (!costStructure) {
+        console.log(`Strategy ${strategy.name} does not support currency ${currency}`);
+        return false;
+      }
+      
+      const cardType = isLocalCard ? costStructure.localCard : costStructure.nonLocalCard;
+      const enabled = cardType.enabled;
+      console.log(`Strategy ${strategy.name} for ${currency}: ${enabled ? 'enabled' : 'disabled'}`);
+      return enabled;
+    });
+    
+    console.log(`Found ${supportedStrategies.length} supported strategies for ${currency}`);
+    
+    if (supportedStrategies.length === 0) {
+      console.error('No supported strategies found. Available currencies in strategies:', 
+        this.strategies.map(s => Object.keys(s.costStructure)));
+      return [];
+    }
+    
+    // 计算每个策略的成本和评分
+    const strategyScores = supportedStrategies.map(strategy => {
+      const cost = this.calculateTotalCost(strategy, currency, amount, isLocalCard, currentRate);
+      return { strategy, cost };
+    });
+    
+    // 找到最大成本用于归一化
+    const maxCost = Math.max(...strategyScores.map(s => s.cost === Infinity ? 0 : s.cost));
+    
+    // 计算评分并排序
+    const rankedStrategies = strategyScores
+      .map(({ strategy, cost }) => ({
+        strategy,
+        cost,
+        score: this.calculateStrategyScore(strategy, preferences.priorityWeights, cost, maxCost, urgency)
+      }))
+      .sort((a, b) => b.score - a.score);
+    
+    return rankedStrategies.map(item => item.strategy);
+  }
+  
+  // 根据不同偏好排序策略
+  sortStrategiesByPreference(
+    strategies: DetailedExchangeStrategy[],
+    sortBy: 'cost' | 'convenience' | 'speed' | 'reliability' | 'flexibility',
+    currency: string,
+    amount: number,
+    isLocalCard: boolean,
+    currentRate: number
+  ): DetailedExchangeStrategy[] {
+    return [...strategies].sort((a, b) => {
+      if (sortBy === 'cost') {
+        const costA = this.calculateTotalCost(a, currency, amount, isLocalCard, currentRate);
+        const costB = this.calculateTotalCost(b, currency, amount, isLocalCard, currentRate);
+        return costA - costB; // 成本从低到高
+      } else {
+        return b.ratings[sortBy] - a.ratings[sortBy]; // 其他指标从高到低
+      }
+    });
+  }
+}
+
+// 初始化策略选择器
+const strategySelector = new StrategySelector(detailedExchangeStrategies);
 
 export default function CurrencyExchangeSystem() {
   const { toast } = useToast() // Initialize useToast hook
@@ -297,6 +1435,32 @@ export default function CurrencyExchangeSystem() {
 
   // Fetched Rates State (CNY per X currency)
   const [fetchedRates, setFetchedRates] = useState<Record<string, number>>({})
+
+  // State for card type selection
+  const [isLocalCard, setIsLocalCard] = useState(true)
+  
+  // 策略排序偏好状态
+  const [sortPreference, setSortPreference] = useState<'cost' | 'convenience' | 'speed' | 'reliability' | 'flexibility'>('cost')
+  
+  // 用户偏好权重状态
+  const [userPreferences, setUserPreferences] = useState<UserPreferences>({
+    priorityWeights: {
+      cost: 0.3,
+      convenience: 0.2,
+      speed: 0.2,
+      reliability: 0.2,
+      flexibility: 0.1
+    },
+    cardType: 'local',
+    urgencyLevel: 'MEDIUM',
+    maxAcceptableFee: 2.0,
+    preferredMethods: []
+  })
+  
+  // 多个策略选项状态
+  const [availableStrategies, setAvailableStrategies] = useState<DetailedExchangeStrategy[]>([])
+  const [selectedStrategyIds, setSelectedStrategyIds] = useState<string[]>([])
+  const [selectedStrategyForDisplay, setSelectedStrategyForDisplay] = useState<DetailedExchangeStrategy | null>(null)
 
   // File upload states
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -354,6 +1518,9 @@ export default function CurrencyExchangeSystem() {
       en: "Please fill in your purchase requirements in detail, we will recommend the optimal strategy for you",
     },
     optimalPurchaseStrategy: { zh: "最优购钞策略", en: "Optimal Purchase Strategy" },
+    selectedStrategy: { zh: "当前选定策略", en: "Currently Selected Strategy" },
+    selectThisStrategy: { zh: "选择此策略", en: "Select This Strategy" },
+    strategySelected: { zh: "策略已选定", en: "Strategy Selected" },
     optimalPurchaseStrategyDesc: {
       zh: "基于您的需求分析的最佳方案",
       en: "Best solution based on your requirement analysis",
@@ -493,6 +1660,33 @@ export default function CurrencyExchangeSystem() {
       zh: "选择货币后，系统随机选择历史5天时间段，你和AI都预测这5天的汇率走势，比较准确性！",
       en: "Choose a currency, the system randomly selects a 5-day historical period, you and AI predict the exchange rate trend, comparing accuracy!"
     },
+    
+    // 银行兑换相关翻译
+    bankOfChina: { zh: "中国银行", en: "Bank of China" },
+    icbc: { zh: "工商银行", en: "ICBC" },
+    cmb: { zh: "招商银行", en: "China Merchants Bank" },
+    ccb: { zh: "建设银行", en: "China Construction Bank" },
+    domesticAirport: { zh: "国内机场", en: "Domestic Airport" },
+    foreignAirport: { zh: "国外机场", en: "Foreign Airport" },
+    atmWithdrawal: { zh: "ATM取现", en: "ATM Withdrawal" },
+    
+    // 新增优势翻译（避免重复）
+    goodService: { zh: "服务优质", en: "Good Service" },
+    advanceBookingRequired: { zh: "需提前预约", en: "Advance Booking Required" },
+    feesForAllCards: { zh: "所有卡收费", en: "Fees for All Cards" },
+    longBookingTime: { zh: "预约时间长", en: "Long Booking Time" },
+    weekendUnavailable: { zh: "周末不可用", en: "Weekend Unavailable" },
+    higherCost: { zh: "成本较高", en: "Higher Cost" },
+    muchWorseRate: { zh: "汇率很差", en: "Much Worse Rate" },
+    veryhighCost: { zh: "成本很高", en: "Very High Cost" },
+    
+    // 手续费计算相关
+    feeCalculation: { zh: "手续费计算", en: "Fee Calculation" },
+    baseFee: { zh: "基础费用", en: "Base Fee" },
+    additionalFee: { zh: "附加费用", en: "Additional Fee" },
+    finalRate: { zh: "最终汇率", en: "Final Rate" },
+    totalFeeAmount: { zh: "总手续费", en: "Total Fee Amount" },
+    effectiveRate: { zh: "有效汇率", en: "Effective Rate" },
     selectCurrency: { zh: "选择货币", en: "Select Currency" },
     startPredictionBattle: { zh: "开始预测对战", en: "Start Prediction Battle" },
     historicalData: { zh: "历史数据", en: "Historical Data" },
@@ -717,80 +1911,123 @@ print(predictions)`
     return text
   }
 
-  // Helper to get channel-specific steps
+  // Helper to get channel-specific steps based on bank type
   const getChannelSteps = (channelType: string, purpose: string, currentLanguage: "zh" | "en") => {
     const baseSteps: { [key: string]: { zh: string[]; en: string[] } } = {
       BANK: {
-        zh: ["在线预约银行网点", "准备身份证和购汇申请材料", "前往指定网点办理", "完成购汇并取钞"],
-        en: [
-          "Book bank appointment online",
-          "Prepare ID and foreign exchange application materials",
-          "Visit the designated branch",
-          "Complete exchange and collect foreign currency",
+        zh: [
+          "在线预约银行网点（提前2-3天）",
+          "准备身份证、银行卡等必要材料",
+          "按预约时间前往指定网点",
+          "填写外汇购买申请表",
+          "确认汇率和手续费",
+          "完成付款并取得外币现钞",
+          "妥善保管兑换凭证"
         ],
-      },
-      ONLINE: {
-        zh: ["登录手机银行APP", "选择外汇兑换功能", "输入兑换金额和币种", "确认交易并完成支付"],
         en: [
-          "Log in to mobile banking app",
-          "Select foreign exchange function",
-          "Enter amount and currency",
-          "Confirm transaction and complete payment",
-        ],
-      },
-      AIRPORT: {
-        zh: ["前往机场兑换柜台", "出示身份证和机票", "填写兑换申请表", "完成兑换并取钞"],
-        en: [
-          "Go to airport exchange counter",
-          "Show ID and flight ticket",
-          "Fill out exchange application form",
-          "Complete exchange and collect foreign currency",
-        ],
-      },
-      EXCHANGE_SHOP: {
-        zh: ["查找附近的兑换店", "携带身份证前往", "确认汇率和手续费", "完成兑换交易"],
-        en: [
-          "Find a nearby exchange shop",
-          "Bring ID",
+          "Book bank appointment online (2-3 days in advance)",
+          "Prepare ID, bank card and necessary materials",
+          "Visit designated branch at scheduled time",
+          "Fill out foreign exchange application form",
           "Confirm exchange rate and fees",
-          "Complete exchange transaction",
+          "Complete payment and collect foreign currency",
+          "Keep exchange receipt safely"
         ],
       },
-      ATM: {
-        zh: ["确认目的地ATM网络", "开通境外取现功能", "到达后寻找合作ATM", "使用银行卡直接取现"],
+      AIRPORT_DOMESTIC: {
+        zh: [
+          "抵达机场后寻找外币兑换柜台",
+          "出示身份证和出境机票",
+          "告知兑换币种和金额",
+          "确认汇率（通常比银行差5-10%）",
+          "完成现金兑换",
+          "收好外币和凭证"
+        ],
         en: [
-          "Confirm destination ATM network",
-          "Activate overseas withdrawal function",
-          "Find a partner ATM upon arrival",
-          "Withdraw cash directly with your bank card",
+          "Find currency exchange counter at airport",
+          "Show ID and departure ticket",
+          "Specify currency type and amount",
+          "Confirm exchange rate (usually 5-10% worse than banks)",
+          "Complete cash exchange",
+          "Keep foreign currency and receipt safely"
+        ],
+      },
+      AIRPORT_FOREIGN: {
+        zh: [
+          "到达国外机场后寻找兑换点",
+          "出示护照和签证",
+          "兑换所需外币（汇率较差）",
+          "仅建议少量应急兑换",
+          "保存好兑换凭证"
+        ],
+        en: [
+          "Find exchange point at foreign airport",
+          "Show passport and visa",
+          "Exchange needed foreign currency (poor rates)",
+          "Only recommended for small emergency amounts",
+          "Keep exchange receipt"
+        ],
+      },
+      ATM_FOREIGN: {
+        zh: [
+          "出发前开通银行卡境外取现功能",
+          "了解目的地ATM网络和手续费",
+          "抵达后寻找合作银行ATM",
+          "使用银联卡取现（推荐）",
+          "确认取现金额和手续费",
+          "妥善保管现金和凭条"
+        ],
+        en: [
+          "Activate overseas withdrawal before departure",
+          "Learn about destination ATM networks and fees",
+          "Find partner bank ATMs upon arrival",
+          "Use UnionPay card for withdrawal (recommended)",
+          "Confirm withdrawal amount and fees",
+          "Keep cash and receipt safely"
         ],
       },
     }
 
     let steps = baseSteps[channelType]?.[currentLanguage] || baseSteps.BANK[currentLanguage]
 
-    // Add purpose-specific steps (keeping this logic even if purpose input is removed, for potential future use or mock consistency)
-    if (purpose === "留学") {
-      steps = [
-        ...steps.slice(0, 1),
-        currentLanguage === "zh" ? "准备留学相关证明材料" : "Prepare study-related documents",
-        ...steps.slice(1),
-      ]
-    } else if (purpose === "移民") {
-      steps = [
-        ...steps.slice(0, 1),
-        currentLanguage === "zh" ? "准备移民签证等相关文件" : "Prepare immigration visa and related documents",
-        ...steps.slice(1),
-      ]
+    // Add bank-specific tips based on channel name
+    if (channelType === "BANK") {
+      const bankSpecificTips: { [key: string]: { zh: string[]; en: string[] } } = {
+        "中国银行": {
+          zh: ["提示：中国银行外币兑换网点最多，建议提前2天预约"],
+          en: ["Tip: Bank of China has most foreign exchange branches, book 2 days in advance"]
+        },
+        "工商银行": {
+          zh: ["提示：工商银行需提前3天预约，周日无法线上操作"],
+          en: ["Tip: ICBC requires 3-day advance booking, no online operations on Sunday"]
+        },
+        "招商银行": {
+          zh: ["提示：招商银行所有卡均收费，但服务相对优质"],
+          en: ["Tip: CMB charges fees for all cards but offers better service"]
+        },
+        "建设银行": {
+          zh: ["提示：建设银行兑换网点较少，建议提前电话确认"],
+          en: ["Tip: CCB has fewer exchange branches, call ahead to confirm"]
+        }
+      }
+      
+      // Add bank-specific tips if available
+      for (const [bankName, tips] of Object.entries(bankSpecificTips)) {
+        if (optimalStrategy?.channel.includes(bankName)) {
+          steps = [...steps, ...tips[currentLanguage]]
+          break
+        }
+      }
     }
+
     return steps
   }
 
   // Purchase Request State
   const [purchaseRequest, setPurchaseRequest] = useState<PurchaseRequest>({
-    amount: 1000, // Assuming this is the amount of TARGET currency user wants to buy (e.g., 1000 USD)
+    amount: 1000, // Assuming this is the amount of TARGET currency user wants to buy (e.g., 1000 SGD)
     fromCurrency: "CNY", // Base currency (e.g., CNY)
-    toCurrency: "USD", // Target currency (e.g., USD)
+    toCurrency: "SGD", // Target currency (e.g., SGD)
     urgency: "MEDIUM",
     // location: "北京", // Removed
     preferredMethod: "BOTH",
@@ -1132,115 +2369,186 @@ print(predictions)`;
 
   const analyzePurchaseStrategy = async () => {
     setIsAnalyzing(true)
-    setOptimalStrategy(null) // Clear previous results
-    setSelectedPlanId(null) // Clear selected plan
+    setOptimalStrategy(null)
+    setSelectedPlanId(null)
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000))
 
-      // Use fetchedRates for the base rate (CNY per target currency)
       const baseTargetCurrencyRate = fetchedRates[purchaseRequest.toCurrency] || 1.0
-
-      // Select the best channel based on preferences
-      let selectedChannel: MockChannel | undefined = mockChannels.find((c) => {
-        const supportsMethod =
-          purchaseRequest.preferredMethod === "BOTH" ||
-          (purchaseRequest.preferredMethod === "CASH" && c.supportsCash) ||
-          (purchaseRequest.preferredMethod === "DIGITAL" && c.supportsDigital)
-        const meetsUrgency =
-          c.timeFactors[purchaseRequest.urgency] === "即时" ||
-          c.timeFactors[purchaseRequest.urgency] === "30分钟" ||
-          c.timeFactors[purchaseRequest.urgency] === "1小时"
-        // Removed location check as it's no longer a parameter
-        return supportsMethod && meetsUrgency
-      })
-
-      if (!selectedChannel) {
-        // Fallback to a default if no specific channel matches all criteria
-        selectedChannel = mockChannels.find((c) => c.id === "major_bank") || mockChannels[0]
+      const baseFromCurrencyRate = fetchedRates[purchaseRequest.fromCurrency] || 1.0
+      const currentRate = baseTargetCurrencyRate / baseFromCurrencyRate
+      
+      // 如果用户已选择特定策略，使用用户选择的策略
+      let strategiesToAnalyze: DetailedExchangeStrategy[] = []
+      
+      if (selectedStrategyIds.length > 0) {
+        // 使用用户选择的策略
+        strategiesToAnalyze = detailedExchangeStrategies.filter(strategy => 
+          selectedStrategyIds.includes(strategy.id)
+        )
+        console.log('Using user selected strategies:', strategiesToAnalyze.map(s => s.name))
+      } else {
+        // 如果没有选择，使用策略选择器自动选择最优策略
+        strategiesToAnalyze = strategySelector.selectOptimalStrategies(
+          purchaseRequest.toCurrency,
+          purchaseRequest.amount,
+          isLocalCard,
+          currentRate,
+          purchaseRequest.urgency,
+          {
+            ...userPreferences,
+            cardType: isLocalCard ? 'local' : 'non-local',
+            urgencyLevel: purchaseRequest.urgency,
+            maxAcceptableFee: purchaseRequest.maxFee
+          }
+        )
+        console.log('Using auto-selected optimal strategies:', strategiesToAnalyze.map(s => s.name))
       }
-
-      // Calculate dynamic fees (simplified for mock)
-      const dynamicFees = selectedChannel.baseFeeRate
-
-      // Calculate total cost and savings based on the selected channel
-      const totalCost = calculateTotalCostInFromCurrency(
-        purchaseRequest.amount,
-        purchaseRequest.fromCurrency,
-        purchaseRequest.toCurrency,
-        dynamicFees,
-        selectedChannel.baseRateModifier, // Pass the modifier
+      
+      setAvailableStrategies(strategiesToAnalyze)
+      
+      if (strategiesToAnalyze.length === 0) {
+        throw new Error('没有找到合适的兑换策略')
+      }
+      
+      // 选择最优策略（如果有多个策略，选择成本最低的）
+      const bestStrategy = strategiesToAnalyze[0]
+      const totalCost = strategySelector.calculateTotalCost(
+        bestStrategy, 
+        purchaseRequest.toCurrency, 
+        purchaseRequest.amount, 
+        isLocalCard, 
+        currentRate
       )
+      
+      // 计算节省金额（相对于最差选项）
+      const allCosts = strategiesToAnalyze.map(strategy => 
+        strategySelector.calculateTotalCost(strategy, purchaseRequest.toCurrency, purchaseRequest.amount, isLocalCard, currentRate)
+      )
+      const maxCost = Math.max(...allCosts)
+      const savings = maxCost - totalCost
+      
+      // 获取LSTM汇率预测
+      let ratePrediction: any = null
+      try {
+        console.log('Requesting LSTM prediction for:', purchaseRequest.fromCurrency, '->', purchaseRequest.toCurrency, 'Bank:', bestStrategy.institution.name)
+        
+        const predictionResponse = await fetch('/api/rate-prediction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fromCurrency: purchaseRequest.fromCurrency,
+            toCurrency: purchaseRequest.toCurrency,
+            days: 20,
+            bankName: bestStrategy.institution.name // 传递银行名称用于选择数据集
+          })
+        })
+        
+        if (predictionResponse.ok) {
+          ratePrediction = await predictionResponse.json()
+          console.log('LSTM prediction received:', ratePrediction)
+        } else {
+          console.warn('LSTM prediction failed, using current rate')
+        }
+      } catch (error) {
+        console.error('Error fetching LSTM prediction:', error)
+      }
+      
+      // 生成替代方案
+      const alternatives = strategiesToAnalyze.slice(1, 4).map(altStrategy => {
+        const altCost = strategySelector.calculateTotalCost(
+          altStrategy, 
+          purchaseRequest.toCurrency, 
+          purchaseRequest.amount, 
+          isLocalCard, 
+          currentRate
+        )
+        const altCostStructure = altStrategy.costStructure[purchaseRequest.toCurrency]
+        const altCardType = isLocalCard ? altCostStructure.localCard : altCostStructure.nonLocalCard
+        const feePercentage = ((altCardType.baseFee || 0) + (purchaseRequest.amount * currentRate * (altCardType.percentageFee || 0) / 100)) / (purchaseRequest.amount * currentRate) * 100
+        
+        return {
+          channel: altStrategy.name,
+          rate: Number.parseFloat(currentRate.toFixed(4)),
+          fees: Number.parseFloat(feePercentage.toFixed(2)),
+          totalCost: Number.parseFloat(altCost.toFixed(2)),
+          timeRequired: altStrategy.timeRequirements.appointmentDays > 0 ? 
+            `需提前${altStrategy.timeRequirements.appointmentDays}天预约` : 
+            altStrategy.timeRequirements.processingTime
+        }
+      })
+      
+      // 计算手续费百分比
+      const costStructure = bestStrategy.costStructure[purchaseRequest.toCurrency]
+      const cardType = isLocalCard ? costStructure.localCard : costStructure.nonLocalCard
+      const baseFeeAmount = cardType.baseFee || 0
+      const percentageFeeAmount = (purchaseRequest.amount * currentRate * (cardType.percentageFee || 0)) / 100
+      const totalFeeAmount = baseFeeAmount + percentageFeeAmount
+      const feePercentage = (totalFeeAmount / (purchaseRequest.amount * currentRate)) * 100
 
-      const savings = 150.5 + Math.random() * 100 // Keep mock savings for now
-
-      // Calculate the effective rate for display (fromCurrency per toCurrency, with modifier)
-      const displayRate =
-        (fetchedRates[purchaseRequest.toCurrency] / fetchedRates[purchaseRequest.fromCurrency]) *
-        selectedChannel.baseRateModifier
-
-      const mockStrategy: OptimalStrategy = {
-        id: `strategy_${Date.now()}`,
-        channel: t(selectedChannel.nameKey),
-        channelType: selectedChannel.type,
-        rate: Number.parseFloat(displayRate.toFixed(4)), // Use the calculated display rate
-        fees: dynamicFees,
+      const strategy: OptimalStrategy = {
+        id: bestStrategy.id,
+        channel: bestStrategy.name,
+        channelType: bestStrategy.category,
+        rate: Number.parseFloat(currentRate.toFixed(4)),
+        fees: Number.parseFloat(feePercentage.toFixed(2)),
         totalCost: Number.parseFloat(totalCost.toFixed(2)),
         savings: Number.parseFloat(savings.toFixed(2)),
-        timeRequired: t(selectedChannel.timeFactors[purchaseRequest.urgency]),
-        stepsInfo: { channelType: selectedChannel.type, purpose: "旅游" }, // Default purpose as it's removed from input
-        prosKeys: selectedChannel.prosKeys,
-        consKeys: selectedChannel.consKeys,
-        riskLevel: selectedChannel.riskLevel,
-        confidence: selectedChannel.confidence,
-        alternatives: mockChannels
-          .filter((c) => c.id !== selectedChannel?.id)
-          .slice(0, 2)
-          .map((altChannel) => {
-            const altFees = altChannel.baseFeeRate
-            const altTotalCost = calculateTotalCostInFromCurrency(
-              purchaseRequest.amount,
-              purchaseRequest.fromCurrency,
-              purchaseRequest.toCurrency,
-              altFees,
-              altChannel.baseRateModifier, // Pass the modifier
-            )
-            const altDisplayRate =
-              (fetchedRates[purchaseRequest.toCurrency] / fetchedRates[purchaseRequest.fromCurrency]) *
-              altChannel.baseRateModifier
-            return {
-              channel: t(altChannel.nameKey),
-              rate: Number.parseFloat(altDisplayRate.toFixed(4)),
-              fees: altFees,
-              totalCost: Number.parseFloat(altTotalCost.toFixed(2)),
-              timeRequired: t(altChannel.timeFactors[purchaseRequest.urgency]),
-            }
-          }),
-        // Simulated financial data
-        technicalIndicators: {
+        timeRequired: bestStrategy.timeRequirements.appointmentDays > 0 ? 
+          `需提前${bestStrategy.timeRequirements.appointmentDays}天预约` : 
+          bestStrategy.timeRequirements.processingTime,
+        stepsInfo: { 
+          channelType: bestStrategy.category, 
+          purpose: "购钞" 
+        },
+        prosKeys: bestStrategy.prosKeys,
+        consKeys: bestStrategy.consKeys,
+        riskLevel: bestStrategy.riskLevel,
+        confidence: bestStrategy.confidence,
+        alternatives,
+        // 基于LSTM预测的技术指标数据
+        technicalIndicators: ratePrediction ? {
+          rsi: ratePrediction.technical_indicators?.rsi || Math.floor(Math.random() * 100),
+          macd: ratePrediction.technical_indicators?.macd || Number.parseFloat(((Math.random() - 0.5) * 2).toFixed(4)),
+          bollinger: ratePrediction.technical_indicators?.bollinger || (["UPPER", "MIDDLE", "LOWER"] as const)[Math.floor(Math.random() * 3)],
+          support: ratePrediction.technical_indicators?.support || Number.parseFloat((currentRate * 0.98).toFixed(4)),
+          resistance: ratePrediction.technical_indicators?.resistance || Number.parseFloat((currentRate * 1.02).toFixed(4)),
+        } : {
           rsi: Math.floor(Math.random() * 100),
           macd: Number.parseFloat(((Math.random() - 0.5) * 2).toFixed(4)),
           bollinger: (["UPPER", "MIDDLE", "LOWER"] as const)[Math.floor(Math.random() * 3)],
-          support: Number.parseFloat((7.0 + Math.random() * 0.3).toFixed(4)),
-          resistance: Number.parseFloat((7.3 + Math.random() * 0.3).toFixed(4)),
+          support: Number.parseFloat((currentRate * 0.98).toFixed(4)),
+          resistance: Number.parseFloat((currentRate * 1.02).toFixed(4)),
         },
-        marketSentiment: {
+        marketSentiment: ratePrediction ? {
+          score: ratePrediction.market_sentiment?.score || Math.floor(Math.random() * 100),
+          trend: ratePrediction.market_sentiment?.trend || (["BULLISH", "BEARISH", "NEUTRAL"] as const)[Math.floor(Math.random() * 3)],
+          volatility: ratePrediction.market_sentiment?.volatility || Math.floor(Math.random() * 20) + 10,
+        } : {
           score: Math.floor(Math.random() * 100),
           trend: (["BULLISH", "BEARISH", "NEUTRAL"] as const)[Math.floor(Math.random() * 3)],
           volatility: Math.floor(Math.random() * 20) + 10,
         },
         marketConditions: {
-          volatility: Number.parseFloat((Math.random() * 2 + 0.5).toFixed(2)),
-          trend: ["上升", "下降", "稳定"][Math.floor(Math.random() * 3)],
+          volatility: ratePrediction?.volatility || Number.parseFloat((Math.random() * 2 + 0.5).toFixed(2)),
+          trend: ratePrediction?.trend || ["上升", "下降", "稳定"][Math.floor(Math.random() * 3)],
           liquidity: ["高", "中", "低"][Math.floor(Math.random() * 3)],
-          recommendation: "建议关注汇率波动，选择合适时机兑换",
+          recommendation: ratePrediction ? 
+            `LSTM预测建议：${ratePrediction.recommendation || `使用${bestStrategy.name}进行兑换`}` :
+            `推荐使用${bestStrategy.name}，${bestStrategy.features.join('、')}`,
         },
       }
 
-      setOptimalStrategy(mockStrategy)
-      setActiveTab("results") // Switch to results tab after analysis
+      setOptimalStrategy(strategy)
+      setActiveTab("results")
     } catch (error) {
       console.error("Strategy analysis failed:", error)
+      toast({
+        title: "分析失败",
+        description: "策略分析过程中出现错误，请重试",
+        variant: "destructive"
+      })
     } finally {
       setIsAnalyzing(false)
     }
@@ -1638,7 +2946,7 @@ print(predictions)`;
           {/* Main Content with improved spacing */}
           <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-white/80 via-purple-50/80 to-pink-50/80 backdrop-blur-md border border-purple-200/50 shadow-lg">
+              <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-white/80 via-purple-50/80 to-pink-50/80 backdrop-blur-md border border-purple-200/50 shadow-lg">
                 <TabsTrigger 
                   value="purchase" 
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 hover:scale-102"
@@ -1653,6 +2961,15 @@ print(predictions)`;
                   <BarChart3 className="h-4 w-4 mr-2" />
                   {t("resultsDisplay")}
                 </TabsTrigger>
+                {availableStrategies.length > 0 && (
+                  <TabsTrigger 
+                    value="strategies"
+                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 hover:scale-102"
+                  >
+                    <Target className="h-4 w-4 mr-2" />
+                    策略选择
+                  </TabsTrigger>
+                )}
                 <TabsTrigger 
                   value="system"
                   className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 hover:scale-102"
@@ -1816,6 +3133,34 @@ print(predictions)`;
                     </RadioGroup>
                   </div>
 
+                  {/* Bank Card Type */}
+                  <div className="space-y-3">
+                    <Label>银行卡类型</Label>
+                    <RadioGroup
+                      value={isLocalCard ? "local" : "nonlocal"}
+                      onValueChange={(value) => setIsLocalCard(value === "local")}
+                      className="flex gap-6"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="local" id="local-card" />
+                        <Label htmlFor="local-card" className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4" />
+                          本地卡
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="nonlocal" id="nonlocal-card" />
+                        <Label htmlFor="nonlocal-card" className="flex items-center gap-2">
+                          <CreditCard className="h-4 w-4" />
+                          异地卡
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                    <div className="text-sm text-gray-600">
+                      {isLocalCard ? "本地卡通常享受更低的手续费优惠" : "异地卡可能产生额外的跨行转账费用"}
+                    </div>
+                  </div>
+
                   {/* Max Fee */}
                   <div className="space-y-2">
                     <Label>{t("maxFee")}</Label>
@@ -1875,16 +3220,23 @@ print(predictions)`;
                 </p>
               </div>
             ) : (
-              <div className="flex justify-center">
-                {/* Optimal Strategy Display (Moved from Purchase Tab) - Centered */}
+              <div className="space-y-6">
+                {/* Original Optimal Strategy Display */}
+                <div className="flex justify-center">
+                  {/* Optimal Strategy Display (Moved from Purchase Tab) - Centered */}
                 <Card className="animate-slide-in-left w-full max-w-4xl shadow-2xl border-0 bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/40">
                   <CardHeader className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-white rounded-t-lg relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-transparent to-purple-600/20"></div>
                     <CardTitle className="flex items-center gap-2 relative z-10">
                       <Trophy className="h-5 w-5" />
-                      {t("optimalPurchaseStrategy")}
+                      {selectedStrategyForDisplay ? t("selectedStrategy") : t("optimalPurchaseStrategy")}
                     </CardTitle>
-                    <CardDescription className="text-blue-100 relative z-10">{t("optimalPurchaseStrategyDesc")}</CardDescription>
+                    <CardDescription className="text-blue-100 relative z-10">
+                      {selectedStrategyForDisplay 
+                        ? "您选择的购钞策略详细信息" 
+                        : t("optimalPurchaseStrategyDesc")
+                      }
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="space-y-6">
@@ -1894,7 +3246,9 @@ print(predictions)`;
                           <div className="flex items-center gap-3">
                             <Building2 className="h-6 w-6 text-green-600" />
                             <div>
-                              <h3 className="font-semibold text-green-800">{optimalStrategy.channel}</h3>
+                              <h3 className="font-semibold text-green-800">
+                                {selectedStrategyForDisplay ? selectedStrategyForDisplay.name : optimalStrategy.channel}
+                              </h3>
                               <p className="text-sm text-green-600">{t("recommendedChannel")}</p>
                             </div>
                           </div>
@@ -1940,10 +3294,17 @@ print(predictions)`;
                               <span>{optimalStrategy.rate.toFixed(4)}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span>{t("fees")}:</span>
+                              <span>基础兑换费用:</span>
+                              <span>{(purchaseRequest.amount * optimalStrategy.rate).toFixed(2)} ¥</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>{isLocalCard ? "本地卡手续费" : "异地卡手续费"}:</span>
                               <span className="text-red-600">
-                                {((purchaseRequest.amount * optimalStrategy.rate * optimalStrategy.fees) / 100).toFixed(2)} ¥
+                                {((purchaseRequest.amount * optimalStrategy.rate * optimalStrategy.fees) / 100).toFixed(2)} ¥ ({optimalStrategy.fees}%)
                               </span>
+                            </div>
+                            <div className="text-xs text-gray-500 pl-2">
+                              • {isLocalCard ? "使用本地银行卡，享受优惠费率" : "使用异地银行卡，产生额外手续费"}
                             </div>
                             <hr />
                             <div className="flex justify-between font-medium">
@@ -1954,6 +3315,71 @@ print(predictions)`;
                               <span>{t("estimatedSavings")}:</span>
                               <span>{optimalStrategy.savings.toFixed(2)} ¥</span>
                             </div>
+                            <div className="text-xs text-gray-500">
+                              * 节省金额相比最贵渠道计算
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Bank-specific Information */}
+                      <Card className="border-l-4 border-l-amber-500">
+                        <CardContent className="p-4">
+                          <h4 className="font-medium mb-3 flex items-center gap-2">
+                            <Building2 className="h-4 w-4" />
+                            银行政策说明
+                          </h4>
+                          <div className="space-y-2 text-sm">
+                            {optimalStrategy.channel.includes("中国银行") && (
+                              <div className="p-3 bg-blue-50 rounded-lg">
+                                <div className="font-medium text-blue-800">中国银行特点:</div>
+                                <ul className="text-blue-700 text-xs mt-1 space-y-1">
+                                  <li>• 本地卡免手续费，异地卡收取1‰手续费(最高200元)</li>
+                                  <li>• 需提前2天预约</li>
+                                  <li>• 网点众多，支持大额兑换</li>
+                                </ul>
+                              </div>
+                            )}
+                            {optimalStrategy.channel.includes("工商银行") && (
+                              <div className="p-3 bg-red-50 rounded-lg">
+                                <div className="font-medium text-red-800">工商银行特点:</div>
+                                <ul className="text-red-700 text-xs mt-1 space-y-1">
+                                  <li>• 本地卡免费，异地卡收取0.5%手续费(20-100元)</li>
+                                  <li>• 需提前3天预约</li>
+                                  <li>• 周日无法线上操作</li>
+                                </ul>
+                              </div>
+                            )}
+                            {optimalStrategy.channel.includes("招商银行") && (
+                              <div className="p-3 bg-green-50 rounded-lg">
+                                <div className="font-medium text-green-800">招商银行特点:</div>
+                                <ul className="text-green-700 text-xs mt-1 space-y-1">
+                                  <li>• 所有卡均收取0.5%手续费(最高50元)</li>
+                                  <li>• 需提前2天预约</li>
+                                  <li>• 服务优质，操作便捷</li>
+                                </ul>
+                              </div>
+                            )}
+                            {optimalStrategy.channel.includes("建设银行") && (
+                              <div className="p-3 bg-yellow-50 rounded-lg">
+                                <div className="font-medium text-yellow-800">建设银行特点:</div>
+                                <ul className="text-yellow-700 text-xs mt-1 space-y-1">
+                                  <li>• 所有卡均收取0.05%手续费(5-50元)</li>
+                                  <li>• 需提前3天预约</li>
+                                  <li>• 兑换网点相对较少</li>
+                                </ul>
+                              </div>
+                            )}
+                            {optimalStrategy.channel.includes("机场") && (
+                              <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                                <div className="font-medium text-red-800">机场兑换警告:</div>
+                                <ul className="text-red-700 text-xs mt-1 space-y-1">
+                                  <li>• 汇率比银行差5-30%，成本很高</li>
+                                  <li>• 仅建议紧急情况下使用</li>
+                                  <li>• 无需预约，可即时兑换</li>
+                                </ul>
+                              </div>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -1971,6 +3397,7 @@ print(predictions)`;
                             lastRate={optimalStrategy.rate}
                             language={language}
                             getText={t}
+                            bankName={selectedStrategyForDisplay ? selectedStrategyForDisplay.institution.name : optimalStrategy.channel}
                           />
                         </CardContent>
                       </Card>
@@ -2182,6 +3609,271 @@ print(predictions)`;
                     </div>
                   </CardContent>
                 </Card>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Strategy Selection Tab */}
+          <TabsContent value="strategies" className="space-y-6">
+            {availableStrategies.length === 0 ? (
+              <div className="text-center py-16 text-slate-500">
+                <Target className="h-16 w-16 mx-auto mb-4 text-slate-400" />
+                <h3 className="text-xl font-medium text-slate-600 mb-2">策略选择</h3>
+                <p className="text-slate-500">
+                  请先在"购钞策略"页面填写需求并获取策略选项。
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <Card className="w-full shadow-lg border-0 bg-gradient-to-br from-white via-slate-50 to-gray-50">
+                  <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      策略选择 ({availableStrategies.length}个可选)
+                    </CardTitle>
+                    <CardDescription className="text-emerald-100">
+                      选择您偏好的购钞策略，选定后将在"结果显示"页面展示详细信息
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {/* Strategy Sorting Controls */}
+                    <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <h4 className="font-medium mb-3 text-blue-800">策略排序方式</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                        {([
+                          { key: 'cost', label: '💰 成本优先', desc: '手续费最低' },
+                          { key: 'convenience', label: '🏪 便利优先', desc: '操作最简单' },
+                          { key: 'speed', label: '⚡ 速度优先', desc: '最快获得' },
+                          { key: 'reliability', label: '🛡️ 可靠优先', desc: '最稳定' },
+                          { key: 'flexibility', label: '🔄 灵活优先', desc: '最灵活' }
+                        ] as const).map(({ key, label, desc }) => (
+                          <Button
+                            key={key}
+                            variant={sortPreference === key ? "default" : "outline"}
+                            size="sm"
+                            className={`h-auto p-3 text-left ${
+                              sortPreference === key 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-50'
+                            }`}
+                            onClick={() => {
+                              setSortPreference(key);
+                              const sorted = strategySelector.sortStrategiesByPreference(
+                                availableStrategies,
+                                key,
+                                purchaseRequest.toCurrency,
+                                purchaseRequest.amount,
+                                isLocalCard,
+                                (fetchedRates[purchaseRequest.toCurrency] || 1.0) / (fetchedRates[purchaseRequest.fromCurrency] || 1.0)
+                              );
+                              setAvailableStrategies(sorted);
+                            }}
+                          >
+                            <div>
+                              <div className="font-medium text-sm">{label}</div>
+                              <div className="text-xs opacity-75">{desc}</div>
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Strategy List */}
+                    <div className="space-y-4">
+                      {availableStrategies.map((strategy, index) => {
+                        const currentRate = (fetchedRates[purchaseRequest.toCurrency] || 1.0) / (fetchedRates[purchaseRequest.fromCurrency] || 1.0);
+                        const totalCost = strategySelector.calculateTotalCost(
+                          strategy,
+                          purchaseRequest.toCurrency,
+                          purchaseRequest.amount,
+                          isLocalCard,
+                          currentRate
+                        );
+                        const costStructure = strategy.costStructure[purchaseRequest.toCurrency];
+                        const cardType = isLocalCard ? costStructure?.localCard : costStructure?.nonLocalCard;
+                        
+                        if (!costStructure || !cardType?.enabled) return null;
+
+                        const isSelected = selectedStrategyForDisplay?.id === strategy.id;
+
+                        return (
+                          <Card 
+                            key={strategy.id} 
+                            className={`border transition-all duration-200 hover:shadow-md cursor-pointer ${
+                              index === 0 
+                                ? 'border-green-300 bg-green-50/50 ring-2 ring-green-200' 
+                                : index === 1 
+                                  ? 'border-blue-300 bg-blue-50/50' 
+                                  : index === 2 
+                                    ? 'border-amber-300 bg-amber-50/50' 
+                                    : 'border-gray-200 hover:border-gray-300'
+                            } ${isSelected ? 'ring-2 ring-indigo-500 bg-indigo-50' : ''}`}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                {/* Strategy Info */}
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    {index === 0 && <Badge className="bg-green-600 text-white">🏆 推荐</Badge>}
+                                    {index === 1 && <Badge className="bg-blue-600 text-white">🥈 备选</Badge>}
+                                    {index === 2 && <Badge className="bg-amber-600 text-white">🥉 第三</Badge>}
+                                    <h3 className="font-medium text-gray-900">{strategy.name}</h3>
+                                    <Badge variant="outline" className="text-xs">
+                                      {strategy.institution.name}
+                                    </Badge>
+                                    {isSelected && (
+                                      <Badge className="bg-indigo-600 text-white">
+                                        ✓ 已选择
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
+                                    <div>
+                                      <span className="text-gray-500">总成本:</span>
+                                      <div className="font-medium text-gray-900">¥{totalCost.toFixed(2)}</div>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-500">手续费:</span>
+                                      <div className="font-medium">
+                                        {cardType.baseFee || 0}元 + {cardType.percentageFee || 0}%
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-500">汇率影响:</span>
+                                      <div className="font-medium">+{costStructure.exchangeRateMarkup || 0}%</div>
+                                    </div>
+                                    <div>
+                                      <span className="text-gray-500">预约时间:</span>
+                                      <div className="font-medium">
+                                        {strategy.timeRequirements.appointmentDays === 0 
+                                          ? '无需预约' 
+                                          : `${strategy.timeRequirements.appointmentDays}天`}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Strategy Ratings */}
+                                  <div className="grid grid-cols-5 gap-2 mb-3">
+                                    {[
+                                      { key: 'cost', label: '成本', icon: '💰' },
+                                      { key: 'convenience', label: '便利', icon: '🏪' },
+                                      { key: 'speed', label: '速度', icon: '⚡' },
+                                      { key: 'reliability', label: '可靠', icon: '🛡️' },
+                                      { key: 'flexibility', label: '灵活', icon: '🔄' }
+                                    ].map(({ key, label, icon }) => (
+                                      <div key={key} className="text-center">
+                                        <div className="text-xs text-gray-500">{icon} {label}</div>
+                                        <div className="flex justify-center">
+                                          {[...Array(5)].map((_, i) => (
+                                            <Star
+                                              key={i}
+                                              className={`h-3 w-3 ${
+                                                i < Math.round(strategy.ratings[key as keyof typeof strategy.ratings] / 2)
+                                                  ? 'text-yellow-400 fill-current'
+                                                  : 'text-gray-300'
+                                              }`}
+                                            />
+                                          ))}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  {/* Features */}
+                                  <div className="space-y-2">
+                                    <div className="flex flex-wrap gap-1">
+                                      {strategy.features.slice(0, 3).map((feature, i) => (
+                                        <Badge key={i} variant="secondary" className="text-xs">
+                                          {feature}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                    
+                                    {/* Operation Steps Preview */}
+                                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                      <h4 className="font-medium text-sm mb-2">操作步骤:</h4>
+                                      <ol className="text-xs text-gray-600 space-y-1">
+                                        {strategy.method.steps.slice(0, 3).map((step, i) => (
+                                          <li key={i} className="flex items-start gap-2">
+                                            <span className="bg-indigo-100 text-indigo-800 rounded-full w-4 h-4 flex items-center justify-center text-xs font-medium">
+                                              {i + 1}
+                                            </span>
+                                            {step}
+                                          </li>
+                                        ))}
+                                        {strategy.method.steps.length > 3 && (
+                                          <li className="text-gray-400 ml-6">
+                                            ... 等{strategy.method.steps.length - 3}个步骤
+                                          </li>
+                                        )}
+                                      </ol>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Selection Button */}
+                                <div className="text-right ml-4 space-y-2">
+                                  <div className={`px-2 py-1 rounded text-white text-xs ${
+                                    strategy.riskLevel === 'LOW' ? 'bg-green-500' :
+                                    strategy.riskLevel === 'MEDIUM' ? 'bg-yellow-500' :
+                                    'bg-red-500'
+                                  }`}>
+                                    风险: {strategy.riskLevel}
+                                  </div>
+                                  <div className="text-gray-500 text-xs">
+                                    置信度: {strategy.confidence}%
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant={isSelected ? "secondary" : "default"}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isSelected) {
+                                        setSelectedStrategyForDisplay(null);
+                                        toast({
+                                          title: "取消选择",
+                                          description: "已取消选择策略，将显示系统推荐的最优策略",
+                                          duration: 2000,
+                                        });
+                                      } else {
+                                        setSelectedStrategyForDisplay(strategy);
+                                        toast({
+                                          title: "策略已选定",
+                                          description: `已选择 ${strategy.name}，请前往"结果显示"页面查看详情`,
+                                          duration: 3000,
+                                        });
+                                        // 自动切换到结果页面
+                                        setTimeout(() => setActiveTab("results"), 1000);
+                                      }
+                                    }}
+                                    className={isSelected 
+                                      ? "bg-gray-200 text-gray-700 hover:bg-gray-300" 
+                                      : "bg-indigo-600 hover:bg-indigo-700"
+                                    }
+                                  >
+                                    {isSelected ? (
+                                      <>
+                                        <X className="h-4 w-4 mr-1" />
+                                        取消选择
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Check className="h-4 w-4 mr-1" />
+                                        {t("selectThisStrategy")}
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
           </TabsContent>
@@ -2340,7 +4032,7 @@ print(predictions)`;
                 <CardContent>
                   {sentimentResult ? (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-4">
                         <div className="text-center p-3 bg-slate-50 rounded-lg">
                           <div className="text-lg font-bold text-blue-600">
                             {sentimentResult.sentiment === 'positive' ? t("positive") :
@@ -2353,6 +4045,12 @@ print(predictions)`;
                             {sentimentResult.score.toFixed(2)}
                           </div>
                           <div className="text-xs text-slate-500">情感分数</div>
+                        </div>
+                        <div className="text-center p-3 bg-slate-50 rounded-lg">
+                          <div className="text-lg font-bold text-purple-600">
+                            {sentimentResult.confidence.toFixed(2)}
+                          </div>
+                          <div className="text-xs text-slate-500">置信度</div>
                         </div>
                       </div>
                       <div className="space-y-2">
@@ -2412,23 +4110,31 @@ print(predictions)`;
           </TabsContent>
 
           {/* AI Competition Tab */}
-          <TabsContent value="competition" className="space-y-6">
-            {/* 将交易货币对卡片居中显示 */}
-            <div className="flex justify-center">
-              <div className="w-full max-w-4xl">
-                {/* Trading Pair Selection and Chart */}
-                <Card className="animate-slide-in-left shadow-2xl border-0 bg-gradient-to-br from-white via-violet-50/40 to-purple-50/40">
-                  <CardHeader className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-600 text-white rounded-t-lg relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-transparent to-fuchsia-600/20"></div>
-                    <CardTitle className="flex items-center gap-2 justify-center relative z-10">
+          <TabsContent value="competition" className="space-y-8">
+            {/* Page Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                🤖 AI汇率预测对战
+              </h2>
+              <p className="text-gray-600">挑战AI模型，测试你的汇率预测能力</p>
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column - Trading Pair & Chart */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Trading Pair Selection */}
+                <Card className="shadow-lg border-0 bg-gradient-to-br from-white via-violet-50/40 to-purple-50/40">
+                  <CardHeader className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-600 text-white rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 justify-center">
                       <TrendingUp className="h-5 w-5" />
                       {t("tradingPair")}
                     </CardTitle>
-                    <CardDescription className="text-violet-100 text-center relative z-10">{t("exchangeRateChart")}</CardDescription>
+                    <CardDescription className="text-violet-100 text-center">{t("exchangeRateChart")}</CardDescription>
                   </CardHeader>
-                  <CardContent className="p-6 space-y-4">
-                    {/* Currency Pair Selection - 居中布局 */}
-                    <div className="flex justify-center">
+                  <CardContent className="p-6">
+                    {/* Currency Selection */}
+                    <div className="flex justify-center mb-6">
                       <div className="grid grid-cols-2 gap-4 max-w-md w-full">
                         <div className="space-y-2">
                           <Label className="text-center block">{t("baseCurrencyLabel")}</Label>
@@ -2471,459 +4177,463 @@ print(predictions)`;
                       </div>
                     </div>
 
-                  {/* Current Rate Display */}
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-                    <div className="text-center">
-                      <div className="text-sm text-blue-600 mb-1">{t("currentRate")}</div>
-                      <div className="text-3xl font-bold text-blue-800">
-                        {((fetchedRates[tradingPair.to] || 1.0) / (fetchedRates[tradingPair.from] || 1.0))?.toFixed(
-                          4,
-                        ) || "N/A"}
-                      </div>
-                      <div className="text-sm text-blue-600">
-                        1 {tradingPair.from} ={" "}
-                        {((fetchedRates[tradingPair.to] || 1.0) / (fetchedRates[tradingPair.from] || 1.0))?.toFixed(
-                          4,
-                        ) || "N/A"}{" "}
-                        {tradingPair.to}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Exchange Rate Chart */}
-                  <div className="border rounded-lg p-4 bg-white">
-                    <h4 className="font-medium mb-3 text-center">{t("exchangeRateChartTitle")}</h4>
-                    <div className="w-full overflow-x-auto">
-                      <SimpleLineChart data={rateHistory} width={600} height={200} />
-                    </div>
-                  </div>
-
-                  {/* Market Indicators */}
-                  <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div className="text-center p-2 bg-green-50 rounded">
-                      <div className="font-medium text-green-700">{t("volatilityLabel")}</div>
-                      <div className="text-green-600">{marketData.volatility.toFixed(1)}%</div>
-                    </div>
-                    <div className="text-center p-2 bg-blue-50 rounded">
-                      <div className="font-medium text-blue-700">{t("trendLabel")}</div>
-                      <div className="text-blue-600">
-                        {marketData.trendDirection === "up"
-                          ? t("upward")
-                          : marketData.trendDirection === "down"
-                            ? t("downward")
-                            : t("stable")}
-                      </div>
-                    </div>
-                    <div className="text-center p-2 bg-purple-50 rounded">
-                      <div className="font-medium text-purple-700">{t("sentimentLabel")}</div>
-                      <div className="text-purple-600">
-                        {marketData.sentiment > 0.2
-                          ? "😊 " + t("optimistic")
-                          : marketData.sentiment < -0.2
-                            ? "😟 " + t("pessimistic")
-                            : "😐 " + t("neutral")}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              </div>
-            </div>
-
-            {/* Competition Control */}
-            <div className="grid grid-cols-1 gap-6">
-              {/* Competition Control */}
-              <Card className="animate-slide-up shadow-2xl border-0 bg-gradient-to-br from-white via-rose-50/40 to-orange-50/40">
-                <CardHeader className="bg-gradient-to-r from-rose-500 via-pink-500 to-orange-500 text-white rounded-t-lg relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-rose-600/20 via-transparent to-orange-600/20"></div>
-                  <CardTitle className="flex items-center gap-2 relative z-10">
-                    <Trophy className="h-5 w-5" />
-                    {t("aiCompetitionConsole")}
-                  </CardTitle>
-                  <CardDescription className="text-rose-100 relative z-10">{t("startAICompetition")}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6">
-                  {/* 汇率预测对战界面 */}
-                  {!predictionBattle && (
-                    <div className="space-y-4">
-                      <div className="text-center mb-6">
-                        <div className="text-6xl mb-4">🔮</div>
-                        <h3 className="text-lg font-medium">{t("predictionBattleMode")}</h3>
-                        <p className="text-sm text-slate-600">{t("predictionBattleDescription")}</p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-2">{t("selectCurrency")}</label>
-                        <select 
-                          value={selectedCurrency}
-                          onChange={(e) => setSelectedCurrency(e.target.value)}
-                          className="w-full p-2 border border-gray-300 rounded-md"
-                        >
-                          <option value="HKD">CNY/HKD (人民币/港币)</option>
-                          <option value="JPY">CNY/JPY (人民币/日元)</option>
-                          <option value="KRW">CNY/KRW (人民币/韩元)</option>
-                          <option value="MYR">CNY/MYR (人民币/马来西亚林吉特)</option>
-                          <option value="SGD">CNY/SGD (人民币/新加坡元)</option>
-                          <option value="THB">CNY/THB (人民币/泰铢)</option>
-                        </select>
-                      </div>
-                      
-                      {/* 预测模式选择 */}
-                      <div>
-                        <label className="block text-sm font-medium mb-2">预测模式</label>
-                        <div className="grid grid-cols-2 gap-4">
-                          <button
-                            onClick={() => setPredictionMode('manual')}
-                            className={`p-3 border rounded-lg text-left ${
-                              predictionMode === 'manual' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
-                            }`}
-                          >
-                            <div className="font-medium">手动预测</div>
-                            <div className="text-sm text-gray-600">手动输入预测数值</div>
-                          </button>
-                          <button
-                            onClick={() => setPredictionMode('code')}
-                            className={`p-3 border rounded-lg text-left ${
-                              predictionMode === 'code' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
-                            }`}
-                          >
-                            <div className="font-medium">代码预测</div>
-                            <div className="text-sm text-gray-600">使用Python代码预测</div>
-                          </button>
+                    {/* Current Rate Display */}
+                    <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 mb-6">
+                      <div className="text-center">
+                        <div className="text-sm text-blue-600 mb-1">{t("currentRate")}</div>
+                        <div className="text-4xl font-bold text-blue-800 mb-2">
+                          {((fetchedRates[tradingPair.to] || 1.0) / (fetchedRates[tradingPair.from] || 1.0))?.toFixed(
+                            4,
+                          ) || "N/A"}
+                        </div>
+                        <div className="text-sm text-blue-600">
+                          1 {tradingPair.from} ={" "}
+                          {((fetchedRates[tradingPair.to] || 1.0) / (fetchedRates[tradingPair.from] || 1.0))?.toFixed(
+                            4,
+                          ) || "N/A"}{" "}
+                          {tradingPair.to}
                         </div>
                       </div>
-
-                      {/* 预测天数选择 */}
-                      <div>
-                        <label className="block text-sm font-medium mb-2">预测天数</label>
-                        <select 
-                          value={predictionDays}
-                          onChange={(e) => setPredictionDays(Number(e.target.value))}
-                          className="w-full p-2 border border-gray-300 rounded-md"
-                        >
-                          <option value={3}>3天</option>
-                          <option value={5}>5天</option>
-                          <option value={7}>7天</option>
-                          <option value={10}>10天</option>
-                        </select>
-                      </div>
-                      
-                      <Button
-                        onClick={async () => {
-                          console.log('开始预测按钮被点击');
-                          console.log('selectedCurrency:', selectedCurrency);
-                          console.log('predictionDays:', predictionDays);
-                          
-                          try {
-                            setIsLoadingPrediction(true);
-                            console.log('发送API请求...');
-                            
-                            const response = await fetch('/api/rate-prediction-battle', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                action: 'start',
-                                currency: selectedCurrency,
-                                predictionDays,
-                                predictionMode
-                              })
-                            });
-                            
-                            console.log('API响应状态:', response.status);
-                            
-                            if (response.ok) {
-                              const result = await response.json();
-                              console.log('API响应数据:', result);
-                              
-                              setPredictionBattle({
-                                competitionId: result.competitionId || 'comp_' + Date.now(),
-                                currency: selectedCurrency,
-                                historicalData: result.historicalData || [],
-                                predictionPeriod: {
-                                  startDate: new Date().toISOString().split('T')[0],
-                                  endDate: new Date(Date.now() + predictionDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                                  actualRates: []
-                                },
-                                playerPredictions: Array(predictionDays).fill(0),
-                                status: 'predicting'
-                              });
-                              console.log('状态已更新');
-                            } else {
-                              console.error('API请求失败:', response.status, response.statusText);
-                              const errorText = await response.text();
-                              console.error('错误详情:', errorText);
-                            }
-                          } catch (error) {
-                            console.error('启动预测对战失败:', error);
-                          } finally {
-                            setIsLoadingPrediction(false);
-                            console.log('加载状态已重置');
-                          }
-                        }}
-                        disabled={isLoadingPrediction}
-                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                      >
-                        {isLoadingPrediction ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <TrendingUp className="h-4 w-4 mr-2" />
-                        )}
-                        {t("startPredictionBattle")}
-                      </Button>
                     </div>
-                  )}
 
-                  {predictionBattle && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-medium">CNY/{predictionBattle.currency} {t("predictionBattleMode")}</h3>
-                        <Button
-                          onClick={resetPredictionBattle}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <ArrowLeft className="h-4 w-4 mr-2" />
-                          返回
-                        </Button>
+                    {/* Exchange Rate Chart */}
+                    <div className="border rounded-lg p-4 bg-white shadow-sm">
+                      <h4 className="font-medium mb-3 text-center">{t("exchangeRateChartTitle")}</h4>
+                      <div className="w-full overflow-x-auto">
+                        <SimpleLineChart data={rateHistory} width={600} height={200} />
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-                      {predictionBattle.status === 'predicting' && (
+                {/* Market Indicators */}
+                <Card className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-gray-600" />
+                      市场指标
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div className="font-semibold text-green-700 text-sm mb-1">{t("volatilityLabel")}</div>
+                        <div className="text-2xl font-bold text-green-600">{marketData.volatility.toFixed(1)}%</div>
+                      </div>
+                      <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="font-semibold text-blue-700 text-sm mb-1">{t("trendLabel")}</div>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {marketData.trendDirection === "up"
+                            ? "📈 " + t("upward")
+                            : marketData.trendDirection === "down"
+                              ? "📉 " + t("downward")
+                              : "➡️ " + t("stable")}
+                        </div>
+                      </div>
+                      <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                        <div className="font-semibold text-purple-700 text-sm mb-1">{t("sentimentLabel")}</div>
+                        <div className="text-2xl font-bold text-purple-600">
+                          {marketData.sentiment > 0.2
+                            ? "😊 " + t("optimistic")
+                            : marketData.sentiment < -0.2
+                              ? "😟 " + t("pessimistic")
+                              : "😐 " + t("neutral")}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right Column - Competition Control */}
+              <div className="lg:col-span-1">
+                <Card className="shadow-lg border-0 bg-gradient-to-br from-white via-rose-50/40 to-orange-50/40 h-fit">
+                  <CardHeader className="bg-gradient-to-r from-rose-500 via-pink-500 to-orange-500 text-white rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2">
+                      <Trophy className="h-5 w-5" />
+                      {t("aiCompetitionConsole")}
+                    </CardTitle>
+                    <CardDescription className="text-rose-100">{t("startAICompetition")}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {/* 汇率预测对战界面 */}
+                    {!predictionBattle && (
+                      <div className="space-y-6">
+                        <div className="text-center mb-6">
+                          <div className="text-6xl mb-4">🔮</div>
+                          <h3 className="text-xl font-semibold text-gray-800 mb-2">{t("predictionBattleMode")}</h3>
+                          <p className="text-sm text-gray-600">{t("predictionBattleDescription")}</p>
+                        </div>
+
                         <div className="space-y-4">
-                          {/* 历史数据图表展示 */}
-                          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <h4 className="font-medium mb-3 text-blue-800">{t("historicalData")}</h4>
-                            {/* 图表展示历史数据 */}
-                            <div className="w-full bg-white rounded border p-3 mb-3">
-                              <SimpleLineChart 
-                                data={predictionBattle.historicalData.map(item => ({
-                                  time: item.date,
-                                  rate: item.rate,
-                                  timestamp: new Date(item.date).getTime()
-                                }))} 
-                                width={500} 
-                                height={150} 
-                              />
-                            </div>
-                            {/* 最近几天的数值展示 */}
-                            <div className="grid grid-cols-3 gap-2 text-sm">
-                              {predictionBattle.historicalData.slice(-9).map((data, index) => (
-                                <div key={index} className="text-center p-2 bg-white rounded border">
-                                  <div className="text-xs text-slate-500">{data.date}</div>
-                                  <div className="font-medium">{data.rate.toFixed(4)}</div>
-                                </div>
-                              ))}
+                          <div>
+                            <label className="block text-sm font-medium mb-2 text-gray-700">{t("selectCurrency")}</label>
+                            <select 
+                              value={selectedCurrency}
+                              onChange={(e) => setSelectedCurrency(e.target.value)}
+                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="HKD">CNY/HKD (人民币/港币)</option>
+                              <option value="JPY">CNY/JPY (人民币/日元)</option>
+                              <option value="KRW">CNY/KRW (人民币/韩元)</option>
+                              <option value="MYR">CNY/MYR (人民币/马来西亚林吉特)</option>
+                              <option value="SGD">CNY/SGD (人民币/新加坡元)</option>
+                              <option value="THB">CNY/THB (人民币/泰铢)</option>
+                            </select>
+                          </div>
+                          
+                          {/* 预测模式选择 */}
+                          <div>
+                            <label className="block text-sm font-medium mb-3 text-gray-700">预测模式</label>
+                            <div className="grid grid-cols-1 gap-3">
+                              <button
+                                onClick={() => setPredictionMode('manual')}
+                                className={`p-4 border-2 rounded-lg text-left transition-all ${
+                                  predictionMode === 'manual' 
+                                    ? 'border-blue-500 bg-blue-50 shadow-md' 
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <div className="font-semibold text-gray-800">📝 手动预测</div>
+                                <div className="text-sm text-gray-600 mt-1">手动输入预测数值</div>
+                              </button>
+                              <button
+                                onClick={() => setPredictionMode('code')}
+                                className={`p-4 border-2 rounded-lg text-left transition-all ${
+                                  predictionMode === 'code' 
+                                    ? 'border-blue-500 bg-blue-50 shadow-md' 
+                                    : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                              >
+                                <div className="font-semibold text-gray-800">💻 代码预测</div>
+                                <div className="text-sm text-gray-600 mt-1">使用Python代码预测</div>
+                              </button>
                             </div>
                           </div>
 
-                          {/* 预测期间 */}
-                          <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <h4 className="font-medium mb-3 text-yellow-800">{t("predictionPeriod")}</h4>
-                            <div className="text-sm text-yellow-700">
-                              {predictionBattle.predictionPeriod.startDate} 至 {predictionBattle.predictionPeriod.endDate}
-                            </div>
-                            <div className="text-xs text-yellow-600 mt-1">
-                              {t("predictionPeriodDesc")}
-                            </div>
+                          {/* 预测天数选择 */}
+                          <div>
+                            <label className="block text-sm font-medium mb-2 text-gray-700">预测天数</label>
+                            <select 
+                              value={predictionDays}
+                              onChange={(e) => setPredictionDays(Number(e.target.value))}
+                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value={3}>3天</option>
+                              <option value={5}>5天</option>
+                              <option value={7}>7天</option>
+                              <option value={10}>10天</option>
+                            </select>
                           </div>
-
-                          {/* 预测输入 */}
-                          {/* 预测输入区域 */}
-                          <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                            <h4 className="font-medium mb-3 text-green-800">{t("enterPredictions")}</h4>
-                            
-                            {predictionMode === 'manual' ? (
-                              // 手动预测模式
-                              <div className="grid grid-cols-1 gap-3">
-                                {Array.from({ length: predictionDays }, (_, i) => i + 1).map((day) => (
-                                  <div key={day} className="flex items-center space-x-3">
-                                    <label className="w-20 text-sm font-medium">
-                                      {t("dayLabel", { day: day.toString() })}
-                                    </label>
-                                    <input
-                                      type="number"
-                                      step="0.0001"
-                                      placeholder="0.0000"
-                                      value={predictionBattle.playerPredictions[day - 1] || ''}
-                                      onChange={(e) => {
-                                        const newPredictions = [...predictionBattle.playerPredictions];
-                                        newPredictions[day - 1] = parseFloat(e.target.value) || 0;
-                                        setPredictionBattle({
-                                          ...predictionBattle,
-                                          playerPredictions: newPredictions
-                                        });
-                                      }}
-                                      className="flex-1 p-2 border border-gray-300 rounded-md text-sm"
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              // 代码预测模式
-                              <div className="space-y-4">
-                                <div>
-                                  <label className="block text-sm font-medium mb-2">{t("pythonPredictionCode")}</label>
-                                  <textarea
-                                    value={predictionCode}
-                                    onChange={(e) => setPredictionCode(e.target.value)}
-                                    placeholder={t("predictionCodePlaceholder")}
-                                    className="w-full h-64 p-3 border border-gray-300 rounded-md font-mono text-sm"
-                                  />
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                  <strong>{t("codeInstructions")}</strong>
-                                  <ul className="list-disc list-inside mt-1 space-y-1">
-                                    <li>{t("codeExecutionEnvironment")}</li>
-                                    <li>{t("dataAnalysisLibraries")}</li>
-                                    <li>{t("outputRequirement", { days: predictionDays.toString() })}</li>
-                                    <li>{t("outputFormatExample")}</li>
-                                  </ul>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
+                          
                           <Button
                             onClick={async () => {
+                              console.log('开始预测按钮被点击');
+                              console.log('selectedCurrency:', selectedCurrency);
+                              console.log('predictionDays:', predictionDays);
+                              
                               try {
+                                setIsLoadingPrediction(true);
+                                console.log('发送API请求...');
+                                
                                 const response = await fetch('/api/rate-prediction-battle', {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify({
-                                    action: 'submit',
-                                    competitionId: predictionBattle.competitionId,
-                                    playerPredictions: predictionMode === 'manual' ? predictionBattle.playerPredictions : null,
-                                    predictionCode: predictionMode === 'code' ? predictionCode : null,
-                                    predictionMode,
-                                    currency: predictionBattle.currency
+                                    action: 'start',
+                                    currency: selectedCurrency,
+                                    predictionDays,
+                                    predictionMode
                                   })
                                 });
                                 
+                                console.log('API响应状态:', response.status);
+                                
                                 if (response.ok) {
                                   const result = await response.json();
-                                  console.log('提交预测响应:', result);
+                                  console.log('API响应数据:', result);
+                                  
                                   setPredictionBattle({
-                                    ...predictionBattle,
-                                    status: 'results',
-                                    results: result.results
+                                    competitionId: result.competitionId || 'comp_' + Date.now(),
+                                    currency: selectedCurrency,
+                                    historicalData: result.historicalData || [],
+                                    predictionPeriod: {
+                                      startDate: new Date().toISOString().split('T')[0],
+                                      endDate: new Date(Date.now() + predictionDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                                      actualRates: []
+                                    },
+                                    playerPredictions: Array(predictionDays).fill(0),
+                                    status: 'predicting'
                                   });
+                                  console.log('状态已更新');
+                                } else {
+                                  console.error('API请求失败:', response.status, response.statusText);
+                                  const errorText = await response.text();
+                                  console.error('错误详情:', errorText);
                                 }
                               } catch (error) {
-                                console.error('提交预测失败:', error);
+                                console.error('启动预测对战失败:', error);
+                              } finally {
+                                setIsLoadingPrediction(false);
+                                console.log('加载状态已重置');
                               }
                             }}
-                            disabled={
-                              isLoadingPrediction || 
-                              (predictionMode === 'manual' && predictionBattle.playerPredictions.some(p => !p)) ||
-                              (predictionMode === 'code' && !predictionCode.trim())
-                            }
-                            className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
+                            disabled={isLoadingPrediction}
+                            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all"
                           >
                             {isLoadingPrediction ? (
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                             ) : (
-                              <Send className="h-4 w-4 mr-2" />
+                              <TrendingUp className="h-5 w-5 mr-2" />
                             )}
-                            {t("submitPredictions")}
+                            {t("startPredictionBattle")}
                           </Button>
                         </div>
-                      )}
+                      </div>
+                    )}
 
-                      {predictionBattle.status === 'results' && predictionBattle.results && (
-                        <div className="space-y-4">
-                          {/* 对战结果 */}
-                          <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                            <div className="text-4xl mb-2">
-                              {predictionBattle.results?.winner === 'player' ? "🏆" : 
-                               predictionBattle.results?.winner === 'ai' ? "🤖" : "🤝"}
-                            </div>
-                            <div className="text-lg font-medium mb-2">
-                              {predictionBattle.results?.winner === 'player' ? "恭喜你获胜！" :
-                               predictionBattle.results?.winner === 'ai' ? "AI获胜！" : "平局！"}
-                            </div>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <div className="text-slate-600">{t("playerPrediction")} {t("accuracy")}:</div>
-                                <div className="text-2xl font-bold text-green-600">
-                                  {predictionBattle.results?.playerAccuracy?.toFixed(2) || '0.00'}%
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-slate-600">{t("aiPrediction")} {t("accuracy")}:</div>
-                                <div className="text-2xl font-bold text-red-600">
-                                  {predictionBattle.results?.aiAccuracy?.toFixed(2) || '0.00'}%
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* 对比图表 */}
-                          <div className="p-4 bg-slate-50 rounded-lg border">
-                            <h4 className="font-medium mb-3">{t("predictionComparisonChart")}</h4>
-                            <div className="w-full bg-white rounded border p-3 mb-3">
-                              <SimpleLineChart 
-                                data={[
-                                  // 用三条线展示：真实值、玩家预测、AI预测
-                                  ...(predictionBattle.results?.actualRates?.map((rate, index) => ({
-                                    time: `Day ${index + 1}`,
-                                    rate: rate,
-                                    timestamp: index
-                                  })) || [])
-                                ]} 
-                                width={500} 
-                                height={200} 
-                              />
-                            </div>
-                          </div>
-
-                          {/* 代码执行结果（仅在代码模式下显示） */}
-                          {predictionMode === 'code' && predictionBattle.results?.codeOutput && (
-                            <div className="p-4 bg-gray-50 rounded-lg border">
-                              <h4 className="font-medium mb-3">代码执行结果</h4>
-                              <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
-                                <div className="text-gray-400 text-xs mb-1">输出:</div>
-                                <pre className="whitespace-pre-wrap">{predictionBattle.results.codeOutput}</pre>
-                                {predictionBattle.results.codeStderr && (
-                                  <>
-                                    <div className="text-red-400 text-xs mt-2 mb-1">错误/警告:</div>
-                                    <pre className="whitespace-pre-wrap text-red-300">{predictionBattle.results.codeStderr}</pre>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* 详细比较表格 */}
-                          <div className="p-4 bg-slate-50 rounded-lg border">
-                            <h4 className="font-medium mb-3">{t("battleResults")}</h4>
-                            <div className="space-y-2">
-                              {Array.from({ length: predictionDays }, (_, i) => i + 1).map((day) => (
-                                <div key={day} className="grid grid-cols-4 gap-2 text-sm">
-                                  <div className="font-medium">{t("day", { day })}</div>
-                                  <div className="text-green-600">
-                                    {predictionBattle.results?.playerPredictions?.[day - 1]?.toFixed(4) || '0.0000'}
-                                  </div>
-                                  <div className="text-red-600">
-                                    {predictionBattle.results?.aiPredictions?.[day - 1]?.toFixed(4) || '0.0000'}
-                                  </div>
-                                  <div className="font-medium">
-                                    {predictionBattle.results?.actualRates?.[day - 1]?.toFixed(4) || '0.0000'}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                            <div className="grid grid-cols-4 gap-2 text-xs text-slate-500 mt-2 pt-2 border-t">
-                              <div>日期</div>
-                              <div>{t("playerPrediction")}</div>
-                              <div>{t("aiPrediction")}</div>
-                              <div>{t("actualRate")}</div>
-                            </div>
-                          </div>
+                    {predictionBattle && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-medium">CNY/{predictionBattle.currency} {t("predictionBattleMode")}</h3>
+                          <Button
+                            onClick={resetPredictionBattle}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            返回
+                          </Button>
                         </div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+
+                        {predictionBattle.status === 'predicting' && (
+                          <div className="space-y-4">
+                            {/* 历史数据图表展示 */}
+                            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                              <h4 className="font-medium mb-3 text-blue-800">{t("historicalData")}</h4>
+                              {/* 图表展示历史数据 */}
+                              <div className="w-full bg-white rounded border p-3 mb-3">
+                                <SimpleLineChart 
+                                  data={predictionBattle.historicalData.map(item => ({
+                                    time: item.date,
+                                    rate: item.rate,
+                                    timestamp: new Date(item.date).getTime()
+                                  }))} 
+                                  width={400} 
+                                  height={150} 
+                                />
+                              </div>
+                              {/* 最近几天的数值展示 */}
+                              <div className="grid grid-cols-3 gap-2 text-sm">
+                                {predictionBattle.historicalData.slice(-9).map((data, index) => (
+                                  <div key={index} className="text-center p-2 bg-white rounded border">
+                                    <div className="text-xs text-slate-500">{data.date}</div>
+                                    <div className="font-medium">{data.rate.toFixed(4)}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* 预测期间 */}
+                            <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                              <h4 className="font-medium mb-3 text-yellow-800">{t("predictionPeriod")}</h4>
+                              <div className="text-sm text-yellow-700">
+                                {predictionBattle.predictionPeriod.startDate} 至 {predictionBattle.predictionPeriod.endDate}
+                              </div>
+                              <div className="text-xs text-yellow-600 mt-1">
+                                {t("predictionPeriodDesc")}
+                              </div>
+                            </div>
+
+                            {/* 预测输入区域 */}
+                            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                              <h4 className="font-medium mb-3 text-green-800">{t("enterPredictions")}</h4>
+                              
+                              {predictionMode === 'manual' ? (
+                                // 手动预测模式
+                                <div className="space-y-3">
+                                  {Array.from({ length: predictionDays }, (_, i) => i + 1).map((day) => (
+                                    <div key={day} className="flex items-center space-x-3">
+                                      <label className="w-16 text-sm font-medium text-gray-700">
+                                        第{day}天:
+                                      </label>
+                                      <input
+                                        type="number"
+                                        step="0.0001"
+                                        placeholder="0.0000"
+                                        value={predictionBattle.playerPredictions[day - 1] || ''}
+                                        onChange={(e) => {
+                                          const newPredictions = [...predictionBattle.playerPredictions];
+                                          newPredictions[day - 1] = parseFloat(e.target.value) || 0;
+                                          setPredictionBattle({
+                                            ...predictionBattle,
+                                            playerPredictions: newPredictions
+                                          });
+                                        }}
+                                        className="flex-1 p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                // 代码预测模式
+                                <div className="space-y-4">
+                                  <div>
+                                    <label className="block text-sm font-medium mb-2">{t("pythonPredictionCode")}</label>
+                                    <div className="relative">
+                                      <textarea
+                                        value={predictionCode}
+                                        onChange={(e) => setPredictionCode(e.target.value)}
+                                        placeholder={t("predictionCodePlaceholder")}
+                                        className="w-full h-96 p-4 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-900 text-green-400 resize-none overflow-auto"
+                                        style={{
+                                          fontFamily: "'Fira Code', 'Monaco', 'Menlo', 'Consolas', monospace",
+                                          fontSize: '14px',
+                                          lineHeight: '1.5',
+                                          tabSize: 4,
+                                          whiteSpace: 'pre'
+                                        }}
+                                        spellCheck={false}
+                                        autoComplete="off"
+                                        autoCorrect="off"
+                                        autoCapitalize="off"
+                                      />
+                                      <div className="absolute top-2 right-2 text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">
+                                        Python
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-sm text-gray-700 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                      <strong className="text-blue-800">代码执行环境说明：</strong>
+                                    </div>
+                                    <ul className="list-disc list-inside mt-1 space-y-1 text-blue-700">
+                                      <li>代码将在安全的Python 3.x环境中执行</li>
+                                      <li>可以使用pandas、numpy、matplotlib等数据分析库</li>
+                                      <li>输出结果必须是{predictionDays}个数值的列表或数组</li>
+                                      <li>示例输出：<code className="bg-gray-100 px-1 rounded">[1.2345, 1.2380, 1.2412, ...]</code></li>
+                                      <li>可以使用print()输出调试信息</li>
+                                      <li>代码执行时间限制：30秒</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            <Button
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch('/api/rate-prediction-battle', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                      action: 'submit',
+                                      competitionId: predictionBattle.competitionId,
+                                      playerPredictions: predictionMode === 'manual' ? predictionBattle.playerPredictions : null,
+                                      predictionCode: predictionMode === 'code' ? predictionCode : null,
+                                      predictionMode,
+                                      currency: predictionBattle.currency
+                                    })
+                                  });
+                                  
+                                  if (response.ok) {
+                                    const result = await response.json();
+                                    console.log('提交预测响应:', result);
+                                    setPredictionBattle({
+                                      ...predictionBattle,
+                                      status: 'results',
+                                      results: result.results
+                                    });
+                                  }
+                                } catch (error) {
+                                  console.error('提交预测失败:', error);
+                                }
+                              }}
+                              disabled={
+                                isLoadingPrediction || 
+                                (predictionMode === 'manual' && predictionBattle.playerPredictions.some(p => !p)) ||
+                                (predictionMode === 'code' && !predictionCode.trim())
+                              }
+                              className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg"
+                            >
+                              {isLoadingPrediction ? (
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              ) : (
+                                <Send className="h-4 w-4 mr-2" />
+                              )}
+                              {t("submitPredictions")}
+                            </Button>
+                          </div>
+                        )}
+
+                        {predictionBattle.status === 'results' && predictionBattle.results && (
+                          <div className="space-y-4">
+                            {/* 对战结果 */}
+                            <div className="text-center p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                              <div className="text-4xl mb-2">
+                                {predictionBattle.results?.winner === 'player' ? "🏆" : 
+                                 predictionBattle.results?.winner === 'ai' ? "🤖" : "🤝"}
+                              </div>
+                              <div className="text-xl font-semibold mb-2 text-gray-800">
+                                {predictionBattle.results?.winner === 'player' ? "恭喜你获胜！" :
+                                 predictionBattle.results?.winner === 'ai' ? "AI获胜！" : "平局！"}
+                              </div>
+                              <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+                                <div className="p-3 bg-white rounded-lg">
+                                  <div className="text-gray-600 mb-1">{t("playerPrediction")} {t("accuracy")}:</div>
+                                  <div className="text-2xl font-bold text-green-600">
+                                    {predictionBattle.results?.playerAccuracy?.toFixed(2) || '0.00'}%
+                                  </div>
+                                </div>
+                                <div className="p-3 bg-white rounded-lg">
+                                  <div className="text-gray-600 mb-1">{t("aiPrediction")} {t("accuracy")}:</div>
+                                  <div className="text-2xl font-bold text-blue-600">
+                                    {predictionBattle.results?.aiAccuracy?.toFixed(2) || '0.00'}%
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* 详细比较表格 */}
+                            <div className="p-4 bg-gray-50 rounded-lg border">
+                              <h4 className="font-medium mb-3">{t("battleResults")}</h4>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                  <thead>
+                                    <tr className="border-b">
+                                      <th className="text-left py-2">日期</th>
+                                      <th className="text-left py-2">你的预测</th>
+                                      <th className="text-left py-2">AI预测</th>
+                                      <th className="text-left py-2">实际汇率</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {Array.from({ length: predictionDays }, (_, i) => i + 1).map((day) => (
+                                      <tr key={day} className="border-b">
+                                        <td className="py-2">第{day}天</td>
+                                        <td className="py-2 text-green-600 font-medium">
+                                          {predictionBattle.results?.playerPredictions?.[day - 1]?.toFixed(4) || '0.0000'}
+                                        </td>
+                                        <td className="py-2 text-blue-600 font-medium">
+                                          {predictionBattle.results?.aiPredictions?.[day - 1]?.toFixed(4) || '0.0000'}
+                                        </td>
+                                        <td className="py-2 font-bold">
+                                          {predictionBattle.results?.actualRates?.[day - 1]?.toFixed(4) || '0.0000'}
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
@@ -2941,6 +4651,7 @@ type RateForecastSectionProps = {
   lastRate: number;
   language: "zh" | "en";
   getText: (key: string, params?: { [key: string]: string | number }) => string;
+  bankName?: string;
 };
 
 // 简单预测函数（支持LSTM模型和统计学回退）
@@ -2948,7 +4659,8 @@ async function fetchRateForecast(
   fromCurrency: string,
   toCurrency: string,
   lastRate: number,
-  days: number = 20
+  days: number = 20,
+  bankName?: string
 ): Promise<Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean; method?: string }>> {
   try {
     // 首先尝试调用LSTM模型API
@@ -2960,7 +4672,8 @@ async function fetchRateForecast(
       body: JSON.stringify({
         fromCurrency,
         toCurrency,
-        days
+        days,
+        bankName
       })
     });
 
@@ -3024,7 +4737,7 @@ async function fetchRateForecast(
   return result;
 }
 
-const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, getText }: RateForecastSectionProps) => {
+const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, getText, bankName }: RateForecastSectionProps) => {
   const [forecast, setForecast] = useState<Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean; method?: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [predictionMethod, setPredictionMethod] = useState<string>('');
@@ -3047,7 +4760,7 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, get
   // 主要的数据获取useEffect - 只在货币对改变或首次加载时执行
   useEffect(() => {
     // 创建一个唯一的key来标识当前的预测请求
-    const currentFetchKey = `${fromCurrency}-${toCurrency}`;
+    const currentFetchKey = `${fromCurrency}-${toCurrency}-${bankName || 'default'}`;
     const now = Date.now();
     const cacheValidDuration = 10 * 60 * 1000; // 10分钟缓存
     
@@ -3073,7 +4786,7 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, get
     setLastFetchKey(currentFetchKey);
     setCacheTimestamp(now);
     
-    fetchRateForecast(fromCurrency, toCurrency, lastRate, 20).then((data) => {
+    fetchRateForecast(fromCurrency, toCurrency, lastRate, 20, bankName).then((data) => {
       setForecast(data);
       setLoading(false);
       setIsInitialized(true);
@@ -3093,7 +4806,7 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, get
       setIsInitialized(true);
       setPredictionMethod(getText('statisticalSimulationAlgorithm'));
     });
-  }, [fromCurrency, toCurrency, getText]); // 移除了lastRate依赖，避免频繁刷新
+  }, [fromCurrency, toCurrency, bankName, getText]); // 添加了bankName依赖
 
   // 找出推荐购买时间
   const optimalPoint = forecast.find(item => item.isOptimal);
@@ -3236,7 +4949,7 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, get
                     const prevRate = index === 0 ? lastRate : forecast[index - 1].rate;
                     const change = ((item.rate - prevRate) / prevRate * 100);
                     return (
-                      <tr key={item.date} className={`border-b hover:bg-slate-50 ${item.isOptimal ? 'bg-red-50' : ''}`}>
+                      <tr key={`${item.date}-${index}`} className={`border-b hover:bg-slate-50 ${item.isOptimal ? 'bg-red-50' : ''}`}>
                         <td className="px-2 py-1">{item.date}</td>
                         <td className="px-2 py-1 text-right font-mono">{item.rate}</td>
                         <td className={`px-2 py-1 text-right text-xs ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>

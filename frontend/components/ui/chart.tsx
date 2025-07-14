@@ -315,16 +315,30 @@ export function SimpleLineChart({ data, width = 400, height = 200 }: SimpleLineC
     )
   }
 
-  const minRate = Math.min(...data.map((d) => d.rate))
-  const maxRate = Math.max(...data.map((d) => d.rate))
+  // 过滤掉无效数据
+  const validData = data.filter(d => d && typeof d.rate === 'number' && !isNaN(d.rate))
+  
+  if (validData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-48 text-slate-500">
+        <div className="text-center">
+          <div className="text-lg mb-2">📈</div>
+          <div>No valid data available</div>
+        </div>
+      </div>
+    )
+  }
+
+  const minRate = Math.min(...validData.map((d) => d.rate))
+  const maxRate = Math.max(...validData.map((d) => d.rate))
   const rateRange = maxRate - minRate || 1
 
   const padding = 40
   const chartWidth = width - padding * 2
   const chartHeight = height - padding * 2
 
-  const points = data.map((point, index) => {
-    const x = padding + (index / (data.length - 1)) * chartWidth
+  const points = validData.map((point, index) => {
+    const x = padding + (index / (validData.length - 1)) * chartWidth
     const y = padding + ((maxRate - point.rate) / rateRange) * chartHeight
     return { x, y, rate: point.rate, time: point.time }
   })
@@ -390,7 +404,7 @@ export function SimpleLineChart({ data, width = 400, height = 200 }: SimpleLineC
             strokeWidth="2"
             className="hover:r-5 transition-all cursor-pointer"
           >
-            <title>{`${point.time}: ${point.rate.toFixed(4)}`}</title>
+            <title>{`${point.time || 'Unknown'}: ${typeof point.rate === 'number' ? point.rate.toFixed(4) : 'N/A'}`}</title>
           </circle>
         ))}
       </svg>

@@ -48,16 +48,18 @@ def score_text():
 
         # FinBERT output format: [{'label': 'positive', 'score': 0.999}]
         # Map labels to a numerical sentiment score:
-        # POSITIVE: 1, NEUTRAL: 0, NEGATIVE: -1
+        # POSITIVE: positive score, NEUTRAL: neutral score, NEGATIVE: negative score
         sentiment_label = ret[0]['label']
         sentiment_score = ret[0]['score']
 
-        numerical_sentiment = 0
+        # Calculate numerical sentiment based on label and confidence
         if sentiment_label.lower() == 'positive':
-            numerical_sentiment = sentiment_score
+            numerical_sentiment = sentiment_score  # Positive: 0 to 1
         elif sentiment_label.lower() == 'negative':
-            numerical_sentiment = -sentiment_score
-        # For neutral, it's already 0 or close to 0 if score is low
+            numerical_sentiment = -sentiment_score  # Negative: -1 to 0
+        else:  # neutral
+            # For neutral, use a smaller score around 0, but not exactly 0
+            numerical_sentiment = sentiment_score * 0.1 if sentiment_score > 0.5 else -sentiment_score * 0.1
 
         return jsonify({
             "sentiment": sentiment_label,  # Keep label format for frontend
