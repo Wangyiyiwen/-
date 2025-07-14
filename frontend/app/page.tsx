@@ -2109,58 +2109,62 @@ print(predictions)`)
 
           {/* AI Competition Tab */}
           <TabsContent value="competition" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Trading Pair Selection and Chart */}
-              <Card className="animate-slide-in-left">
-                <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    {t("tradingPair")}
-                  </CardTitle>
-                  <CardDescription className="text-purple-100">{t("exchangeRateChart")}</CardDescription>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  {/* Currency Pair Selection */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>{t("baseCurrencyLabel")}</Label>
-                      <Select
-                        value={tradingPair.from}
-                        onValueChange={(value) => setTradingPair({ ...tradingPair, from: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {currencies.map((currency) => (
-                            <SelectItem key={currency.code} value={currency.code}>
-                              {currency.flag} {currency.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+            {/* 将交易货币对卡片居中显示 */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-4xl">
+                {/* Trading Pair Selection and Chart */}
+                <Card className="animate-slide-in-left">
+                  <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2 justify-center">
+                      <TrendingUp className="h-5 w-5" />
+                      {t("tradingPair")}
+                    </CardTitle>
+                    <CardDescription className="text-purple-100 text-center">{t("exchangeRateChart")}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-4">
+                    {/* Currency Pair Selection - 居中布局 */}
+                    <div className="flex justify-center">
+                      <div className="grid grid-cols-2 gap-4 max-w-md w-full">
+                        <div className="space-y-2">
+                          <Label className="text-center block">{t("baseCurrencyLabel")}</Label>
+                          <Select
+                            value={tradingPair.from}
+                            onValueChange={(value) => setTradingPair({ ...tradingPair, from: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {currencies.map((currency) => (
+                                <SelectItem key={currency.code} value={currency.code}>
+                                  {currency.flag} {currency.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-center block">{t("targetCurrencyLabel")}</Label>
+                          <Select
+                            value={tradingPair.to}
+                            onValueChange={(value) => setTradingPair({ ...tradingPair, to: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {currencies
+                                .filter((c) => c.code !== tradingPair.from)
+                                .map((currency) => (
+                                  <SelectItem key={currency.code} value={currency.code}>
+                                    {currency.flag} {currency.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label>{t("targetCurrencyLabel")}</Label>
-                      <Select
-                        value={tradingPair.to}
-                        onValueChange={(value) => setTradingPair({ ...tradingPair, to: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {currencies
-                            .filter((c) => c.code !== tradingPair.from)
-                            .map((currency) => (
-                              <SelectItem key={currency.code} value={currency.code}>
-                                {currency.flag} {currency.name}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
 
                   {/* Current Rate Display */}
                   <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
@@ -2218,6 +2222,7 @@ print(predictions)`)
                   </div>
                 </CardContent>
               </Card>
+              </div>
             </div>
 
             {/* Competition Control */}
