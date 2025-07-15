@@ -2112,6 +2112,7 @@ print(predictions)`
     // 更多策略和机构名称翻译
     "中国银行直接网点兑换": { zh: "中国银行直接网点兑换", en: "Bank of China Direct Branch Exchange" },
     "中国银行，国内一线机场兑换": { zh: "中国银行，国内一线机场兑换", en: "Bank of China Domestic First-tier Airport Exchange" },
+    "国内一线机场兑换": { zh: "国内一线机场兑换", en: "Domestic First-tier Airport Exchange" },
     "一线机场": { zh: "一线机场", en: "First-tier Airport" },
     "工商银行线上购汇线下取钞": { zh: "工商银行线上购汇线下取钞", en: "ICBC Online Purchase Offline Pickup" },
     "工商银行": { zh: "工商银行", en: "ICBC" },
@@ -2120,6 +2121,9 @@ print(predictions)`
     "招商银行现金直接兑换": { zh: "招商银行现金直接兑换", en: "China Merchants Bank Direct Cash Exchange" },
     "建设银行线上购汇线下取钞": { zh: "建设银行线上购汇线下取钞", en: "China Construction Bank Online Purchase Offline Pickup" },
     "建设银行": { zh: "建设银行", en: "China Construction Bank" },
+    
+    // 机构名称翻译
+    "国外机场": { zh: "国外机场", en: "Foreign Airport" },
     
     // 费用详情翻译
     "手续费": { zh: "手续费", en: "Fees" },
@@ -2177,6 +2181,9 @@ print(predictions)`
     "等1个步骤": { zh: "等1个步骤", en: "... 1 more step" },
     "等2个步骤": { zh: "等2个步骤", en: "... 2 more steps" },
     "等3个步骤": { zh: "等3个步骤", en: "... 3 more steps" },
+    
+    // 策略选择提示文本
+    "strategySelectionHint": { zh: "选择您偏好的购钞策略，选定后将在\"结果显示\"页面展示详细信息", en: "Select your preferred currency purchase strategy, details will be shown in the 'Results Display' page after selection" },
   }
 
   const t = (key: string, params?: { [key: string]: string | number }) => {
@@ -2206,6 +2213,7 @@ print(predictions)`
       "中国银行线上购汇线下取钞（新加坡元）": "中国银行线上购汇线下取钞（新加坡元）",
       "中国银行直接网点兑换": "中国银行直接网点兑换",
       "中国银行，国内一线机场兑换": "中国银行，国内一线机场兑换",
+      "国内一线机场兑换": "国内一线机场兑换",
       "工商银行线上购汇线下取钞": "工商银行线上购汇线下取钞",
       "招商银行线上购汇线下取钞": "招商银行线上购汇线下取钞",
       "招商银行现金直接兑换": "招商银行现金直接兑换",
@@ -2229,6 +2237,47 @@ print(predictions)`
     if (texts[`"${text}"`]) {
       return texts[`"${text}"`][language] || text
     }
+    
+    // 特定文本的直接映射
+    const directMappings: { [key: string]: { zh: string; en: string } } = {
+      "新加坡UOB/Maybank ATM取现": {
+        zh: "新加坡UOB/Maybank ATM取现",
+        en: "Singapore UOB/Maybank ATM Withdrawal"
+      },
+      "国外机场兑换": {
+        zh: "国外机场兑换", 
+        en: "Foreign Airport Exchange"
+      },
+      "即时兑换": {
+        zh: "即时兑换",
+        en: "Instant Exchange"
+      },
+      "新加坡DBS/POSB ATM取现": {
+        zh: "新加坡DBS/POSB ATM取现",
+        en: "Singapore DBS/POSB ATM Withdrawal"
+      },
+      "即时取现": {
+        zh: "即时取现",
+        en: "Instant Withdrawal"
+      },
+      "中国银行线上购汇线下取钞（新加坡元）": {
+        zh: "中国银行线上购汇线下取钞（新加坡元）",
+        en: "Bank of China Online Purchase Offline Withdrawal (SGD)"
+      },
+      "需提前2天预约": {
+        zh: "需提前2天预约",
+        en: "Requires 2-day advance booking"
+      },
+      "没有英文": {
+        zh: "没有英文",
+        en: "No English support"
+      }
+    }
+    
+    if (directMappings[text]) {
+      return directMappings[text][language] || text
+    }
+    
     return text
   }
 
@@ -3982,7 +4031,7 @@ print(predictions)`;
                       {t("strategySelection")} ({availableStrategies.length}{t("availableStrategies")})
                     </CardTitle>
                     <CardDescription className="text-emerald-100">
-                      选择您偏好的购钞策略，选定后将在"结果显示"页面展示详细信息
+                      {t("strategySelectionHint")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-6">
