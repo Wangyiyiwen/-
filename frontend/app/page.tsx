@@ -1420,6 +1420,7 @@ export default function CurrencyExchangeSystem() {
 
   // Cover page state
   const [showCover, setShowCover] = useState(true)
+  const [isSystemLoading, setIsSystemLoading] = useState(false)
 
   // Trading Pair State (for AI Competition)
   const [tradingPair, setTradingPair] = useState({
@@ -1898,6 +1899,22 @@ export default function CurrencyExchangeSystem() {
     // Additional news analysis translations
     newsAnalysisForPrediction: { zh: "输入新闻文本进行情感分析，为汇率预测提供依据", en: "Enter news text for sentiment analysis to provide basis for exchange rate prediction" },
     predictionComparisonChart: { zh: "预测结果对比图表", en: "Prediction Comparison Chart" },
+    
+    // AI Competition translations
+    aiRatePredictionBattle: { zh: "🤖 AI汇率预测对战", en: "🤖 AI Rate Prediction Battle" },
+    challengeAIModel: { zh: "挑战AI模型，测试你的汇率预测能力", en: "Challenge AI models and test your rate prediction skills" },
+    
+    // Rate prediction battle specific translations
+    selectCurrencyLabel: { zh: "Select Currency", en: "Select Currency" },
+    cnyHkdPair: { zh: "CNY/HKD (人民币/港币)", en: "CNY/HKD (Chinese Yuan/Hong Kong Dollar)" },
+    predictionMode: { zh: "预测模式", en: "Prediction Mode" },
+    manualPrediction: { zh: "📝 手动预测", en: "📝 Manual Prediction" },
+    manualPredictionDesc: { zh: "手动输入预测数值", en: "Manually input prediction values" },
+    codePrediction: { zh: "💻 代码预测", en: "💻 Code Prediction" },
+    codePredictionDesc: { zh: "使用Python代码预测", en: "Use Python code for prediction" },
+    predictionDays: { zh: "预测天数", en: "Prediction Days" },
+    fiveDays: { zh: "5天", en: "5 days" },
+    marketIndicators: { zh: "市场指标", en: "Market Indicators" },
     writeRatePredictionCode: { zh: "编写您的汇率预测代码", en: "Write your exchange rate prediction code" },
     // Code editor translations
     pythonPredictionCode: { zh: "Python预测代码", en: "Python Prediction Code" },
@@ -2271,6 +2288,110 @@ print(predictions)`
       "没有英文": {
         zh: "没有英文",
         en: "No English support"
+      },
+      "APP booking supported": {
+        zh: "APP booking supported",
+        en: "APP booking supported"
+      },
+      "免手续费（本地卡）": {
+        zh: "免手续费（本地卡）",
+        en: "No fees (local card)"
+      },
+      "库存充足": {
+        zh: "库存充足",
+        en: "Sufficient stock"
+      },
+      "风险": {
+        zh: "风险",
+        en: "Risk"
+      },
+      "置信度": {
+        zh: "置信度", 
+        en: "Confidence"
+      },
+      "策略": {
+        zh: "策略",
+        en: "Strategy"
+      },
+      "Select Currency": {
+        zh: "Select Currency",
+        en: "Select Currency"
+      },
+      "CNY/HKD (人民币/港币)": {
+        zh: "CNY/HKD (人民币/港币)",
+        en: "CNY/HKD (Chinese Yuan/Hong Kong Dollar)"
+      },
+      "CNY/JPY (人民币/日元)": {
+        zh: "CNY/JPY (人民币/日元)",
+        en: "CNY/JPY (Chinese Yuan/Japanese Yen)"
+      },
+      "CNY/KRW (人民币/韩元)": {
+        zh: "CNY/KRW (人民币/韩元)",
+        en: "CNY/KRW (Chinese Yuan/Korean Won)"
+      },
+      "CNY/MYR (人民币/马来西亚林吉特)": {
+        zh: "CNY/MYR (人民币/马来西亚林吉特)",
+        en: "CNY/MYR (Chinese Yuan/Malaysian Ringgit)"
+      },
+      "CNY/SGD (人民币/新加坡元)": {
+        zh: "CNY/SGD (人民币/新加坡元)",
+        en: "CNY/SGD (Chinese Yuan/Singapore Dollar)"
+      },
+      "CNY/THB (人民币/泰铢)": {
+        zh: "CNY/THB (人民币/泰铢)",
+        en: "CNY/THB (Chinese Yuan/Thai Baht)"
+      },
+      "预测模式": {
+        zh: "预测模式",
+        en: "Prediction Mode"
+      },
+      "📝 手动预测": {
+        zh: "📝 手动预测",
+        en: "📝 Manual Prediction"
+      },
+      "手动输入预测数值": {
+        zh: "手动输入预测数值",
+        en: "Manually input prediction values"
+      },
+      "💻 代码预测": {
+        zh: "💻 代码预测",
+        en: "💻 Code Prediction"
+      },
+      "使用Python代码预测": {
+        zh: "使用Python代码预测",
+        en: "Use Python code for prediction"
+      },
+      "预测天数": {
+        zh: "预测天数",
+        en: "Prediction Days"
+      },
+      "5天": {
+        zh: "5天",
+        en: "5 days"
+      },
+      "市场指标": {
+        zh: "市场指标",
+        en: "Market Indicators"
+      },
+      "🏆 推荐": {
+        zh: "🏆 推荐",
+        en: "🏆 Recommended"
+      },
+      "Alternative Options": {
+        zh: "Alternative Options",
+        en: "Alternative Options"
+      },
+      "Recommended Channel": {
+        zh: "Recommended Channel",
+        en: "Recommended Channel"
+      },
+      "Completion Time": {
+        zh: "Completion Time",
+        en: "Completion Time"
+      },
+      "Fees": {
+        zh: "Fees",
+        en: "Fees"
       }
     }
     
@@ -3265,11 +3386,28 @@ print(predictions)`;
               <div className="animate-fade-in-up animation-delay-1000">
                 <Button
                   size="lg"
-                  onClick={() => setShowCover(false)}
-                  className="bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-semibold py-4 px-8 rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg"
+                  disabled={isSystemLoading}
+                  onClick={() => {
+                    setIsSystemLoading(true)
+                    // 模拟系统初始化延迟
+                    setTimeout(() => {
+                      setShowCover(false)
+                      setIsSystemLoading(false)
+                    }, 1500)
+                  }}
+                  className="bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white font-semibold py-4 px-8 rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 text-lg disabled:opacity-70 disabled:transform-none"
                 >
-                  <ArrowRight className="mr-2 h-5 w-5" />
-                  {t("enterSystem")}
+                  {isSystemLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      {language === 'zh' ? '系统加载中...' : 'Loading System...'}
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRight className="mr-2 h-5 w-5" />
+                      {t("enterSystem")}
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -4550,9 +4688,9 @@ print(predictions)`;
             {/* Page Header */}
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                🤖 AI汇率预测对战
+                {t("aiRatePredictionBattle")}
               </h2>
-              <p className="text-gray-600">挑战AI模型，测试你的汇率预测能力</p>
+              <p className="text-gray-600">{t("challengeAIModel")}</p>
             </div>
 
             {/* Main Content Grid */}
@@ -4647,7 +4785,7 @@ print(predictions)`;
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <BarChart3 className="h-5 w-5 text-gray-600" />
-                      市场指标
+                      {translateText("市场指标")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -4707,20 +4845,20 @@ print(predictions)`;
                             <select 
                               value={selectedCurrency}
                               onChange={(e) => setSelectedCurrency(e.target.value)}
-                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
-                              <option value="HKD">CNY/HKD (人民币/港币)</option>
-                              <option value="JPY">CNY/JPY (人民币/日元)</option>
-                              <option value="KRW">CNY/KRW (人民币/韩元)</option>
-                              <option value="MYR">CNY/MYR (人民币/马来西亚林吉特)</option>
-                              <option value="SGD">CNY/SGD (人民币/新加坡元)</option>
-                              <option value="THB">CNY/THB (人民币/泰铢)</option>
+                              <option value="HKD">{translateText("CNY/HKD (人民币/港币)")}</option>
+                              <option value="JPY">{translateText("CNY/JPY (人民币/日元)")}</option>
+                              <option value="KRW">{translateText("CNY/KRW (人民币/韩元)")}</option>
+                              <option value="MYR">{translateText("CNY/MYR (人民币/马来西亚林吉特)")}</option>
+                              <option value="SGD">{translateText("CNY/SGD (人民币/新加坡元)")}</option>
+                              <option value="THB">{translateText("CNY/THB (人民币/泰铢)")}</option>
                             </select>
                           </div>
                           
                           {/* 预测模式选择 */}
                           <div>
-                            <label className="block text-sm font-medium mb-3 text-gray-700">预测模式</label>
+                            <label className="block text-sm font-medium mb-3 text-gray-700">{translateText("预测模式")}</label>
                             <div className="grid grid-cols-1 gap-3">
                               <button
                                 onClick={() => setPredictionMode('manual')}
@@ -4730,8 +4868,8 @@ print(predictions)`;
                                     : 'border-gray-200 hover:border-gray-300'
                                 }`}
                               >
-                                <div className="font-semibold text-gray-800">📝 手动预测</div>
-                                <div className="text-sm text-gray-600 mt-1">手动输入预测数值</div>
+                                <div className="font-semibold text-gray-800">{translateText("📝 手动预测")}</div>
+                                <div className="text-sm text-gray-600 mt-1">{translateText("手动输入预测数值")}</div>
                               </button>
                               <button
                                 onClick={() => setPredictionMode('code')}
@@ -4741,22 +4879,22 @@ print(predictions)`;
                                     : 'border-gray-200 hover:border-gray-300'
                                 }`}
                               >
-                                <div className="font-semibold text-gray-800">💻 代码预测</div>
-                                <div className="text-sm text-gray-600 mt-1">使用Python代码预测</div>
+                                <div className="font-semibold text-gray-800">{translateText("💻 代码预测")}</div>
+                                <div className="text-sm text-gray-600 mt-1">{translateText("使用Python代码预测")}</div>
                               </button>
                             </div>
                           </div>
 
                           {/* 预测天数选择 */}
                           <div>
-                            <label className="block text-sm font-medium mb-2 text-gray-700">预测天数</label>
+                            <label className="block text-sm font-medium mb-2 text-gray-700">{translateText("预测天数")}</label>
                             <select 
                               value={predictionDays}
                               onChange={(e) => setPredictionDays(Number(e.target.value))}
                               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                               <option value={3}>3天</option>
-                              <option value={5}>5天</option>
+                              <option value={5}>{translateText("5天")}</option>
                               <option value={7}>7天</option>
                               <option value={10}>10天</option>
                             </select>

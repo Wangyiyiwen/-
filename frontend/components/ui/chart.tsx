@@ -2,9 +2,19 @@
 
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
-import type { SimpleLineChartProps } from "@/components/ui/chart"
 
 import { cn } from "@/lib/utils"
+
+// Simple Line Chart Props
+export interface SimpleLineChartProps {
+  data: Array<{
+    time?: string;
+    rate?: number;
+    [key: string]: any;
+  }>;
+  width?: number;
+  height?: number;
+}
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
