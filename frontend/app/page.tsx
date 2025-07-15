@@ -183,21 +183,21 @@ interface MockChannel {
 }
 
 const currencies: Currency[] = [
-  { code: "USD", name: "美元", symbol: "$", flag: "🇺🇸" },
-  { code: "EUR", name: "欧元", symbol: "€", flag: "🇪🇺" },
-  { code: "GBP", name: "英镑", symbol: "£", flag: "🇬🇧" },
-  { code: "JPY", name: "日元", symbol: "¥", flag: "🇯🇵" },
-  { code: "CNY", name: "人民币", symbol: "¥", flag: "🇨🇳" },
-  { code: "KRW", name: "韩元", symbol: "₩", flag: "🇰🇷" },
-  { code: "AUD", name: "澳元", symbol: "A$", flag: "🇦🇺" },
-  { code: "CAD", name: "加元", symbol: "C$", flag: "🇨🇦" },
-  { code: "CHF", name: "瑞士法郎", symbol: "CHF", flag: "🇨🇭" },
-  { code: "HKD", name: "港币", symbol: "HK$", flag: "🇭🇰" },
-  { code: "SGD", name: "新加坡元", symbol: "S$", flag: "🇸🇬" },
-  { code: "THB", name: "泰铢", symbol: "฿", flag: "🇹🇭" },
-  { code: "MYR", name: "马来西亚林吉特", symbol: "RM", flag: "🇲🇾" },
-  { code: "VND", name: "越南盾", symbol: "₫", flag: "🇻🇳" },
-  { code: "PHP", name: "菲律宾比索", symbol: "₱", flag: "🇵🇭" },
+  { code: "USD", name: "USD", symbol: "$", flag: "🇺🇸" },
+  { code: "EUR", name: "EUR", symbol: "€", flag: "🇪🇺" },
+  { code: "GBP", name: "GBP", symbol: "£", flag: "🇬🇧" },
+  { code: "JPY", name: "JPY", symbol: "¥", flag: "🇯🇵" },
+  { code: "CNY", name: "CNY", symbol: "¥", flag: "🇨🇳" },
+  { code: "KRW", name: "KRW", symbol: "₩", flag: "🇰🇷" },
+  { code: "AUD", name: "AUD", symbol: "A$", flag: "🇦🇺" },
+  { code: "CAD", name: "CAD", symbol: "C$", flag: "🇨🇦" },
+  { code: "CHF", name: "CHF", symbol: "CHF", flag: "🇨🇭" },
+  { code: "HKD", name: "HKD", symbol: "HK$", flag: "🇭🇰" },
+  { code: "SGD", name: "SGD", symbol: "S$", flag: "🇸🇬" },
+  { code: "THB", name: "THB", symbol: "฿", flag: "🇹🇭" },
+  { code: "MYR", name: "MYR", symbol: "RM", flag: "🇲🇾" },
+  { code: "VND", name: "VND", symbol: "₫", flag: "🇻🇳" },
+  { code: "PHP", name: "PHP", symbol: "₱", flag: "🇵🇭" },
 ]
 
 // 详细策略选项数据结构
@@ -1798,6 +1798,61 @@ export default function CurrencyExchangeSystem() {
     selectedFile: { zh: "已选择文件", en: "Selected File" },
     uploadSuccess: { zh: "上传成功", en: "Upload Successful" },
     uploadFailed: { zh: "上传失败", en: "Upload Failed" },
+    
+    // 策略选择相关翻译
+    strategySelection: { zh: "策略选择", en: "Strategy Selection" },
+    availableStrategies: { zh: "个可选", en: " available" },
+    
+    // 银行卡相关翻译
+    bankCardType: { zh: "银行卡类型", en: "Bank Card Type" },
+    localBankCard: { zh: "使用本地银行卡，享受优惠费率", en: "Use local bank card with preferential rates" },
+    nonLocalBankCard: { zh: "使用异地银行卡，产生额外手续费", en: "Use non-local bank card with additional fees" },
+    prepareMaterials: { zh: "准备身份证、银行卡等必要材料", en: "Prepare ID, bank card and other necessary materials" },
+    enableOverseasWithdrawal: { zh: "出发前开通银行卡境外取现功能", en: "Enable overseas withdrawal function before departure" },
+    
+    // 货币名称翻译
+    currencyNames: {
+      USD: { zh: "美元", en: "US Dollar" },
+      EUR: { zh: "欧元", en: "Euro" },
+      GBP: { zh: "英镑", en: "British Pound" },
+      JPY: { zh: "日元", en: "Japanese Yen" },
+      CNY: { zh: "人民币", en: "Chinese Yuan" },
+      KRW: { zh: "韩元", en: "Korean Won" },
+      AUD: { zh: "澳元", en: "Australian Dollar" },
+      CAD: { zh: "加元", en: "Canadian Dollar" },
+      CHF: { zh: "瑞士法郎", en: "Swiss Franc" },
+      HKD: { zh: "港币", en: "Hong Kong Dollar" },
+      SGD: { zh: "新加坡元", en: "Singapore Dollar" },
+      THB: { zh: "泰铢", en: "Thai Baht" },
+      MYR: { zh: "马来西亚林吉特", en: "Malaysian Ringgit" },
+      VND: { zh: "越南盾", en: "Vietnamese Dong" },
+      PHP: { zh: "菲律宾比索", en: "Philippine Peso" }
+    },
+    
+    // 提示信息翻译
+    fillRequirementsInStrategy: { zh: "请先在'购钞策略'页面填写需求并获取最优策略。", en: "Please fill in requirements and get optimal strategy in 'Purchase Strategy' page first." },
+    fillRequirementsForStrategies: { zh: "请先在'购钞策略'页面填写需求并获取策略选项。", en: "Please fill in requirements and get strategy options in 'Purchase Strategy' page first." },
+    
+    // 费用相关翻译
+    basicExchangeCost: { zh: "基础兑换费用", en: "Basic Exchange Cost" },
+    
+    // 操作步骤翻译
+    bookBankBranch: { zh: "在线预约银行网点（提前2-3天）", en: "Book bank branch online (2-3 days in advance)" },
+    visitBranchOnTime: { zh: "按预约时间前往指定网点", en: "Visit designated branch on appointment time" },
+    fillApplicationForm: { zh: "填写外汇购买申请表", en: "Fill out foreign exchange purchase application form" },
+    confirmRateAndFees: { zh: "确认汇率和手续费", en: "Confirm exchange rate and fees" },
+    completePayment: { zh: "完成付款", en: "Complete payment" },
+    receiveCurrency: { zh: "收取外币", en: "Receive foreign currency" },
+    completePaymentAndReceiveCash: { zh: "完成付款并取得外币现钞", en: "Complete payment and receive foreign currency cash" },
+    keepExchangeReceipt: { zh: "妥善保管兑换凭证", en: "Keep exchange receipt safely" },
+    
+    // 手机银行操作翻译
+    loginBankApp: { zh: "登录{bank}手机APP", en: "Login to {bank} mobile app" },
+    selectForeignExchange: { zh: "选择'外汇业务'或'结售汇'", en: "Select 'Foreign Exchange' or 'Currency Exchange'" },
+    enterExchangeAmount: { zh: "输入兑换金额和目标货币", en: "Enter exchange amount and target currency" },
+    confirmAndSubmit: { zh: "确认信息并提交申请", en: "Confirm information and submit application" },
+    waitForProcessing: { zh: "等待银行处理（通常几分钟内完成）", en: "Wait for bank processing (usually completed within minutes)" },
+    checkAccountBalance: { zh: "查看账户余额确认到账", en: "Check account balance to confirm receipt" },
     uploadError: { zh: "上传错误", en: "Upload Error" },
     noFileSelected: { zh: "未选择文件", en: "No file selected" },
     pleaseSelectCsv: { zh: "请选择一个CSV文件上传。", en: "Please select a CSV file to upload." },
@@ -1910,6 +1965,102 @@ print(predictions)`
     strategicOptimizationDesc: { zh: "AI驱动的最优决策建议", en: "AI-driven Optimal Decision Recommendations" },
     multiLanguageSupport: { zh: "多语言支持", en: "Multi-language Support" },
     multiLanguageSupportDesc: { zh: "中英文无缝切换体验", en: "Seamless Chinese-English Experience" },
+    
+    // 手续费和费用相关翻译
+    localCardFee: { zh: "本地卡手续费", en: "Local Card Fee" },
+    nonLocalCardFee: { zh: "异地卡手续费", en: "Non-local Card Fee" },
+    savingsComparedToExpensive: { zh: "节省金额相比最贵渠道计算", en: "Savings compared to most expensive channel" },
+    bankPolicyExplanation: { zh: "银行政策说明", en: "Bank Policy Explanation" },
+    
+    // LSTM预测相关翻译
+    lstmPredictionAdvice: { zh: "LSTM预测建议", en: "LSTM Prediction Advice" },
+    basedOnRateLSTM: { zh: "基于Rate LSTM数据集的LSTM模型预测", en: "Based on Rate LSTM dataset LSTM model prediction" },
+    recommendWatchLevels: { zh: "建议关注支撑位{support}和阻力位{resistance}", en: "Recommend watching support level {support} and resistance level {resistance}" },
+    
+    // 优势和注意事项
+    advantagesList: { zh: "优势", en: "Advantages" },
+    precautionsList: { zh: "注意事项", en: "Precautions" },
+    available24Hours: { zh: "24小时", en: "24 Hours Available" },
+    noLocalFees: { zh: "无本地费用", en: "No Local Fees" },
+    realtimeRateAdvantage: { zh: "实时汇率", en: "Real-time Rate" },
+    convenientFast: { zh: "便利快捷", en: "Convenient and Fast" },
+    domesticBankFees: { zh: "国内银行费用", en: "Domestic Bank Fees" },
+    singaporeOnly: { zh: "仅限新加坡", en: "Singapore Only" },
+    lowCost: { zh: "费用低廉", en: "Low Cost" },
+    wideAvailability: { zh: "覆盖面广", en: "Wide Availability" },
+    businessHoursLimitation: { zh: "营业时间限制", en: "Business Hours Limit" },
+    amountLimitation: { zh: "金额限制", en: "Amount Limit" },
+    singleTransactionLimit: { zh: "单次限额", en: "Single Transaction Limit" },
+    exchangeRateFluctuation: { zh: "汇率波动", en: "Exchange Rate Fluctuation" },
+    
+    // ATM策略名称翻译
+    singaporeUOBMaybankATM: { zh: "新加坡UOB/Maybank ATM取现", en: "Singapore UOB/Maybank ATM Withdrawal" },
+    uobMaybankATMDescription: { zh: "在新加坡UOB或Maybank ATM使用银联卡取现", en: "Use UnionPay card for withdrawal at UOB or Maybank ATM in Singapore" },
+    japanConvenienceStoreATM: { zh: "日本便利店ATM取现", en: "Japan Convenience Store ATM Withdrawal" },
+    japanSevenElevenATM: { zh: "日本7-Eleven ATM取现", en: "Japan 7-Eleven ATM Withdrawal" },
+    japanFamilyMartATM: { zh: "日本全家便利店ATM取现", en: "Japan FamilyMart ATM Withdrawal" },
+    
+    // 优势文本翻译
+    "免手续费": { zh: "免手续费", en: "Fee-free" },
+    "全国覆盖": { zh: "全国覆盖", en: "Nationwide Coverage" },
+    "APP便捷预约": { zh: "APP便捷预约", en: "Convenient APP Booking" },
+    "库存稳定": { zh: "库存稳定", en: "Stable Stock" },
+    "即时办理": { zh: "即时办理", en: "Instant Processing" },
+    "无需预约": { zh: "无需预约", en: "No Appointment Required" },
+    "现场验钞": { zh: "现场验钞", en: "On-site Cash Verification" },
+    "汇率相对优惠": { zh: "汇率相对优惠", en: "Relatively Favorable Rate" },
+    "覆盖面广": { zh: "覆盖面广", en: "Wide Coverage" },
+    "费率统一": { zh: "费率统一", en: "Unified Rates" },
+    "预约便利": { zh: "预约便利", en: "Easy Appointment" },
+    "现金交易": { zh: "现金交易", en: "Cash Transaction" },
+    "费率透明": { zh: "费率透明", en: "Transparent Rates" },
+    "支持多币种": { zh: "支持多币种", en: "Multi-currency Support" },
+    "24小时": { zh: "24小时", en: "24 Hours" },
+    "无本地费用": { zh: "无本地费用", en: "No Local Fees" },
+    "实时汇率": { zh: "实时汇率", en: "Real-time Rate" },
+    "便利快捷": { zh: "便利快捷", en: "Convenient and Fast" },
+    "网点多": { zh: "网点多", en: "Many Locations" },
+    "全国通用": { zh: "全国通用", en: "Nationwide Accepted" },
+    "免本地费用": { zh: "免本地费用", en: "No Local Fees" },
+    "便利店内": { zh: "便利店内", en: "In Convenience Store" },
+    "取现便利": { zh: "取现便利", en: "Convenient Withdrawal" },
+    "大额取现": { zh: "大额取现", en: "Large Amount Withdrawal" },
+    "网点众多": { zh: "网点众多", en: "Numerous Outlets" },
+    "费用低": { zh: "费用低", en: "Low Cost" },
+    "费用最低": { zh: "费用最低", en: "Lowest Cost" },
+    "网点最多": { zh: "网点最多", en: "Most Outlets" },
+    "覆盖好": { zh: "覆盖好", en: "Good Coverage" },
+    "覆盖全港": { zh: "覆盖全港", en: "Hong Kong Wide Coverage" },
+    "即时兑换": { zh: "即时兑换", en: "Instant Exchange" },
+    "出行便利": { zh: "出行便利", en: "Travel Convenient" },
+    "落地即换": { zh: "落地即换", en: "Exchange Upon Arrival" },
+    "应急便利": { zh: "应急便利", en: "Emergency Convenient" },
+    
+    // 注意事项文本翻译
+    "国内银行费用": { zh: "国内银行费用", en: "Domestic Bank Fees" },
+    "仅限新加坡": { zh: "仅限新加坡", en: "Singapore Only" },
+    "营业时间限制": { zh: "营业时间限制", en: "Business Hours Limitation" },
+    "单次限额": { zh: "单次限额", en: "Single Transaction Limit" },
+    "汇率波动": { zh: "汇率波动", en: "Exchange Rate Fluctuation" },
+    "网点少": { zh: "网点少", en: "Few Outlets" },
+    "预约时间长": { zh: "预约时间长", en: "Long Appointment Time" },
+    "营业时间受限": { zh: "营业时间受限", en: "Limited Operating Hours" },
+    "需要等待": { zh: "需要等待", en: "Waiting Required" },
+    "现场排队": { zh: "现场排队", en: "On-site Queuing" },
+    "汇率变动风险": { zh: "汇率变动风险", en: "Exchange Rate Risk" },
+    "库存限制": { zh: "库存限制", en: "Stock Limitation" },
+    "限制金额": { zh: "限制金额", en: "Amount Limitation" },
+    "取现限额": { zh: "取现限额", en: "Withdrawal Limit" },
+    "手续费较高": { zh: "手续费较高", en: "Higher Fees" },
+    "需身份验证": { zh: "需身份验证", en: "Identity Verification Required" },
+    "机器故障风险": { zh: "机器故障风险", en: "Machine Failure Risk" },
+    "金额限制10万日元": { zh: "金额限制10万日元", en: "Amount Limit 100,000 JPY" },
+    "单次限额10万日元": { zh: "单次限额10万日元", en: "Single Limit 100,000 JPY" },
+    "单次5万日元限制": { zh: "单次5万日元限制", en: "Single Limit 50,000 JPY" },
+    "单次2万日元限制": { zh: "单次2万日元限制", en: "Single Limit 20,000 JPY" },
+    "需要当地银行卡": { zh: "需要当地银行卡", en: "Local Bank Card Required" },
+    "语言沟通障碍": { zh: "语言沟通障碍", en: "Language Barrier" },
+    "汇率不透明": { zh: "汇率不透明", en: "Opaque Exchange Rate" },
   }
 
   const t = (key: string, params?: { [key: string]: string | number }) => {
@@ -1922,18 +2073,39 @@ print(predictions)`
     return text
   }
 
+  // 获取本地化货币名称
+  const getCurrencyName = (currencyCode: string) => {
+    return texts.currencyNames?.[currencyCode]?.[language] || currencyCode
+  }
+
+  // 获取翻译的策略名称
+  const getStrategyName = (strategyName: string) => {
+    // 创建策略名称映射
+    const strategyNameMap: { [key: string]: string } = {
+      "新加坡UOB/Maybank ATM取现": "singaporeUOBMaybankATM",
+      "日本7-11便利店ATM取现": "japanSevenElevenATM", 
+      "日本全家便利店ATM取现": "japanFamilyMartATM"
+    }
+    
+    const translationKey = strategyNameMap[strategyName]
+    if (translationKey && texts[translationKey]) {
+      return texts[translationKey][language] || strategyName
+    }
+    return strategyName
+  }
+
   // Helper to get channel-specific steps based on bank type
   const getChannelSteps = (channelType: string, purpose: string, currentLanguage: "zh" | "en") => {
     const baseSteps: { [key: string]: { zh: string[]; en: string[] } } = {
       BANK: {
         zh: [
-          "在线预约银行网点（提前2-3天）",
-          "准备身份证、银行卡等必要材料",
-          "按预约时间前往指定网点",
-          "填写外汇购买申请表",
-          "确认汇率和手续费",
-          "完成付款并取得外币现钞",
-          "妥善保管兑换凭证"
+          t("bookBankBranch"),
+          t("prepareMaterials"),
+          t("visitBranchOnTime"),
+          t("fillApplicationForm"),
+          t("confirmRateAndFees"),
+          t("completePaymentAndReceiveCash"),
+          t("keepExchangeReceipt")
         ],
         en: [
           "Book bank appointment online (2-3 days in advance)",
@@ -1981,7 +2153,7 @@ print(predictions)`
       },
       ATM_FOREIGN: {
         zh: [
-          "出发前开通银行卡境外取现功能",
+          t("enableOverseasWithdrawal"),
           "了解目的地ATM网络和手续费",
           "抵达后寻找合作银行ATM",
           "使用银联卡取现（推荐）",
@@ -2546,7 +2718,7 @@ print(predictions)`;
           trend: ratePrediction?.trend || ["上升", "下降", "稳定"][Math.floor(Math.random() * 3)],
           liquidity: ["高", "中", "低"][Math.floor(Math.random() * 3)],
           recommendation: ratePrediction ? 
-            `LSTM预测建议：${ratePrediction.recommendation || `使用${bestStrategy.name}进行兑换`}` :
+            `${t("lstmPredictionAdvice")}：${ratePrediction.recommendation || `使用${bestStrategy.name}进行兑换`}` :
             `推荐使用${bestStrategy.name}，${bestStrategy.features.join('、')}`,
         },
       }
@@ -3006,7 +3178,7 @@ print(predictions)`;
                     className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:scale-105 transition-all duration-300 hover:scale-102"
                   >
                     <Target className="h-4 w-4 mr-2" />
-                    策略选择
+                    {t("strategySelection")}
                   </TabsTrigger>
                 )}
                 <TabsTrigger 
@@ -3064,7 +3236,7 @@ print(predictions)`;
                         <SelectContent>
                           {currencies.map((currency) => (
                             <SelectItem key={currency.code} value={currency.code}>
-                              {currency.flag} {currency.name} ({currency.code})
+                              {currency.flag} {getCurrencyName(currency.code)} ({currency.code})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -3086,7 +3258,7 @@ print(predictions)`;
                           .filter((c) => c.code !== purchaseRequest.fromCurrency)
                           .map((currency) => (
                             <SelectItem key={currency.code} value={currency.code}>
-                              {currency.flag} {currency.name} ({currency.code}) - {t("exchangeRate")}:{" "}
+                              {currency.flag} {getCurrencyName(currency.code)} ({currency.code}) - {t("exchangeRate")}:{" "}
                               {fetchedRates[currency.code]?.toFixed(4) || "N/A"}
                             </SelectItem>
                           ))}
@@ -3174,7 +3346,7 @@ print(predictions)`;
 
                   {/* Bank Card Type */}
                   <div className="space-y-3">
-                    <Label>银行卡类型</Label>
+                    <Label>{t("bankCardType")}</Label>
                     <RadioGroup
                       value={isLocalCard ? "local" : "nonlocal"}
                       onValueChange={(value) => setIsLocalCard(value === "local")}
@@ -3333,17 +3505,17 @@ print(predictions)`;
                               <span>{optimalStrategy.rate.toFixed(4)}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span>基础兑换费用:</span>
+                              <span>{t("basicExchangeCost")}:</span>
                               <span>{(purchaseRequest.amount * optimalStrategy.rate).toFixed(2)} ¥</span>
                             </div>
                             <div className="flex justify-between">
-                              <span>{isLocalCard ? "本地卡手续费" : "异地卡手续费"}:</span>
+                              <span>{isLocalCard ? t("localCardFee") : t("nonLocalCardFee")}:</span>
                               <span className="text-red-600">
                                 {((purchaseRequest.amount * optimalStrategy.rate * optimalStrategy.fees) / 100).toFixed(2)} ¥ ({optimalStrategy.fees}%)
                               </span>
                             </div>
                             <div className="text-xs text-gray-500 pl-2">
-                              • {isLocalCard ? "使用本地银行卡，享受优惠费率" : "使用异地银行卡，产生额外手续费"}
+                              • {isLocalCard ? t("localBankCard") : t("nonLocalBankCard")}
                             </div>
                             <hr />
                             <div className="flex justify-between font-medium">
@@ -3355,7 +3527,7 @@ print(predictions)`;
                               <span>{optimalStrategy.savings.toFixed(2)} ¥</span>
                             </div>
                             <div className="text-xs text-gray-500">
-                              * 节省金额相比最贵渠道计算
+                              * {t("savingsComparedToExpensive")}
                             </div>
                           </div>
                         </CardContent>
@@ -3366,7 +3538,7 @@ print(predictions)`;
                         <CardContent className="p-4">
                           <h4 className="font-medium mb-3 flex items-center gap-2">
                             <Building2 className="h-4 w-4" />
-                            银行政策说明
+                            {t("bankPolicyExplanation")}
                           </h4>
                           <div className="space-y-2 text-sm">
                             {optimalStrategy.channel.includes("中国银行") && (
@@ -3566,7 +3738,7 @@ print(predictions)`;
                           <CardContent className="p-4">
                             <h4 className="font-medium mb-3 text-green-700 flex items-center gap-2">
                               <CheckCircle className="h-4 w-4" />
-                              {t("advantages")}
+                              {t("advantagesList")}
                             </h4>
                             <ul className="space-y-1">
                               {optimalStrategy.prosKeys.map((key, index) => (
@@ -3583,7 +3755,7 @@ print(predictions)`;
                           <CardContent className="p-4">
                             <h4 className="font-medium mb-3 text-orange-700 flex items-center gap-2">
                               <AlertTriangle className="h-4 w-4" />
-                              {t("precautions")}
+                              {t("precautionsList")}
                             </h4>
                             <ul className="space-y-1">
                               {optimalStrategy.consKeys.map((key, index) => (
@@ -3658,9 +3830,9 @@ print(predictions)`;
             {availableStrategies.length === 0 ? (
               <div className="text-center py-16 text-slate-500">
                 <Target className="h-16 w-16 mx-auto mb-4 text-slate-400" />
-                <h3 className="text-xl font-medium text-slate-600 mb-2">策略选择</h3>
+                <h3 className="text-xl font-medium text-slate-600 mb-2">{t("strategySelection")}</h3>
                 <p className="text-slate-500">
-                  请先在"购钞策略"页面填写需求并获取策略选项。
+                  {t("fillRequirementsForStrategies")}
                 </p>
               </div>
             ) : (
@@ -3669,7 +3841,7 @@ print(predictions)`;
                   <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-t-lg">
                     <CardTitle className="flex items-center gap-2">
                       <Target className="h-5 w-5" />
-                      策略选择 ({availableStrategies.length}个可选)
+                      {t("strategySelection")} ({availableStrategies.length}{t("availableStrategies")})
                     </CardTitle>
                     <CardDescription className="text-emerald-100">
                       选择您偏好的购钞策略，选定后将在"结果显示"页面展示详细信息
@@ -3757,7 +3929,7 @@ print(predictions)`;
                                     {index === 0 && <Badge className="bg-green-600 text-white">🏆 推荐</Badge>}
                                     {index === 1 && <Badge className="bg-blue-600 text-white">🥈 备选</Badge>}
                                     {index === 2 && <Badge className="bg-amber-600 text-white">🥉 第三</Badge>}
-                                    <h3 className="font-medium text-gray-900">{strategy.name}</h3>
+                                    <h3 className="font-medium text-gray-900">{getStrategyName(strategy.name)}</h3>
                                     <Badge variant="outline" className="text-xs">
                                       {strategy.institution.name}
                                     </Badge>
@@ -4225,7 +4397,7 @@ print(predictions)`;
                             <SelectContent>
                               {currencies.map((currency) => (
                                 <SelectItem key={currency.code} value={currency.code}>
-                                  {currency.flag} {currency.name}
+                                  {currency.flag} {getCurrencyName(currency.code)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -4245,7 +4417,7 @@ print(predictions)`;
                                 .filter((c) => c.code !== tradingPair.from)
                                 .map((currency) => (
                                   <SelectItem key={currency.code} value={currency.code}>
-                                    {currency.flag} {currency.name}
+                                    {currency.flag} {getCurrencyName(currency.code)}
                                   </SelectItem>
                                 ))}
                             </SelectContent>

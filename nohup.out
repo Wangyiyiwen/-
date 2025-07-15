@@ -1,0 +1,92 @@
+🚀 启动智能货币兑换策略系统...
+🔧 配置环境变量...
+🔧 自动配置环境变量...
+📡 检测到公网IP: 119.28.27.178
+✅ 已生成生产环境配置文件 .env.local
+📝 配置内容:
+# Python 情感分析 API 配置
+PYTHON_SENTIMENT_API_URL=http://119.28.27.178:5000/score
+
+# Next.js 配置
+NEXT_PUBLIC_API_URL=http://119.28.27.178:3000
+
+# 自动生成时间: Tue Jul 15 11:10:06 AM CST 2025
+
+🎯 下一步：
+1. 确保端口 3000 和 5000 已开放
+2. 运行启动脚本: bash /home/ubuntu/-/start_system.sh
+3. 访问地址: http://119.28.27.178:3000
+
+📦 检查Python依赖...
+🧠 启动情感分析后端服务...
+情感分析服务PID: 290139
+⏳ 等待后端服务启动...
+2025-07-15 11:10:15,451 - INFO - 开始加载AI模型...
+⏳ 等待后端服务响应... (1/6)
+Device set to use cpu
+⏳ 等待后端服务响应... (2/6)
+Device set to use cpu
+2025-07-15 11:10:21,325 - INFO - 模型加载成功: FinBERT and BART-large-cnn
+2025-07-15 11:10:21,327 - INFO - 启动情感分析服务...
+ * Serving Flask app 'sentiment-analysis-backend'
+ * Debug mode: off
+2025-07-15 11:10:21,331 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.5.4.16:5000
+2025-07-15 11:10:21,331 - INFO - [33mPress CTRL+C to quit[0m
+2025-07-15 11:10:26,192 - INFO - 健康检查 - 状态: healthy, 模型已加载: True
+2025-07-15 11:10:26,194 - INFO - 127.0.0.1 - - [15/Jul/2025 11:10:26] "GET /health HTTP/1.1" 200 -
+✅ 情感分析后端服务启动成功
+🧪 测试API端点...
+2025-07-15 11:10:26,200 - INFO - 收到情感分析请求，文本长度: 4
+2025-07-15 11:10:26,200 - INFO - 开始情感分析...
+/home/ubuntu/.local/lib/python3.10/site-packages/transformers/pipelines/text_classification.py:106: UserWarning: `return_all_scores` is now deprecated,  if want a similar functionality use `top_k=None` instead of `return_all_scores=True` or `top_k=1` instead of `return_all_scores=False`.
+  warnings.warn(
+2025-07-15 11:10:26,431 - INFO - 情感分析结果: [[{'label': 'positive', 'score': 0.057480935007333755}, {'label': 'negative', 'score': 0.03179053217172623}, {'label': 'neutral', 'score': 0.9107285737991333}]]
+2025-07-15 11:10:26,431 - INFO - 127.0.0.1 - - [15/Jul/2025 11:10:26] "POST /score HTTP/1.1" 200 -
+✅ API端点测试成功
+🌐 启动前端服务...
+前端服务PID: 290386
+
+🎉 系统启动完成！
+
+📊 访问地址：
+   前端界面: http://119.28.27.178:3000
+   情感分析API: http://119.28.27.178:5000
+
+🌐 公网访问提示：
+   访问地址: http://119.28.27.178:3000
+   确保云服务器安全组已开放 3000 和 5000 端口
+
+🛑 停止服务命令：
+   kill 290139 290386
+
+💡 使用说明：
+   1. 打开浏览器访问 http://119.28.27.178:3000
+   2. 使用'系统监控'标签页进行新闻情感分析和CSV导入
+   3. 使用'购钞策略'标签页制定换汇策略
+   4. 查看'结果展示'页面获取最优策略建议
+
+⚠️  安全提示：
+   1. 请确保云服务器防火墙/安全组已开放端口 3000 和 5000
+   2. 如使用阿里云/腾讯云等，需在控制台安全组中添加入站规则
+   3. 建议仅对可信IP开放访问权限
+
+按 Ctrl+C 停止所有服务...
+
+> my-v0-project@0.1.0 dev
+> next dev --hostname 0.0.0.0
+
+   ▲ Next.js 15.3.5
+   - Local:        http://localhost:3000
+   - Network:      http://0.0.0.0:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.5s
+ ○ Compiling / ...
+ ✓ Compiled / in 8.1s (2030 modules)
+ GET / 200 in 9730ms
+ ✓ Compiled in 1821ms (1000 modules)
+./start_system.sh: line 96: 290386 Hangup                  npm run dev -- --hostname 0.0.0.0
