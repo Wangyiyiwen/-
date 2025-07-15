@@ -2061,6 +2061,122 @@ print(predictions)`
     "需要当地银行卡": { zh: "需要当地银行卡", en: "Local Bank Card Required" },
     "语言沟通障碍": { zh: "语言沟通障碍", en: "Language Barrier" },
     "汇率不透明": { zh: "汇率不透明", en: "Opaque Exchange Rate" },
+    
+    // 更多策略名称翻译
+    "国外机场兑换": { zh: "国外机场兑换", en: "Foreign Airport Exchange" },
+    "新加坡DBS/POSB ATM取现": { zh: "新加坡DBS/POSB ATM取现", en: "Singapore DBS/POSB ATM Withdrawal" },
+    "中国银行线上购汇线下取钞（新加坡元）": { zh: "中国银行线上购汇线下取钞（新加坡元）", en: "Bank of China Online Purchase Offline Pickup (SGD)" },
+    
+    // 银行卡类型翻译
+    "本地卡": { zh: "本地卡", en: "Local Card" },
+    "异地卡": { zh: "异地卡", en: "Non-local Card" },
+    "本地卡通常享受更低的手续费优惠": { zh: "本地卡通常享受更低的手续费优惠", en: "Local cards usually enjoy lower fee benefits" },
+    
+    // 排序方式翻译
+    "策略排序方式": { zh: "策略排序方式", en: "Strategy Sorting" },
+    "成本优先": { zh: "成本优先", en: "Cost Priority" },
+    "手续费最低": { zh: "手续费最低", en: "Lowest Fees" },
+    "便利优先": { zh: "便利优先", en: "Convenience Priority" },
+    "操作最简单": { zh: "操作最简单", en: "Easiest Operation" },
+    "速度优先": { zh: "速度优先", en: "Speed Priority" },
+    "最快获得": { zh: "最快获得", en: "Fastest Access" },
+    "可靠优先": { zh: "可靠优先", en: "Reliability Priority" },
+    "最稳定": { zh: "最稳定", en: "Most Stable" },
+    "灵活优先": { zh: "灵活优先", en: "Flexibility Priority" },
+    "最灵活": { zh: "最灵活", en: "Most Flexible" },
+    
+    // 策略排名翻译
+    "备选": { zh: "备选", en: "Alternative" },
+    "第三": { zh: "第三", en: "Third" },
+    
+    // 操作步骤翻译
+    "操作步骤": { zh: "操作步骤", en: "Operation Steps" },
+    "抵达国外机场": { zh: "抵达国外机场", en: "Arrive at Foreign Airport" },
+    "找到Currency Exchange柜台": { zh: "找到Currency Exchange柜台", en: "Find Currency Exchange Counter" },
+    "用人民币或美元兑换": { zh: "用人民币或美元兑换", en: "Exchange with RMB or USD" },
+    
+    // 成本分析翻译
+    "总成本": { zh: "总成本", en: "Total Cost" },
+    "汇率影响": { zh: "汇率影响", en: "Rate Impact" },
+    "预约时间": { zh: "预约时间", en: "Appointment Time" },
+    
+    // 评分维度翻译
+    "成本": { zh: "成本", en: "Cost" },
+    "便利": { zh: "便利", en: "Convenience" },
+    "速度": { zh: "速度", en: "Speed" },
+    "可靠": { zh: "可靠", en: "Reliability" },
+    "灵活": { zh: "灵活", en: "Flexibility" },
+    
+    // 按钮翻译 - 移除重复项
+    
+    // 更多策略和机构名称翻译
+    "中国银行直接网点兑换": { zh: "中国银行直接网点兑换", en: "Bank of China Direct Branch Exchange" },
+    "中国银行，国内一线机场兑换": { zh: "中国银行，国内一线机场兑换", en: "Bank of China Domestic First-tier Airport Exchange" },
+    "一线机场": { zh: "一线机场", en: "First-tier Airport" },
+    "工商银行线上购汇线下取钞": { zh: "工商银行线上购汇线下取钞", en: "ICBC Online Purchase Offline Pickup" },
+    "工商银行": { zh: "工商银行", en: "ICBC" },
+    "招商银行线上购汇线下取钞": { zh: "招商银行线上购汇线下取钞", en: "China Merchants Bank Online Purchase Offline Pickup" },
+    "招商银行": { zh: "招商银行", en: "China Merchants Bank" },
+    "招商银行现金直接兑换": { zh: "招商银行现金直接兑换", en: "China Merchants Bank Direct Cash Exchange" },
+    "建设银行线上购汇线下取钞": { zh: "建设银行线上购汇线下取钞", en: "China Construction Bank Online Purchase Offline Pickup" },
+    "建设银行": { zh: "建设银行", en: "China Construction Bank" },
+    
+    // 费用详情翻译
+    "手续费": { zh: "手续费", en: "Fees" },
+    "3天": { zh: "3天", en: "3 days" },
+    "2天": { zh: "2天", en: "2 days" },
+    "元": { zh: "元", en: "CNY" },
+    
+    // 操作步骤详细翻译
+    "抵达新加坡后找到UOB或Maybank ATM": { zh: "抵达新加坡后找到UOB或Maybank ATM", en: "Find UOB or Maybank ATM after arriving in Singapore" },
+    "插入银联卡": { zh: "插入银联卡", en: "Insert UnionPay card" },
+    "选择银联网络": { zh: "选择银联网络", en: "Select UnionPay network" },
+    "输入取现金额和密码": { zh: "输入取现金额和密码", en: "Enter withdrawal amount and password" },
+    
+    "抵达机场国际出发区域": { zh: "抵达机场国际出发区域", en: "Arrive at airport international departure area" },
+    "找到外币兑换柜台": { zh: "找到外币兑换柜台", en: "Find foreign currency exchange counter" },
+    "出示身份证和现金": { zh: "出示身份证和现金", en: "Present ID and cash" },
+    "确认汇率并完成兑换": { zh: "确认汇率并完成兑换", en: "Confirm rate and complete exchange" },
+    
+    "登录工商银行手机APP": { zh: "登录工商银行手机APP", en: "Login to ICBC mobile app" },
+    "进入结售汇→购汇": { zh: "进入结售汇→购汇", en: "Go to Foreign Exchange → Purchase" },
+    "选择外币种类和金额": { zh: "选择外币种类和金额", en: "Select foreign currency type and amount" },
+    "预约网点取钞时间": { zh: "预约网点取钞时间", en: "Schedule branch pickup time" },
+    
+    "登录招商银行手机APP": { zh: "登录招商银行手机APP", en: "Login to China Merchants Bank mobile app" },
+    "进入跨境金融→外汇购汇": { zh: "进入跨境金融→外汇购汇", en: "Go to Cross-border Finance → FX Purchase" },
+    "选择现钞户兑换": { zh: "选择现钞户兑换", en: "Select cash account exchange" },
+    "提交申请等待审核": { zh: "提交申请等待审核", en: "Submit application and wait for approval" },
+    
+    "准备人民币现金和身份证": { zh: "准备人民币现金和身份证", en: "Prepare RMB cash and ID" },
+    "到招商银行网点取号": { zh: "到招商银行网点取号", en: "Get number at China Merchants Bank branch" },
+    "向柜台说明兑换需求": { zh: "向柜台说明兑换需求", en: "Explain exchange requirements to counter" },
+    "完成现金兑换交易": { zh: "完成现金兑换交易", en: "Complete cash exchange transaction" },
+    
+    "登录建设银行APP": { zh: "登录建设银行APP", en: "Login to China Construction Bank app" },
+    "进入外币兑换功能": { zh: "进入外币兑换功能", en: "Enter foreign currency exchange function" },
+    "选择币种和金额兑换": { zh: "选择币种和金额兑换", en: "Select currency and amount for exchange" },
+    "预约取钞网点和时间": { zh: "预约取钞网点和时间", en: "Schedule pickup branch and time" },
+    
+    // 更多优势翻译
+    "无新加坡ATM费用": { zh: "无新加坡ATM费用", en: "No Singapore ATM fees" },
+    "24小时可用": { zh: "24小时可用", en: "24 hours available" },
+    "支持APP预约": { zh: "支持APP预约", en: "APP booking supported" },
+    "大城市覆盖好": { zh: "大城市覆盖好", en: "Good coverage in major cities" },
+    "不区分本地外地卡": { zh: "不区分本地外地卡", en: "No distinction between local/non-local cards" },
+    "部分币种支持": { zh: "部分币种支持", en: "Partial currency support" },
+    "小额方便": { zh: "小额方便", en: "Convenient for small amounts" },
+    "统一手续费": { zh: "统一手续费", en: "Unified fees" },
+    
+    // 风险等级翻译
+    "HIGH": { zh: "高", en: "HIGH" },
+    "MEDIUM": { zh: "中", en: "MEDIUM" },
+    "LOW": { zh: "低", en: "LOW" },
+    
+    // 等待步骤翻译
+    "等1个步骤": { zh: "等1个步骤", en: "... 1 more step" },
+    "等2个步骤": { zh: "等2个步骤", en: "... 2 more steps" },
+    "等3个步骤": { zh: "等3个步骤", en: "... 3 more steps" },
   }
 
   const t = (key: string, params?: { [key: string]: string | number }) => {
@@ -2084,7 +2200,16 @@ print(predictions)`
     const strategyNameMap: { [key: string]: string } = {
       "新加坡UOB/Maybank ATM取现": "singaporeUOBMaybankATM",
       "日本7-11便利店ATM取现": "japanSevenElevenATM", 
-      "日本全家便利店ATM取现": "japanFamilyMartATM"
+      "日本全家便利店ATM取现": "japanFamilyMartATM",
+      "国外机场兑换": "国外机场兑换",
+      "新加坡DBS/POSB ATM取现": "新加坡DBS/POSB ATM取现",
+      "中国银行线上购汇线下取钞（新加坡元）": "中国银行线上购汇线下取钞（新加坡元）",
+      "中国银行直接网点兑换": "中国银行直接网点兑换",
+      "中国银行，国内一线机场兑换": "中国银行，国内一线机场兑换",
+      "工商银行线上购汇线下取钞": "工商银行线上购汇线下取钞",
+      "招商银行线上购汇线下取钞": "招商银行线上购汇线下取钞",
+      "招商银行现金直接兑换": "招商银行现金直接兑换",
+      "建设银行线上购汇线下取钞": "建设银行线上购汇线下取钞"
     }
     
     const translationKey = strategyNameMap[strategyName]
@@ -2092,6 +2217,19 @@ print(predictions)`
       return texts[translationKey][language] || strategyName
     }
     return strategyName
+  }
+
+  // 通用翻译函数，处理所有中文文本
+  const translateText = (text: string) => {
+    // 如果是翻译键，直接使用t函数
+    if (texts[text]) {
+      return texts[text][language] || text
+    }
+    // 如果是带引号的键，也尝试翻译
+    if (texts[`"${text}"`]) {
+      return texts[`"${text}"`][language] || text
+    }
+    return text
   }
 
   // Helper to get channel-specific steps based on bank type
@@ -3356,19 +3494,19 @@ print(predictions)`;
                         <RadioGroupItem value="local" id="local-card" />
                         <Label htmlFor="local-card" className="flex items-center gap-2">
                           <Building2 className="h-4 w-4" />
-                          本地卡
+                          {translateText("本地卡")}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="nonlocal" id="nonlocal-card" />
                         <Label htmlFor="nonlocal-card" className="flex items-center gap-2">
                           <CreditCard className="h-4 w-4" />
-                          异地卡
+                          {translateText("异地卡")}
                         </Label>
                       </div>
                     </RadioGroup>
                     <div className="text-sm text-gray-600">
-                      {isLocalCard ? "本地卡通常享受更低的手续费优惠" : "异地卡可能产生额外的跨行转账费用"}
+                      {isLocalCard ? translateText("本地卡通常享受更低的手续费优惠") : "异地卡可能产生额外的跨行转账费用"}
                     </div>
                   </div>
 
@@ -3850,14 +3988,14 @@ print(predictions)`;
                   <CardContent className="p-6">
                     {/* Strategy Sorting Controls */}
                     <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <h4 className="font-medium mb-3 text-blue-800">策略排序方式</h4>
+                      <h4 className="font-medium mb-3 text-blue-800">{translateText("策略排序方式")}</h4>
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                         {([
-                          { key: 'cost', label: '💰 成本优先', desc: '手续费最低' },
-                          { key: 'convenience', label: '🏪 便利优先', desc: '操作最简单' },
-                          { key: 'speed', label: '⚡ 速度优先', desc: '最快获得' },
-                          { key: 'reliability', label: '🛡️ 可靠优先', desc: '最稳定' },
-                          { key: 'flexibility', label: '🔄 灵活优先', desc: '最灵活' }
+                          { key: 'cost', label: `💰 ${translateText("成本优先")}`, desc: translateText("手续费最低") },
+                          { key: 'convenience', label: `🏪 ${translateText("便利优先")}`, desc: translateText("操作最简单") },
+                          { key: 'speed', label: `⚡ ${translateText("速度优先")}`, desc: translateText("最快获得") },
+                          { key: 'reliability', label: `🛡️ ${translateText("可靠优先")}`, desc: translateText("最稳定") },
+                          { key: 'flexibility', label: `🔄 ${translateText("灵活优先")}`, desc: translateText("最灵活") }
                         ] as const).map(({ key, label, desc }) => (
                           <Button
                             key={key}
@@ -3927,40 +4065,40 @@ print(predictions)`;
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
                                     {index === 0 && <Badge className="bg-green-600 text-white">🏆 推荐</Badge>}
-                                    {index === 1 && <Badge className="bg-blue-600 text-white">🥈 备选</Badge>}
-                                    {index === 2 && <Badge className="bg-amber-600 text-white">🥉 第三</Badge>}
+                                    {index === 1 && <Badge className="bg-blue-600 text-white">🥈 {translateText("备选")}</Badge>}
+                                    {index === 2 && <Badge className="bg-amber-600 text-white">🥉 {translateText("第三")}</Badge>}
                                     <h3 className="font-medium text-gray-900">{getStrategyName(strategy.name)}</h3>
                                     <Badge variant="outline" className="text-xs">
-                                      {strategy.institution.name}
+                                      {translateText(strategy.institution.name)}
                                     </Badge>
                                     {isSelected && (
                                       <Badge className="bg-indigo-600 text-white">
-                                        ✓ 已选择
+                                        ✓ {language === 'zh' ? '已选择' : 'Selected'}
                                       </Badge>
                                     )}
                                   </div>
                                   
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-3">
                                     <div>
-                                      <span className="text-gray-500">总成本:</span>
+                                      <span className="text-gray-500">{translateText("总成本")}:</span>
                                       <div className="font-medium text-gray-900">¥{totalCost.toFixed(2)}</div>
                                     </div>
                                     <div>
-                                      <span className="text-gray-500">手续费:</span>
+                                      <span className="text-gray-500">{translateText("手续费")}:</span>
                                       <div className="font-medium">
-                                        {cardType.baseFee || 0}元 + {cardType.percentageFee || 0}%
+                                        {cardType.baseFee || 0}{translateText("元")} + {cardType.percentageFee || 0}%
                                       </div>
                                     </div>
                                     <div>
-                                      <span className="text-gray-500">汇率影响:</span>
+                                      <span className="text-gray-500">{translateText("汇率影响")}:</span>
                                       <div className="font-medium">+{costStructure.exchangeRateMarkup || 0}%</div>
                                     </div>
                                     <div>
-                                      <span className="text-gray-500">预约时间:</span>
+                                      <span className="text-gray-500">{translateText("预约时间")}:</span>
                                       <div className="font-medium">
                                         {strategy.timeRequirements.appointmentDays === 0 
-                                          ? '无需预约' 
-                                          : `${strategy.timeRequirements.appointmentDays}天`}
+                                          ? translateText("无需预约") 
+                                          : `${strategy.timeRequirements.appointmentDays}${language === 'zh' ? '天' : ' days'}`}
                                       </div>
                                     </div>
                                   </div>
@@ -3968,11 +4106,11 @@ print(predictions)`;
                                   {/* Strategy Ratings */}
                                   <div className="grid grid-cols-5 gap-2 mb-3">
                                     {[
-                                      { key: 'cost', label: '成本', icon: '💰' },
-                                      { key: 'convenience', label: '便利', icon: '🏪' },
-                                      { key: 'speed', label: '速度', icon: '⚡' },
-                                      { key: 'reliability', label: '可靠', icon: '🛡️' },
-                                      { key: 'flexibility', label: '灵活', icon: '🔄' }
+                                      { key: 'cost', label: translateText("成本"), icon: '💰' },
+                                      { key: 'convenience', label: translateText("便利"), icon: '🏪' },
+                                      { key: 'speed', label: translateText("速度"), icon: '⚡' },
+                                      { key: 'reliability', label: translateText("可靠"), icon: '🛡️' },
+                                      { key: 'flexibility', label: translateText("灵活"), icon: '🔄' }
                                     ].map(({ key, label, icon }) => (
                                       <div key={key} className="text-center">
                                         <div className="text-xs text-gray-500">{icon} {label}</div>
@@ -3997,26 +4135,26 @@ print(predictions)`;
                                     <div className="flex flex-wrap gap-1">
                                       {strategy.features.slice(0, 3).map((feature, i) => (
                                         <Badge key={i} variant="secondary" className="text-xs">
-                                          {feature}
+                                          {translateText(feature)}
                                         </Badge>
                                       ))}
                                     </div>
                                     
                                     {/* Operation Steps Preview */}
                                     <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                                      <h4 className="font-medium text-sm mb-2">操作步骤:</h4>
+                                      <h4 className="font-medium text-sm mb-2">{translateText("操作步骤")}:</h4>
                                       <ol className="text-xs text-gray-600 space-y-1">
                                         {strategy.method.steps.slice(0, 3).map((step, i) => (
                                           <li key={i} className="flex items-start gap-2">
                                             <span className="bg-indigo-100 text-indigo-800 rounded-full w-4 h-4 flex items-center justify-center text-xs font-medium">
                                               {i + 1}
                                             </span>
-                                            {step}
+                                            {translateText(step)}
                                           </li>
                                         ))}
                                         {strategy.method.steps.length > 3 && (
                                           <li className="text-gray-400 ml-6">
-                                            ... 等{strategy.method.steps.length - 3}个步骤
+                                            ... {language === 'zh' ? `等${strategy.method.steps.length - 3}个步骤` : `${strategy.method.steps.length - 3} more steps`}
                                           </li>
                                         )}
                                       </ol>
@@ -4031,10 +4169,10 @@ print(predictions)`;
                                     strategy.riskLevel === 'MEDIUM' ? 'bg-yellow-500' :
                                     'bg-red-500'
                                   }`}>
-                                    风险: {strategy.riskLevel}
+                                    {translateText("风险")}: {translateText(strategy.riskLevel)}
                                   </div>
                                   <div className="text-gray-500 text-xs">
-                                    置信度: {strategy.confidence}%
+                                    {translateText("置信度")}: {strategy.confidence}%
                                   </div>
                                   <Button
                                     size="sm"
