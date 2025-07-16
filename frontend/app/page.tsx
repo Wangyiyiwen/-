@@ -1878,7 +1878,7 @@ export default function CurrencyExchangeSystem() {
     optimalPurchaseTimingRecommendation: { zh: "最佳购买时机建议", en: "Optimal Purchase Timing Recommendation" },
     aiEnhancedPrediction: { zh: "AI增强预测", en: "AI Enhanced Prediction" },
     analysisRecommendation: { zh: "根据{method}分析，建议在 {date} 购买 {currency}，此时汇率达到峰值 {rate}，相比当前汇率可节省约 {percentage}% 的成本。", en: "Based on {method} analysis, it is recommended to purchase {currency} on {date}, when the exchange rate reaches its peak of {rate}, saving approximately {percentage}% compared to the current rate." },
-    lstmModelAnalysis: { zh: "LSTM神经网络模型", en: "LSTM neural network model" },
+    lstmModelAnalysis: { zh: "Transformer-LSTM神经网络模型", en: "Transformer-LSTM neural network model" },
     statisticalAnalysis: { zh: "统计学", en: "statistical analysis" },
     viewDetailedPredictionData: { zh: "查看详细预测数据 (20天)", en: "View Detailed Prediction Data (20 days)" },
     clickToExpand: { zh: "- 点击展开", en: "- Click to expand" },
@@ -1890,11 +1890,12 @@ export default function CurrencyExchangeSystem() {
     suitable: { zh: "📈 适合", en: "📈 Suitable" },
     wait: { zh: "📉 等待", en: "📉 Wait" },
     observe: { zh: "➡️ 观望", en: "➡️ Observe" },
-    lstmDisclaimerText: { zh: "💡 预测基于LSTM神经网络模型，结合新闻情感分析，准确性较高但仅供参考。", en: "💡 Predictions are based on LSTM neural network models combined with news sentiment analysis. While highly accurate, they are for reference only." },
+    lstmDisclaimerText: { zh: "💡 预测基于Transformer-LSTM神经网络模型，结合新闻情感分析，准确性较高但仅供参考。", en: "💡 Predictions are based on Transformer-LSTM neural network models combined with news sentiment analysis. While highly accurate, they are for reference only." },
     statisticalDisclaimerText: { zh: "💡 此预测基于历史数据和统计分析，仅供参考。实际汇率可能受多种因素影响。", en: "💡 This prediction is based on historical data and statistical analysis, for reference only. Actual exchange rates may be affected by various factors." },
     predictionLoadingError: { zh: "预测失败", en: "Prediction failed" },
     predictionMethod: { zh: "预测方法: {method}", en: "Prediction Method: {method}" },
     lstmSentimentModel: { zh: "LSTM+情感分析模型", en: "LSTM+Sentiment Analysis Model" },
+    transformerLstmModel: { zh: "Transformer-LSTM+情感分析模型", en: "Transformer-LSTM+Sentiment Analysis Model" },
     statisticalSimulationAlgorithm: { zh: "统计学模拟算法", en: "Statistical Simulation Algorithm" },
     // Additional news analysis translations
     newsAnalysisForPrediction: { zh: "输入新闻文本进行情感分析，为汇率预测提供依据", en: "Enter news text for sentiment analysis to provide basis for exchange rate prediction" },
@@ -1991,7 +1992,7 @@ print(predictions)`
     
     // LSTM预测相关翻译
     lstmPredictionAdvice: { zh: "LSTM预测建议", en: "LSTM Prediction Advice" },
-    basedOnRateLSTM: { zh: "基于Rate LSTM数据集的LSTM模型预测", en: "Based on Rate LSTM dataset LSTM model prediction" },
+    basedOnRateLSTM: { zh: "基于Transformer-LSTM模型的智能预测", en: "Based on Transformer-LSTM model intelligent prediction" },
     recommendWatchLevels: { zh: "建议关注支撑位{support}和阻力位{resistance}", en: "Recommend watching support level {support} and resistance level {resistance}" },
     
     // 优势和注意事项
@@ -2932,7 +2933,8 @@ print(predictions)`;
             fromCurrency: purchaseRequest.fromCurrency,
             toCurrency: purchaseRequest.toCurrency,
             days: 20,
-            bankName: bestStrategy.institution.name // 传递银行名称用于选择数据集
+            bankName: bestStrategy.institution.name, // 传递银行名称用于选择数据集
+            modelType: 'transformer' // 使用新的Transformer-LSTM模型
           })
         })
         
@@ -2998,7 +3000,7 @@ print(predictions)`;
         riskLevel: bestStrategy.riskLevel,
         confidence: bestStrategy.confidence,
         alternatives,
-        // 基于LSTM预测的技术指标数据
+        // 基于Transformer-LSTM预测的技术指标数据
         technicalIndicators: ratePrediction ? {
           rsi: ratePrediction.technical_indicators?.rsi || Math.floor(Math.random() * 100),
           macd: ratePrediction.technical_indicators?.macd || Number.parseFloat(((Math.random() - 0.5) * 2).toFixed(4)),
@@ -5228,7 +5230,7 @@ type RateForecastSectionProps = {
   bankName?: string;
 };
 
-// 简单预测函数（支持LSTM模型和统计学回退）
+// 简单预测函数（支持Transformer-LSTM模型和统计学回退）
 async function fetchRateForecast(
   fromCurrency: string,
   toCurrency: string,
@@ -5237,7 +5239,7 @@ async function fetchRateForecast(
   bankName?: string
 ): Promise<Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean; method?: string }>> {
   try {
-    // 首先尝试调用LSTM模型API
+    // 首先尝试调用Transformer-LSTM模型API
     const response = await fetch('/api/rate-prediction', {
       method: 'POST',
       headers: {
@@ -5247,27 +5249,28 @@ async function fetchRateForecast(
         fromCurrency,
         toCurrency,
         days,
-        bankName
+        bankName,
+        modelType: 'transformer' // 使用新的Transformer-LSTM模型
       })
     });
 
     if (response.ok) {
       const result = await response.json();
       if (result.success) {
-        console.log('使用LSTM+情感分析模型预测:', result.model_info);
+        console.log('使用Transformer-LSTM+情感分析模型预测:', result.model_info);
         return result.predictions.map((pred: any) => ({
           ...pred,
-          method: 'LSTM'
+          method: 'Transformer-LSTM'
         }));
       } else {
-        console.warn('LSTM模型预测失败，使用统计学策略:', result.error);
+        console.warn('Transformer-LSTM模型预测失败，使用统计学策略:', result.error);
       }
     }
   } catch (error) {
-    console.warn('LSTM API调用失败，使用统计学策略:', error);
+    console.warn('Transformer-LSTM API调用失败，使用统计学策略:', error);
   }
 
-  // 如果LSTM模型不可用，回退到统计学预测策略
+  // 如果Transformer-LSTM模型不可用，回退到统计学预测策略
   console.log('使用统计学波动预测策略');
   const today = new Date();
   const result: Array<{ date: string; rate: number; timestamp: number; isOptimal?: boolean; method?: string }> = [];
@@ -5323,7 +5326,9 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, get
   useEffect(() => {
     if (forecast.length > 0) {
       const method = forecast[0].method || 'Statistical';
-      if (method === 'LSTM') {
+      if (method === 'Transformer-LSTM') {
+        setPredictionMethod(getText('transformerLstmModel'));
+      } else if (method === 'LSTM') {
         setPredictionMethod(getText('lstmSentimentModel'));
       } else {
         setPredictionMethod(getText('statisticalSimulationAlgorithm'));
@@ -5368,7 +5373,9 @@ const RateForecastSection = ({ fromCurrency, toCurrency, lastRate, language, get
       // 从预测数据中获取使用的方法
       if (data.length > 0) {
         const method = data[0].method;
-        if (method === 'LSTM') {
+        if (method === 'Transformer-LSTM') {
+          setPredictionMethod(getText('transformerLstmModel'));
+        } else if (method === 'LSTM') {
           setPredictionMethod(getText('lstmSentimentModel'));
         } else {
           setPredictionMethod(getText('statisticalSimulationAlgorithm'));

@@ -4,7 +4,9 @@ import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
-    const { fromCurrency, toCurrency, days = 20, bankName } = await request.json();
+    console.log('Rate prediction API called');
+    const { fromCurrency, toCurrency, days = 20, bankName, modelType = 'transformer' } = await request.json();
+    console.log('Request params:', { fromCurrency, toCurrency, days, bankName, modelType });
     
     // 目前支持的货币对（基于现有的数据文件）
     const supportedCurrencies = ['JPY', 'HKD', 'SGD', 'THB', 'MYR', 'KRW'];
@@ -45,8 +47,25 @@ export async function POST(request: NextRequest) {
       console.log('Using general dataset at:', datasetPath);
     }
 
-    // 构建Python脚本路径
-    const pythonScriptPath = path.join(process.cwd(), '..', '结合新闻情感预测', 'predict_api_enhanced.py');
+    // 选择Python脚本路径
+    let pythonScriptPath: string;
+    
+    if (modelType === 'transformer') {
+      // 使用新的Transformer-LSTM模型
+      pythonScriptPath = path.join(process.cwd(), '..', '结合新闻情感预测', 'predict_api_multimodal_transformer.py');
+      console.log('Using advanced Transformer-LSTM model');
+    } else if (modelType === 'universal') {
+      // 使用通用混合模型
+      pythonScriptPath = path.join(process.cwd(), '..', '结合新闻情感预测', 'predict_api_universal.py');
+      console.log('Using universal hybrid model');
+    } else {
+      // 默认使用增强模型
+      pythonScriptPath = path.join(process.cwd(), '..', '结合新闻情感预测', 'predict_api_enhanced.py');
+      console.log('Using enhanced LSTM model');
+    }
+    
+    console.log('Python script path:', pythonScriptPath);
+    console.log('Dataset path:', datasetPath);
     
     // 执行Python预测脚本，传递数据集路径
     const result = await new Promise((resolve, reject) => {
