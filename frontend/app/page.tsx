@@ -1413,7 +1413,7 @@ export default function CurrencyExchangeSystem() {
   const { toast } = useToast() // Initialize useToast hook
 
   // Language State
-  const [language, setLanguage] = useState<"zh" | "en">("zh")
+  const [language, setLanguage] = useState<"zh" | "en">("en")
 
   // Active Tab State
   const [activeTab, setActiveTab] = useState("purchase")

@@ -1,110 +1,309 @@
-# README
-
-
+# Forex Copilot - 智能货币兑换策略系统
 
 **Group 5: Forex Copilot**
 
+一个基于深度学习和实时数据的智能换汇策略分析系统，帮助用户在最佳时机以最优成本进行货币兑换。
 
+## 🌟 系统特性
 
-## 1. 换汇对象
+- **🤖 AI驱动预测**: 集成Transformer-LSTM模型，结合价格趋势和新闻情感分析
+- **📊 实时汇率**: 多源实时汇率API，确保数据准确性
+- **🎯 智能策略**: 多渠道成本分析，个性化推荐最优兑换方案
+- **📱 现代化界面**: Next.js + TypeScript构建的响应式Web应用
+- **🔄 自动化部署**: 一键启动/停止脚本，零配置运行
 
-从人民币（CNY）换向亚洲地区六种主流货币：韩元（KRW）、日元（JPY）、新加坡元（SGD）、港元（HKD）、泰国铢（THB）、马来西亚元（MYR）。
+## 💱 支持货币
 
+从人民币（CNY）换向亚洲地区主流货币：
+- 🇯🇵 日元（JPY）
+- 🇸🇬 新加坡元（SGD）  
+- 🇭🇰 港元（HKD）
+- 🇰🇷 韩元（KRW）
+- 🇹🇭 泰国铢（THB）
+- 🇲🇾 马来西亚元（MYR）
 
+## 🚀 快速开始
 
-## 2. 近期亚洲汇率相关新闻
+### 系统要求
 
-1. **日本**
+- Node.js 18+ 
+- Python 3.8+
+- bash shell (Linux/macOS)
 
-   * **日本央行政策分歧**
-     * 日本央行5月削减国债购买规模（4755亿→4250亿日元），被视为退出超宽松政策的信号，但内部对加息时机存在分歧
-     * **总结**：政策不确定性加剧日元波动，JPY/CNY近期报4.9545（7月7日中间价）
-     * **未来影响**：若日本央行加息滞后于通胀（核心CPI达3.7%），日元可能**进一步贬值**至5.20区间；干预信号（如岸田文雄表态）或短期提振日元
+### 一键启动
 
+```bash
+# 克隆项目
+git clone xxx
+cd ./-
+
+# 一键启动系统
+./start_system.sh
+```
+
+启动脚本会自动：
+1. 安装所有依赖
+2. 配置环境变量  
+3. 启动前端服务器 (localhost:3000)
+4. 启动后端API服务 (localhost:5002)
+5. 启动预测模型服务
+
+### 一键停止
+
+```bash
+./stop_system.sh
+```
+
+### 手动安装（可选）
+
+如果需要手动控制安装过程：
+
+```bash
+# 1. 安装前端依赖
+cd frontend
+npm install
+# 或使用 yarn/pnpm
+# yarn install
+# pnpm install
+
+# 2. 安装Python依赖
+cd ../结合新闻情感预测
+pip install -r requirements.txt
+
+# 3. 启动服务
+cd ../frontend
+npm run dev
+```
+
+## 📦 项目结构
+
+```
+forex-copilot/
+├── 📝 README.md                    # 项目说明文档
+├── 🚀 start_system.sh             # 一键启动脚本
+├── 🛑 stop_system.sh              # 一键停止脚本
+├── ⚙️ setup_env.sh                # 环境配置脚本
+│
+├── 🎨 frontend/                    # Next.js前端应用
+│   ├── package.json               # 前端依赖配置
+│   ├── app/                       # Next.js应用目录
+│   ├── components/                # React组件
+│   ├── scripts/                   # 后端服务脚本
+│   │   ├── advanced-finance-backend.py
+│   │   └── test_real_time_rates.py
+│   └── ...
+│
+├── 🧠 结合新闻情感预测/            # AI预测模型
+│   ├── requirements.txt           # Python依赖
+│   ├── predict_api_*.py          # 各种预测API
+│   ├── *.csv                     # 历史数据
+│   └── news_sentiment/           # 新闻情感数据
+│
+├── 📊 Rate LSTM/                   # LSTM模型数据
+├── 📚 doc/                         # 项目文档
+├── 💾 code/                        # 核心代码
+└── 📋 logs/                        # 系统日志
+```
+
+## 🔧 核心功能
+
+### 1. 智能预测引擎
+
+- **Transformer-LSTM模型**: 结合价格时序和市场情感的多模态预测
+- **新闻情感分析**: 实时分析金融新闻对汇率的影响
+- **技术指标计算**: RSI、MACD、布林带等专业指标
+
+### 2. 实时汇率服务
+
+- **多源数据**: 集成多个汇率API确保数据可靠性
+- **自动降级**: API故障时自动切换备用数据源
+- **缓存优化**: 智能缓存减少API调用次数
+
+### 3. 策略分析系统
+
+- **多渠道比较**: 银行、机场、ATM、在线兑换等多种渠道
+- **成本分析**: 综合手续费、汇率差价、风险评估
+- **个性化推荐**: 基于用户偏好的智能推荐算法
+
+### 4. 用户界面
+
+- **响应式设计**: 支持桌面和移动设备
+- **实时更新**: 汇率和预测数据实时刷新
+- **交互可视化**: 图表展示汇率趋势和预测结果
+
+## 🌐 API接口
+
+### 前端API (localhost:3000/api/)
+
+```bash
+# 汇率预测
+POST /api/rate-prediction
+Body: {
+  "fromCurrency": "CNY",
+  "toCurrency": "JPY", 
+  "days": 20,
+  "modelType": "transformer"
+}
+
+# 实时汇率
+POST /api/real-time-rate  
+Body: {
+  "fromCurrency": "CNY",
+  "toCurrency": "JPY"
+}
+```
+
+### 后端服务API (localhost:5002/)
+
+```bash
+# 健康检查
+GET /health
+
+# 高级策略分析
+POST /analyze_advanced_strategy
+
+# 实时汇率查询
+POST /get_real_time_rate
+
+# 可用渠道查询
+POST /get_available_channels
+```
+
+## 📊 系统监控
+
+访问以下地址查看系统状态：
+
+- **前端应用**: http://localhost:3000
+- **后端API**: http://localhost:5002/health
+- **系统日志**: `./logs/backend.log`
+
+## 🔧 配置说明
+
+### 环境变量
+
+系统会自动配置以下环境变量：
+
+```bash
+# 汇率API配置
+EXCHANGE_RATE_API_KEY=your_api_key_here
+
+# 数据库配置  
+DB_PATH=./data/exchange_rates.db
+
+# 服务端口
+FRONTEND_PORT=3000
+BACKEND_PORT=5002
+```
+
+### 自定义配置
+
+1. **汇率API密钥**: 编辑 `frontend/.env.local` 添加API密钥
+2. **模型参数**: 修改 `结合新闻情感预测/predict_api_*.py` 中的模型配置
+3. **界面主题**: 编辑 `frontend/tailwind.config.ts` 自定义样式
+
+## 🧪 测试
+
+```bash
+# 测试实时汇率API
+cd frontend/scripts
+python3 test_real_time_rates.py
+
+# 测试前端组件
+cd frontend
+npm run test
+
+# 测试预测模型
+cd 结合新闻情感预测
+python3 predict_api_multimodal_transformer.py JPY 5
+```
+
+## 🚨 故障排除
+
+### 常见问题
+
+1. **端口被占用**
+   ```bash
+   # 查看端口占用
+   lsof -i :3000
+   lsof -i :5002
    
+   # 杀死进程
+   ./stop_system.sh
+   ```
 
-   * **美日贸易摩擦**
+2. **依赖安装失败**
+   ```bash
+   # 清理缓存重新安装
+   rm -rf frontend/node_modules
+   rm frontend/package-lock.json
+   ./start_system.sh
+   ```
 
-     * 特朗普拟对日本汽车加征25%关税（7月9日生效），美元/日元一度跌至142.70后反弹
+3. **Python模块找不到**
+   ```bash
+   # 重新安装Python依赖
+   cd 结合新闻情感预测
+   pip install -r requirements.txt --force-reinstall
+   ```
 
-     * **总结**：关税威胁压制日元，但避险属性部分抵消利空。
-
-     * 未来影响：若关税落地，JPY/CNY或跌至5.10；若谈判缓和，可能反弹至4.85
-
-       
-
-2. **新加坡元（SGD/CNY）**
-
-   **汇率稳定与金融中心地位**
-
-   - SGD/CNY近期稳定在5.61-5.64区间，受益于新加坡金管局汇率政策及美元走弱
-
-   - **总结**：新元作为避险货币**表现稳健**。
-
-   - 未来影响：若美联储降息预期升温，SGD/CNY或升至5.70；若香港资本流入增加（利率倒挂缓解），可能承压
-
-     
-
-3. **韩元**
-
-   * **政治动荡与经济下行**
-
-     - 韩国戒严风波引发外资净流出3万亿韩元，KRW/CNY跌至190.51（15年新低）；央行下调2025年GDP增速至1.9%
-     - **总结**：政治风险叠加经济疲软，韩元成亚洲最弱货币之一。
-     - **未来影响**：若政局未稳，KRW/CNY或下探200；若美国关税豁免延长（7月9日截止），可能反弹至185
-
-   * **半导体出口承压**
-
-     - 美国拟对韩芯片加税，三星股价遭抛售，韩元贬值加剧输入型通胀
-
-     - **总结**：出口依赖型经济受外部冲击显著。
-
-     - 未来影响：全球芯片需求回暖前，韩元难有持续反弹
-
-       
-
-4. **泰铢**
-
-   **政治与经济双重风险**
-
-   - 泰国总理被暂停职务致预算延迟，三菱日联预测THB/CNY三季度跌至33.20（现报4.5227）
-   - **总结**：政治真空期削弱财政刺激，旅游业复苏（中国游客回流）仅部分对冲风险。
-   - 未来影响：若美国对东南亚加税（7月9日），THB/CNY或贬至4.60
-
+4. **实时汇率获取失败**
+   ```bash
+   # 检查网络连接
+   ./check_network.sh
    
+   # 手动测试API
+   curl -X POST http://localhost:5002/get_real_time_rate \
+     -H "Content-Type: application/json" \
+     -d '{"from_currency": "CNY", "to_currency": "JPY"}'
+   ```
 
-5. **港币**
+### 日志查看
 
-   **联系汇率制压力**
+```bash
+# 查看系统启动日志
+tail -f nohup.out
 
-   - 港元利率倒挂（0.01% vs 美元4%），金管局动用200亿港元维稳，HKD/CNY报0.91617
-   - **总结**：套利机制失灵反映资本外流担忧。
-   - 未来影响：若美联储降息，港元压力缓解；否则或触及弱方兑换保证7.85
+# 查看后端服务日志  
+tail -f logs/backend.log
 
-   
+# 查看前端开发日志
+cd frontend && npm run dev
+```
 
-6. **马来西亚**
+## 📈 性能优化
 
-   **贸易缓和提振汇率**
+- **缓存策略**: 汇率数据缓存30秒，减少API调用
+- **模型优化**: 预测模型支持批量处理，提高吞吐量
+- **前端优化**: 使用Next.js SSR和组件懒加载
 
-   - 美马关税谈判进展推动MYR/CNY升至1.6971（9个月新高），出口信心回升
+## 🔒 安全说明
 
-     **总结**：林吉特受益于大宗商品价格反弹及美元疲软。
+- API密钥通过环境变量管理，不在代码中硬编码
+- 所有外部API调用都有超时和错误处理
+- 用户输入经过验证和过滤
+- 生产环境建议使用HTTPS
 
-   - 未来影响：若美国7月9日达成区域贸易协议，MYR/CNY或突破1.71；若原油价格下跌，可能回调
+## 🤝 贡献指南
 
-   
+1. Fork项目
+2. 创建功能分支: `git checkout -b feature/amazing-feature`
+3. 提交更改: `git commit -m 'Add amazing feature'`
+4. 推送分支: `git push origin feature/amazing-feature`  
+5. 打开Pull Request
 
-   ### **关键时间线总结**
+## 📄 许可证
 
-   |  **日期**  | **货币对** |           **事件**           |         **汇率影响**          |
-   | :--------: | :--------: | :--------------------------: | :---------------------------: |
-   | 2023-10-23 |  JPY/CNY   |    日元跌至145.5（美元）     |       年内贬值15%**2**        |
-   | 2024-12-03 |  KRW/CNY   |    韩国戒严令引发外资撤离    |    KRW/CNY跌至190.51**6**     |
-   | 2023-07-06 |  SGD/CNY   |  新元升至5.086（年内新高）   |    资本避险需求增加**10**     |
-   | 2023-04-21 |  THB/CNY   |   外资抛售泰股债，泰铢贬值   |     旅游业支撑有限**14**      |
-   | 2025-06-26 |  HKD/CNY   |   港元触及7.85，金管局干预   |        短期企稳**15**         |
-   | 2025-05-05 |  MYR/CNY   | 林吉特升至1.7315（两年新高） | 出口回暖+美国降息**19****20** |
+本项目采用 MIT 许可证 - 详情请查看 [LICENSE](LICENSE) 文件
+
+## 📞 联系我们
+
+- **项目维护**: Group 5 Team
+- **技术支持**: 通过GitHub Issues提交问题
+- **功能建议**: 欢迎提交Enhancement请求
+
+---
+
+**🎯 让智能化的数据分析为您的换汇决策提供最佳指导！**
 
    
 

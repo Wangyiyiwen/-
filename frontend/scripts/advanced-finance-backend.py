@@ -5,13 +5,18 @@ import time
 import random
 from datetime import datetime, timedelta
 import numpy as np
+import requests
+import logging
 
 app = Flask(__name__)
 CORS(app)
 
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+
 class AdvancedCurrencyAnalyzer:
     def __init__(self):
-        self.supported_currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KRW', 'AUD', 'CAD', 'CHF', 'HKD']
+        self.supported_currencies = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'KRW', 'AUD', 'CAD', 'CHF', 'HKD', 'SGD', 'THB', 'MYR']
         
         # 定义兑换渠道
         self.exchange_channels = {
@@ -474,16 +479,119 @@ class AdvancedCurrencyAnalyzer:
         return recommendations
     
     def _get_base_rate(self, from_currency, to_currency):
-        """获取基础汇率"""
-        # 示例汇率，实际应用中应该从实时数据源获取
-        rates = {
+        """获取基础汇率 - 优先使用实时API，失败时使用备用数据"""
+        try:
+            # 尝试从实时API获取汇率
+            real_time_rate = self._fetch_real_time_rate(from_currency, to_currency)
+            if real_time_rate:
+                logging.info(f"获取实时汇率成功: {from_currency}/{to_currency} = {real_time_rate}")
+                return real_time_rate
+        except Exception as e:
+            logging.warning(f"实时汇率获取失败: {e}，使用备用汇率")
+        
+        # 备用汇率数据（当实时API不可用时使用）
+        fallback_rates = {
             'USDCNY': 7.2345,
             'EURCNY': 7.8901,
             'GBPCNY': 9.1234,
-            'JPYCNY': 0.0543,
+            'JPYCNY': 0.0489,  # 更新为实际JPY汇率
+            'CNYJPY': 20.45,   # CNY到JPY
+            'CNYSGD': 5.20,    # CNY到SGD
+            'CNYHKD': 0.92,    # CNY到HKD
             'CNYKRW': 185.67,
+            'CNYTHB': 0.197,   # CNY到THB
+            'CNYMYR': 1.58,    # CNY到MYR
         }
-        return rates.get(f'{from_currency}{to_currency}', 1.0)
+        
+        rate_key = f'{from_currency}{to_currency}'
+        reverse_key = f'{to_currency}{from_currency}'
+        
+        if rate_key in fallback_rates:
+            return fallback_rates[rate_key]
+        elif reverse_key in fallback_rates:
+            return 1.0 / fallback_rates[reverse_key]
+        else:
+            logging.warning(f"未找到汇率对: {from_currency}/{to_currency}，使用默认值1.0")
+            return 1.0
+    
+    def _fetch_real_time_rate(self, from_currency, to_currency):
+        """从实时API获取汇率"""
+        try:
+            # 方案1: 使用 exchangerate-api.com (免费tier每月1500次请求)
+            api_key = "YOUR_API_KEY"  # 如果有API key可以填入
+            
+            # 免费的API (无需API key)
+            free_apis = [
+                {
+                    'name': 'exchangerate-api',
+                    'url': f'https://api.exchangerate-api.com/v4/latest/{from_currency}',
+                    'parser': lambda data: data.get('rates', {}).get(to_currency)
+                },
+                {
+                    'name': 'fixer.io',
+                    'url': f'https://api.fixer.io/latest?base={from_currency}&symbols={to_currency}',
+                    'parser': lambda data: data.get('rates', {}).get(to_currency)
+                },
+                {
+                    'name': 'currencylayer', 
+                    'url': f'https://apilayer.net/api/live?access_key=free&currencies={to_currency}&source={from_currency}&format=1',
+                    'parser': lambda data: data.get('quotes', {}).get(f'{from_currency}{to_currency}')
+                }
+            ]
+            
+            # 尝试每个API
+            for api in free_apis:
+                try:
+                    response = requests.get(api['url'], timeout=5)
+                    if response.status_code == 200:
+                        data = response.json()
+                        rate = api['parser'](data)
+                        if rate and isinstance(rate, (int, float)) and rate > 0:
+                            logging.info(f"从 {api['name']} 获取汇率成功: {rate}")
+                            return float(rate)
+                except Exception as api_error:
+                    logging.warning(f"{api['name']} API 失败: {api_error}")
+                    continue
+            
+            # 如果所有免费API都失败，尝试一个简单的汇率计算
+            return self._calculate_cross_rate(from_currency, to_currency)
+            
+        except Exception as e:
+            logging.error(f"实时汇率获取完全失败: {e}")
+            return None
+    
+    def _calculate_cross_rate(self, from_currency, to_currency):
+        """计算交叉汇率（通过USD中转）"""
+        try:
+            if from_currency == 'USD':
+                # 直接获取USD到目标货币的汇率
+                response = requests.get(f'https://api.exchangerate-api.com/v4/latest/USD', timeout=3)
+                if response.status_code == 200:
+                    data = response.json()
+                    return data.get('rates', {}).get(to_currency)
+            elif to_currency == 'USD':
+                # 获取源货币到USD的汇率
+                response = requests.get(f'https://api.exchangerate-api.com/v4/latest/{from_currency}', timeout=3)
+                if response.status_code == 200:
+                    data = response.json()
+                    return data.get('rates', {}).get('USD')
+            else:
+                # 通过USD计算交叉汇率
+                usd_response = requests.get('https://api.exchangerate-api.com/v4/latest/USD', timeout=3)
+                if usd_response.status_code == 200:
+                    usd_data = usd_response.json()
+                    usd_rates = usd_data.get('rates', {})
+                    
+                    from_to_usd = 1.0 / usd_rates.get(from_currency, 1.0)  # 源货币到USD
+                    usd_to_target = usd_rates.get(to_currency, 1.0)  # USD到目标货币
+                    
+                    cross_rate = from_to_usd * usd_to_target
+                    if cross_rate > 0:
+                        return cross_rate
+        except Exception as e:
+            logging.error(f"交叉汇率计算失败: {e}")
+        
+        return None
 
 # 创建分析器实例
 analyzer = AdvancedCurrencyAnalyzer()
@@ -556,17 +664,58 @@ def get_available_channels():
     except Exception as e:
         return jsonify({'error': f'获取渠道信息失败: {str(e)}'}), 500
 
+@app.route('/get_real_time_rate', methods=['POST'])
+def get_real_time_rate():
+    """获取实时汇率"""
+    try:
+        data = request.get_json()
+        from_currency = data.get('from_currency', 'CNY')
+        to_currency = data.get('to_currency', 'USD')
+        
+        # 验证货币代码
+        if from_currency not in analyzer.supported_currencies:
+            return jsonify({'error': f'不支持的源货币: {from_currency}'}), 400
+        if to_currency not in analyzer.supported_currencies:
+            return jsonify({'error': f'不支持的目标货币: {to_currency}'}), 400
+        
+        # 获取实时汇率
+        rate = analyzer._get_base_rate(from_currency, to_currency)
+        
+        # 尝试获取实时汇率详情
+        try:
+            real_time_rate = analyzer._fetch_real_time_rate(from_currency, to_currency)
+            is_real_time = real_time_rate is not None
+        except:
+            real_time_rate = None
+            is_real_time = False
+        
+        return jsonify({
+            'success': True,
+            'from_currency': from_currency,
+            'to_currency': to_currency,
+            'rate': rate,
+            'real_time_rate': real_time_rate,
+            'is_real_time': is_real_time,
+            'timestamp': datetime.now().isoformat(),
+            'rate_pair': f'{from_currency}/{to_currency}',
+            'inverse_rate': round(1.0 / rate, 6) if rate > 0 else 0
+        })
+        
+    except Exception as e:
+        return jsonify({'error': f'获取汇率失败: {str(e)}'}), 500
+
 if __name__ == '__main__':
     print("启动高级货币兑换策略分析服务...")
-    print("服务地址: http://localhost:5001")
-    print("健康检查: http://localhost:5001/health")
-    print("高级策略分析: POST http://localhost:5001/analyze_advanced_strategy")
-    print("可用渠道查询: POST http://localhost:5001/get_available_channels")
+    print("服务地址: http://localhost:5002")
+    print("健康检查: http://localhost:5002/health")
+    print("高级策略分析: POST http://localhost:5002/analyze_advanced_strategy")
+    print("可用渠道查询: POST http://localhost:5002/get_available_channels")
+    print("实时汇率查询: POST http://localhost:5002/get_real_time_rate")
     print("按 Ctrl+C 停止服务")
     
     app.run(
         host='0.0.0.0',
-        port=5001,
+        port=5002,
         debug=True,
         threaded=True
     )
