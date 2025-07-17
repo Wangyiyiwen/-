@@ -11,10 +11,10 @@ echo ""
 
 # 检查并安装Python依赖
 echo "📦 检查Python依赖..."
-#python3 -c "import flask, flask_cors, transformers, torch" 2>/dev/null || {
-#    echo "⚠️  安装缺失的Python依赖..."
-#    python3 -m pip install flask flask-cors transformers torch --user
-#}
+python3 -c "import flask, flask_cors, transformers, torch" 2>/dev/null || {
+    echo "⚠️  安装缺失的Python依赖..."
+    python3 -m pip install flask flask-cors transformers torch --user
+}
 
 # 启动Python后端服务（情感分析）
 echo "🧠 启动情感分析后端服务..."
