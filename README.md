@@ -1,320 +1,300 @@
-# Forex Copilot - 智能货币兑换策略系统
+**Forex Copilot - Intelligent Currency Exchange Strategy System**
 
 **Group 5: Forex Copilot**
 
-一个基于深度学习和实时数据的智能换汇策略分析系统，帮助用户在最佳时机以最优成本进行货币兑换。
+An intelligent currency-exchange strategy analysis system based on deep learning and real-time data, helping users exchange currencies at the optimal time and lowest cost.
 
-## 🌟 系统特性
+## 🌟 System Features
 
-- **🤖 AI驱动预测**: 集成Transformer-LSTM模型，结合价格趋势和新闻情感分析
-- **📊 实时汇率**: 多源实时汇率API，确保数据准确性
-- **🎯 智能策略**: 多渠道成本分析，个性化推荐最优兑换方案
-- **📱 现代化界面**: Next.js + TypeScript构建的响应式Web应用
-- **🔄 自动化部署**: 一键启动/停止脚本，零配置运行
+* **🤖 AI-Driven Forecasting**: Integrates a Transformer-LSTM model combining price trends and news sentiment analysis.
+* **📊 Real-Time Rates**: Multi-source real-time exchange-rate APIs ensure data accuracy.
+* **🎯 Smart Strategies**: Multi-channel cost analysis and personalized recommendations for the best exchange options.
+* **📱 Modern Interface**: A responsive web application built with Next.js and TypeScript.
+* **🔄 Automated Deployment**: One-click scripts to start/stop the system with zero configuration.
 
-## 💱 支持货币
+## 💱 Supported Currencies
 
-从人民币（CNY）换向亚洲地区主流货币：
-- 🇯🇵 日元（JPY）
-- 🇸🇬 新加坡元（SGD）  
-- 🇭🇰 港元（HKD）
-- 🇰🇷 韩元（KRW）
-- 🇹🇭 泰国铢（THB）
-- 🇲🇾 马来西亚元（MYR）
+Exchange from Chinese Yuan (CNY) to major Asian currencies:
 
-## 🚀 快速开始
+* 🇯🇵 Japanese Yen (JPY)
+* 🇸🇬 Singapore Dollar (SGD)
+* 🇭🇰 Hong Kong Dollar (HKD)
+* 🇰🇷 South Korean Won (KRW)
+* 🇹🇭 Thai Baht (THB)
+* 🇲🇾 Malaysian Ringgit (MYR)
 
-### 系统要求
+## 🚀 Quick Start
 
-- Node.js 18+ 
-- Python 3.8+
-- bash shell (Linux/macOS)
+### System Requirements
 
-### 一键启动
+* Node.js 18+
+* Python 3.8+
+* Bash shell (Linux/macOS)
+
+### One-Click Launch
 
 ```bash
-# 克隆项目
-git clone xxx
-cd ./-
+# Clone the repository
+git clone <repo-url>
+cd forex-copilot
 
-# 一键启动系统
+# Start the system
 ./start_system.sh
 ```
 
-启动脚本会自动：
-1. 安装所有依赖
-2. 配置环境变量  
-3. 启动前端服务器 (localhost:3000)
-4. 启动后端API服务 (localhost:5002)
-5. 启动预测模型服务
+The startup script will automatically:
 
-### 一键停止
+1. Install all dependencies
+2. Configure environment variables
+3. Launch the front-end server (localhost:3000)
+4. Launch the back-end API service (localhost:5002)
+5. Launch the prediction model service
+
+### One-Click Shutdown
 
 ```bash
 ./stop_system.sh
 ```
 
-### 手动安装（可选）
+### Manual Installation (Optional)
 
-如果需要手动控制安装过程：
+If you prefer manual control over the setup:
 
 ```bash
-# 1. 安装前端依赖
+# 1. Install front-end dependencies
 cd frontend
 npm install
-# 或使用 yarn/pnpm
-# yarn install
-# pnpm install
+# or yarn install
+# or pnpm install
 
-# 2. 安装Python依赖
-cd ../结合新闻情感预测
+# 2. Install Python dependencies
+cd ../news-sentiment-prediction
 pip install -r requirements.txt
 
-# 3. 启动服务
+# 3. Start the services
+# Front-end
 cd ../frontend
 npm run dev
+# Back-end
+# (Ensure Python environment is active)
+python3 ../news-sentiment-prediction/predict_api_transformer.py
 ```
 
-## 📦 项目结构
+## 📦 Project Structure
 
 ```
 forex-copilot/
-├── 📝 README.md                    # 项目说明文档
-├── 🚀 start_system.sh             # 一键启动脚本
-├── 🛑 stop_system.sh              # 一键停止脚本
-├── ⚙️ setup_env.sh                # 环境配置脚本
+├── README.md                  # Project documentation
+├── start_system.sh            # One-click start script
+├── stop_system.sh             # One-click stop script
+├── setup_env.sh               # Environment configuration script
 │
-├── 🎨 frontend/                    # Next.js前端应用
-│   ├── package.json               # 前端依赖配置
-│   ├── app/                       # Next.js应用目录
-│   ├── components/                # React组件
-│   ├── scripts/                   # 后端服务脚本
+├── frontend/                  # Next.js front-end application
+│   ├── package.json           # Front-end dependencies
+│   ├── app/                   # Next.js app directory
+│   ├── components/            # React components
+│   ├── scripts/               # Auxiliary backend scripts
 │   │   ├── advanced-finance-backend.py
 │   │   └── test_real_time_rates.py
 │   └── ...
 │
-├── 🧠 结合新闻情感预测/            # AI预测模型
-│   ├── requirements.txt           # Python依赖
-│   ├── predict_api_*.py          # 各种预测API
-│   ├── *.csv                     # 历史数据
-│   └── news_sentiment/           # 新闻情感数据
+├── news-sentiment-prediction/ # AI prediction models
+│   ├── requirements.txt       # Python dependencies
+│   ├── predict_api_*.py       # Prediction API scripts
+│   ├── *.csv                  # Historical datasets
+│   └── news_sentiment/        # News sentiment datasets
 │
-├── 📊 Rate LSTM/                   # LSTM模型数据
-├── 📚 doc/                         # 项目文档
-├── 💾 code/                        # 核心代码
-└── 📋 logs/                        # 系统日志
+├── Rate_LSTM/                 # LSTM model data
+├── doc/                       # Documentation files
+├── code/                      # Core code
+└── logs/                      # System logs
 ```
 
-## 🔧 核心功能
+## 🔧 Core Features
 
-### 1. 智能预测引擎
+### 1. Intelligent Forecast Engine
 
-- **Transformer-LSTM模型**: 结合价格时序和市场情感的多模态预测
-- **新闻情感分析**: 实时分析金融新闻对汇率的影响
-- **技术指标计算**: RSI、MACD、布林带等专业指标
+* **Transformer-LSTM Model**: A multi-modal predictor combining price time series and market sentiment.
+* **News Sentiment Analysis**: Analyzes financial news in real time to gauge market impact.
+* **Technical Indicators**: Computes RSI, MACD, Bollinger Bands, and other professional metrics.
 
-### 2. 实时汇率服务
+### 2. Real-Time Rate Service
 
-- **多源数据**: 集成多个汇率API确保数据可靠性
-- **自动降级**: API故障时自动切换备用数据源
-- **缓存优化**: 智能缓存减少API调用次数
+* **Multi-Source Data**: Integrates multiple rate APIs for reliability.
+* **Auto-Failover**: Switches to backup data sources if an API fails.
+* **Cache Optimization**: Smart caching reduces external API calls.
 
-### 3. 策略分析系统
+### 3. Strategy Analysis System
 
-- **多渠道比较**: 银行、机场、ATM、在线兑换等多种渠道
-- **成本分析**: 综合手续费、汇率差价、风险评估
-- **个性化推荐**: 基于用户偏好的智能推荐算法
+* **Channel Comparison**: Compares banks, airports, ATMs, online exchangers, and more.
+* **Cost Analysis**: Considers fees, rate spreads, and risk factors.
+* **Personalized Recommendations**: Algorithms tailor suggestions to user preferences.
 
-### 4. 用户界面
+### 4. User Interface
 
-- **响应式设计**: 支持桌面和移动设备
-- **实时更新**: 汇率和预测数据实时刷新
-- **交互可视化**: 图表展示汇率趋势和预测结果
+* **Responsive Design**: Works on both desktop and mobile devices.
+* **Real-Time Updates**: Live refresh of rates and forecasts.
+* **Interactive Visuals**: Charts display rate trends and predicted outcomes.
 
-## 🌐 API接口
+## 🌐 API Endpoints
 
-### 前端API (localhost:3000/api/)
+### Front-End API (localhost:3000/api/)
 
 ```bash
-# 汇率预测
+# Rate Prediction
 POST /api/rate-prediction
 Body: {
   "fromCurrency": "CNY",
-  "toCurrency": "JPY", 
+  "toCurrency": "JPY",
   "days": 20,
   "modelType": "transformer"
 }
 
-# 实时汇率
-POST /api/real-time-rate  
+# Real-Time Rate
+POST /api/real-time-rate
 Body: {
   "fromCurrency": "CNY",
   "toCurrency": "JPY"
 }
 ```
 
-### 后端服务API (localhost:5002/)
+### Back-End Service API (localhost:5002/)
 
 ```bash
-# 健康检查
+# Health Check
 GET /health
 
-# 高级策略分析
+# Advanced Strategy Analysis
 POST /analyze_advanced_strategy
 
-# 实时汇率查询
+# Real-Time Rate Query
 POST /get_real_time_rate
 
-# 可用渠道查询
+# Available Channels
 POST /get_available_channels
 ```
 
-## 📊 系统监控
+## 📊 System Monitoring
 
-访问以下地址查看系统状态：
+* **Front-End URL**: [http://localhost:3000](http://localhost:3000)
+* **Back-End Health**: [http://localhost:5002/health](http://localhost:5002/health)
+* **Logs**: `logs/backend.log`
 
-- **前端应用**: http://localhost:3000
-- **后端API**: http://localhost:5002/health
-- **系统日志**: `./logs/backend.log`
+## 🔧 Configuration
 
-## 🔧 配置说明
+### Environment Variables
 
-### 环境变量
-
-系统会自动配置以下环境变量：
+The startup script sets these by default:
 
 ```bash
-# 汇率API配置
 EXCHANGE_RATE_API_KEY=your_api_key_here
-
-# 数据库配置  
 DB_PATH=./data/exchange_rates.db
-
-# 服务端口
 FRONTEND_PORT=3000
 BACKEND_PORT=5002
 ```
 
-### 自定义配置
+### Custom Settings
 
-1. **汇率API密钥**: 编辑 `frontend/.env.local` 添加API密钥
-2. **模型参数**: 修改 `结合新闻情感预测/predict_api_*.py` 中的模型配置
-3. **界面主题**: 编辑 `frontend/tailwind.config.ts` 自定义样式
+1. **API Key**: Add to `frontend/.env.local`.
+2. **Model Parameters**: Edit in `news-sentiment-prediction/predict_api_*.py`.
+3. **UI Theme**: Configure in `frontend/tailwind.config.ts`.
 
-## 🧪 测试
+## 🧪 Testing
 
 ```bash
-# 测试实时汇率API
+# Test real-time rate API
 cd frontend/scripts
 python3 test_real_time_rates.py
 
-# 测试前端组件
+# Run front-end component tests
 cd frontend
 npm run test
 
-# 测试预测模型
-cd 结合新闻情感预测
+# Test prediction model
+cd news-sentiment-prediction
 python3 predict_api_multimodal_transformer.py JPY 5
 ```
 
-## 🚨 故障排除
+## 🚨 Troubleshooting
 
-### 常见问题
+### Common Issues
 
-1. **端口被占用**
+1. **Port in Use**
+
    ```bash
-   # 查看端口占用
    lsof -i :3000
    lsof -i :5002
-   
-   # 杀死进程
    ./stop_system.sh
    ```
 
-2. **依赖安装失败**
+2. **Dependency Installation Errors**
+
    ```bash
-   # 清理缓存重新安装
    rm -rf frontend/node_modules
    rm frontend/package-lock.json
    ./start_system.sh
    ```
 
-3. **Python模块找不到**
+3. **Missing Python Modules**
+
    ```bash
-   # 重新安装Python依赖
-   cd 结合新闻情感预测
+   cd news-sentiment-prediction
    pip install -r requirements.txt --force-reinstall
    ```
 
-4. **实时汇率获取失败**
+4. **Real-Time Rate Failures**
+
    ```bash
-   # 检查网络连接
    ./check_network.sh
-   
-   # 手动测试API
    curl -X POST http://localhost:5002/get_real_time_rate \
      -H "Content-Type: application/json" \
-     -d '{"from_currency": "CNY", "to_currency": "JPY"}'
+     -d '{"from_currency":"CNY","to_currency":"JPY"}'
    ```
 
-### 日志查看
+### Viewing Logs
 
 ```bash
-# 查看系统启动日志
+# Tail application logs
 tail -f nohup.out
 
-# 查看后端服务日志  
+# Backend logs
 tail -f logs/backend.log
 
-# 查看前端开发日志
+# Front-end dev logs
 cd frontend && npm run dev
 ```
 
-## 📈 性能优化
+## 📈 Performance Optimization
 
-- **缓存策略**: 汇率数据缓存30秒，减少API调用
-- **模型优化**: 预测模型支持批量处理，提高吞吐量
-- **前端优化**: 使用Next.js SSR和组件懒加载
+* **Caching**: Cache rates for 30 seconds to reduce API calls.
+* **Model Batching**: Support batch predictions for higher throughput.
+* **Front-End**: Employ Next.js SSR and lazy-loaded components.
 
-## 🔒 安全说明
+## 🔒 Security
 
-- API密钥通过环境变量管理，不在代码中硬编码
-- 所有外部API调用都有超时和错误处理
-- 用户输入经过验证和过滤
-- 生产环境建议使用HTTPS
+* API keys managed via environment variables—no hardcoding.
+* External calls have timeouts and error handling.
+* Input validation and sanitization for user requests.
+* HTTPS recommended for production.
 
-## 🤝 贡献指南
+## 🤝 Contribution Guide
 
-1. Fork项目
-2. 创建功能分支: `git checkout -b feature/amazing-feature`
-3. 提交更改: `git commit -m 'Add amazing feature'`
-4. 推送分支: `git push origin feature/amazing-feature`  
-5. 打开Pull Request
+1. Fork the repo
+2. Create a branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m "Add amazing feature"`
+4. Push: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
-## 📄 许可证
+## 📄 License
 
-本项目采用 MIT 许可证 - 详情请查看 [LICENSE](LICENSE) 文件
+This project is licensed under the MIT License—see the [LICENSE](LICENSE) file for details.
 
-## 📞 联系我们
+## 📞 Contact
 
-- **项目维护**: Group 5 Team
-- **技术支持**: 通过GitHub Issues提交问题
-- **功能建议**: 欢迎提交Enhancement请求
+* **Maintainers**: Group 5 Team
+* **Support**: Submit issues on GitHub
+* **Feature Requests**: Open enhancement requests
 
 ---
 
-**🎯 让智能化的数据分析为您的换汇决策提供最佳指导！**
-
-   
-
-   
-
-   
-
-   
-
-   
-
-   
-
-   
+**🎯 Let intelligent analytics guide your currency-exchange decisions!**
